@@ -56,6 +56,8 @@ export function configureFakeBackend() {
                 users.push(user);
                 localStorage.setItem('users', JSON.stringify(users));
 
+                console.log('users', JSON.stringify(users));
+
                 return ok();
             }
     

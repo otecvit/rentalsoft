@@ -59,8 +59,6 @@ function register(user) {
         body: JSON.stringify(user)
     };
 
-    console.log('requestOptions', requestOptions);
-
     //return fetch(`${config.apiUrl}/users/register`, requestOptions).then(handleResponse);
     return fetch(`http://crm.mirprokata.by/api_v2/Users/InsertUsers.php`, requestOptions).then(handleResponse);
 }
@@ -86,6 +84,7 @@ function _delete(id) {
 }
 
 function handleResponse(response) {
+    console.log(response);
     return response.text().then(text => {
         const data = text && JSON.parse(text);
         if (!response.ok) {
@@ -99,8 +98,14 @@ function handleResponse(response) {
             return Promise.reject(error);
         }
 
-        console.log(data);
+        console.log('------>', data);
+
+        editLocalStorage(data);
 
         return data;
     });
+}
+
+function editLocalStorage(users) {
+    localStorage.setItem('users', JSON.stringify(users));
 }
