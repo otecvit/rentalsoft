@@ -18,6 +18,10 @@ function login(username, password) {
         body: JSON.stringify({ username, password })
     };
 
+    console.log(requestOptions);    
+
+    return fetch(`http://crm.mirprokata.by/api_v2/Users/AuthenticatetUsers.php`, requestOptions).then(handleResponse);
+    /*
     return fetch(`${config.apiUrl}/users/authenticate`, requestOptions)
         .then(handleResponse)
         .then(user => {
@@ -26,6 +30,7 @@ function login(username, password) {
 
             return user;
         });
+    */
 }
 
 function logout() {
@@ -98,14 +103,12 @@ function handleResponse(response) {
             return Promise.reject(error);
         }
 
-        console.log('------>', data);
-
         editLocalStorage(data);
 
         return data;
     });
 }
 
-function editLocalStorage(users) {
-    localStorage.setItem('users', JSON.stringify(users));
+function editLocalStorage(user) {
+    localStorage.setItem('user', JSON.stringify(user));
 }
