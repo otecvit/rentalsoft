@@ -30,7 +30,7 @@ export function configureFakeBackend() {
             }
 
             // route functions
-
+            
             function authenticate() {
                 const { username, password } = body;
                 const user = users.find(x => x.username === username && x.password === password);
@@ -43,7 +43,7 @@ export function configureFakeBackend() {
                     token: 'fake-jwt-token'
                 });
             }
-
+            
             function register() {
                 const user = body;
     

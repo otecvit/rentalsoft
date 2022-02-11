@@ -7,8 +7,8 @@ export const userActions = {
     login,
     logout,
     register,
-    getAll,
-    delete: _delete
+    /*getAll,
+    delete: _delete*/
 };
 
 function login(username, password, from) {
@@ -46,8 +46,11 @@ function register(user) {
             .then(
                 user => { 
                     dispatch(success());
-                    history.push('/login');
-                    dispatch(alertActions.success('Registration successful'));
+                    dispatch(success_login(user)); // for redirect after registartion
+                    history.push('/');
+                    //history.push('/login');
+                    //dispatch(alertActions.success('Registration successful'));
+                    
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -59,8 +62,9 @@ function register(user) {
     function request(user) { return { type: userConstants.REGISTER_REQUEST, user } }
     function success(user) { return { type: userConstants.REGISTER_SUCCESS, user } }
     function failure(error) { return { type: userConstants.REGISTER_FAILURE, error } }
+    function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
-
+/*
 function getAll() {
     return dispatch => {
         dispatch(request());
@@ -93,3 +97,4 @@ function _delete(id) {
     function success(id) { return { type: userConstants.DELETE_SUCCESS, id } }
     function failure(id, error) { return { type: userConstants.DELETE_FAILURE, id, error } }
 }
+*/
