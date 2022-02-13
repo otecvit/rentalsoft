@@ -9,6 +9,8 @@ import { HomePage } from '../HomePage';
 import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
 
+
+
 function App() {
     const alert = useSelector(state => state.alert);
     const dispatch = useDispatch();
@@ -29,10 +31,15 @@ function App() {
                     }
                     <Router history={history}>
                         <Switch>
-                            <PrivateRoute exact path="/" component={HomePage} />
+                            <PrivateRoute path="/dashboard" component={HomePage} />
+                            <PrivateRoute path="/customers" component={HomePage} />
+                            <Route exact path="/">
+                                <Redirect exact from="/" to="dashboard" />
+                            </Route>
                             <Route path="/login" component={LoginPage} />
                             <Route path="/register" component={RegisterPage} />
                             <Redirect from="*" to="/" />
+                            
                         </Switch>
                     </Router>
                 </div>
@@ -42,3 +49,20 @@ function App() {
 }
 
 export { App };
+
+/*
+
+<PrivateRoute exact path="/" component={HomePage} />
+<Redirect from="*" to="/" />
+*/ 
+
+/**
+                            <PrivateRoute exact path="/dashboard" component={HomePage} />
+                            <PrivateRoute exact path="/customers" component={{main: CustomersPage}} />
+                            
+                            <Route exact path="/">
+                                <Redirect exact from="/" to="dashboard" />
+                            </Route>
+ 
+
+*/

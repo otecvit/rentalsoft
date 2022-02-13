@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { userActions } from '../_actions';
+
+import { CustomersPage } from '../Pages/CustomersPage'
+import { DashBoardPage } from '../Pages/DashBoardPage'
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -22,6 +25,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import PeopleIcon from '@mui/icons-material/People'; 
 
 const drawerWidth = 240;
 
@@ -92,7 +96,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 
-function HomePage() {
+function HomePage(comp) {
+
     
     const user = useSelector(state => state.authentication.user);
 
@@ -119,6 +124,18 @@ function HomePage() {
             </DrawerHeader>
             <Divider />
             <List>
+            <ListItem button key="Dashboard" component={Link} to="/dashboard">
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItem>
+              <ListItem button key="Customers" component={Link} to="/customers">
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Customers" />
+              </ListItem>
               {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
                 <ListItem button key={text}>
                   <ListItemIcon>
@@ -160,7 +177,9 @@ function HomePage() {
               </Typography>
             </Toolbar>
            </AppBar>
-            
+              <Route path="/customers" component={CustomersPage} />
+              <Route path="/dashboard" component={DashBoardPage} />
+              
           </Box>
         </Box>
       );
