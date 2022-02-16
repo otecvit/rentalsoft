@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
-import { Link, Route } from 'react-router-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { userActions } from '../_actions';
+import { PrivateRoute } from '../_components';
+import { history } from '../_helpers';
 
 import { CustomersPage } from '../Pages/CustomersPage'
 import { DashBoardPage } from '../Pages/DashBoardPage'
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -26,6 +29,8 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import PeopleIcon from '@mui/icons-material/People'; 
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 
 const drawerWidth = 240;
 
@@ -63,7 +68,6 @@ const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  width: `calc(100% - ${theme.spacing(9)} - 1px)`,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -95,10 +99,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-
 function HomePage(comp) {
 
-    
+   
     const user = useSelector(state => state.authentication.user);
 
     const theme = useTheme();
@@ -113,18 +116,35 @@ function HomePage(comp) {
     };
 
     return (
-        <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
-          
-          <Drawer variant="permanent" open={open} onMouseEnter={handleDrawerOpen} onMouseLeave={handleDrawerClose}>
-            <DrawerHeader>
-              <IconButton>
-                {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-              </IconButton>
-            </DrawerHeader>
-            <Divider />
-            <List>
-            <ListItem button key="Dashboard" component={Link} to="/dashboard">
+      <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{
+              marginRight: '36px',
+              ...(open && { display: 'none' }),
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Mini variant drawer
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Drawer variant="permanent" open={open} onMouseEnter={handleDrawerOpen} onMouseLeave={handleDrawerClose}>
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <ListItem button key="Dashboard" component={Link} to="/dashboard">
                 <ListItemIcon>
                   <PeopleIcon />
                 </ListItemIcon>
@@ -136,52 +156,38 @@ function HomePage(comp) {
                 </ListItemIcon>
                 <ListItemText primary="Customers" />
               </ListItem>
-              {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-            <Divider />
-            <List>
-              {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-          </Drawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-            
-            <AppBar position="fixed" open={open}>
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                sx={{
-                  marginRight: '36px',
-                  ...(open && { display: 'none' }),
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" noWrap component="div">
-                Mini variant drawer
-              </Typography>
-            </Toolbar>
-           </AppBar>
-              <Route path="/customers" component={CustomersPage} />
-              <Route path="/dashboard" component={DashBoardPage} />
-              
-          </Box>
-        </Box>
+        <List>
+          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+            <ListItem button key={text}>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItem>
+          ))}
+        </List>
+        <Divider />
+        <List>
+          {['All mail', 'Trash', 'Spam'].map((text, index) => (
+            <ListItem button key={text}>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <DrawerHeader />
+          <Switch>
+                    <Route path="/customers" component={CustomersPage} />
+                    <Route path="/dashboard" component={DashBoardPage} />
+                </Switch>
+      </Box>
+    </Box>
+
+
       );
 
 

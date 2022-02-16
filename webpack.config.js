@@ -1,4 +1,5 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = {
     mode: 'development',
@@ -13,11 +14,15 @@ module.exports = {
             }
         ]
     },
+    output: {
+        publicPath: '/'
+    },
     plugins: [new HtmlWebpackPlugin({
         template: './src/index.html'
     })],
     devServer: {
-        historyApiFallback: true
+        historyApiFallback: true,
+        contentBase: path.join(__dirname, 'dist'),
     },
     externals: {
         // global app config object

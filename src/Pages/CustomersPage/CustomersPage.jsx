@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory, Link, Route, Redirect } from "react-router-dom";
+import { useHistory, Link, Route, Redirect, Switch  } from "react-router-dom";
+
+import { EditCustomerPage } from '../CustomersPage/EditCustomerPage'
+
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -22,16 +25,16 @@ function CustomersPage() {
 
     const addCustomers = () => {
         return (
-            <div>
-                field add customers
-            </div>
+            <EditCustomerPage />
         )
     }
 
     return (
         <div>
-            <Route exact path="/customers" component={browseCustomers} />
-            <Route path="/customers/new" component={addCustomers} />   
+            <Switch>
+                <Route path="/customers/new" component={EditCustomerPage}/>
+                <Route path="/customers" component={browseCustomers}/>
+            </Switch>
         </div>
     );
 }
