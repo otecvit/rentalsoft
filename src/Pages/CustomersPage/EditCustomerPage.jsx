@@ -14,23 +14,43 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import RemoveIcon from '@mui/icons-material/Remove';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const defaultValues = {
     name: "",
-    age: 0,
-    gender: "",
-    os: "",
-    favoriteNumber: 0,
+    discount: 0,
+    email: "",
+    website: "",
+    identificationNum: "",
+    iSsuedOn: "",
+    description: "",
+
     phones: [
       {
-        number: "+375295188290",
-        type: "Mobile",
-      },
-      {
-        number: "+375297096096",
+        number: "",
         type: "Mobile",
       },
     ],
+
+    addresses: [
+      {
+        name: "1",
+        type: "Mobile",
+      },
+      {
+        name: "2",
+        type: "Mobile",
+      },
+      {
+        name: "3",
+        type: "Mobile",
+      },
+    ],
+
   };
 
 function EditCustomerPage() {
@@ -38,12 +58,30 @@ function EditCustomerPage() {
     const [formValues, setFormValues] = useState(defaultValues);
     const [selectedBtn, setSelectedBtn] = useState(1);
     const [phonesArr, setPhone] = useState(defaultValues.phones);
+    const [expanded, setExpanded] = React.useState('panel0');
     
     const handleInputChange = (e) => {
       const { name, value } = e.target;
       setFormValues({
         ...formValues,
         [name]: value,
+      });
+    };
+
+    const handleInputChangePhone = (e) => { // меняем значение телефона
+      const { name, value } = e.target;
+      const tmpArr = formValues.phones.map((phone, index) => {
+        if (index === parseInt(name)) { // проверяем поле в котором вносятся изменения
+          return {
+            number: value,
+            type: "Mobile",
+          }
+        }
+        return phone;
+      })
+      setFormValues({
+        ...formValues,
+        phones: [...tmpArr]
       });
     };
 
@@ -68,12 +106,23 @@ function EditCustomerPage() {
 
     };
 
+    const handleDelPhone = (index) => { // удаление номера телефона
+      setFormValues({
+        ...formValues,
+        phones: [...formValues.phones.filter((phone, indexArr) => index !== indexArr )]
+      });
+    }
+
     const handleSubmit = (event) => {
       event.preventDefault();
       console.log(formValues);
     };
 
-    console.log(formValues);
+    const handleChange = (panel) => (event, isExpanded) => {
+      setExpanded(isExpanded ? panel : false);
+    };
+
+
 
     return (
             <form onSubmit={handleSubmit}>
@@ -105,16 +154,15 @@ function EditCustomerPage() {
                           <Grid item xs={12} key={`phone${index}`}>
                             <TextField
                               id={`phone${index}`}
-                              name={`phone${index}`}
+                              name={`${index}`}
                               label="Phone"
                               type="text"
                               size="small"
                               variant="outlined"
                               value={phone.number}
+                              onChange={handleInputChangePhone}
                             />
-                            <IconButton>
-                                      <RemoveIcon/>
-                            </IconButton>
+                            <IconButton onClick={() => handleDelPhone(index)}><RemoveIcon/></IconButton>
                           </Grid>
                         )                        
                       })
@@ -124,13 +172,103 @@ function EditCustomerPage() {
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                        id="age-input"
-                        name="age"
-                        label="Age"
+                        id="discount-input"
+                        name="discount"
+                        label="Discount Persent"
                         type="number"
-                        value={formValues.age}
+                        value={formValues.discount}
                         onChange={handleInputChange}
                     />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                        id="email-input"
+                        name="email"
+                        label="Email"
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={formValues.email}
+                        onChange={handleInputChange}
+                        fullWidth 
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                        id="website-input"
+                        name="website"
+                        label="Website"
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={formValues.website}
+                        onChange={handleInputChange}
+                        fullWidth 
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                        id="identificationNum-input"
+                        name="identificationNum"
+                        label="Identification No"
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={formValues.identificationNum}
+                        onChange={handleInputChange}
+                        fullWidth 
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                        id="iSsuedOn-input"
+                        name="iSsuedOn"
+                        label="Issued On"
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={formValues.iSsuedOn}
+                        onChange={handleInputChange}
+                        fullWidth 
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                        id="description-input"
+                        name="description"
+                        label="Description"
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={formValues.description}
+                        onChange={handleInputChange}
+                        fullWidth 
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    {
+                      formValues.addresses.map((address, index) => {
+                        return (
+                          <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={`panel${index}`}>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls={`panel${index}-content`}
+                              id={`panel${index}bh-header`}
+                            >
+                              <Typography sx={{ width: '33%', flexShrink: 0 }}>
+                                Main address
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Typography>
+                                Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat.
+                                Aliquam eget maximus est, id dignissim quam.
+                              </Typography>
+                            </AccordionDetails>
+                          </Accordion>
+                        );
+                      })
+                    }
                   </Grid>
                   <Grid item xs={12}>
                     <Button variant="contained" color="primary" type="submit">
