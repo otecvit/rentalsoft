@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormLabel from "@material-ui/core/FormLabel";
-import RadioGroup from "@material-ui/core/RadioGroup";
-import Radio from "@material-ui/core/Radio";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import Slider from "@material-ui/core/Slider";
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import ButtonGroup from '@mui/material/ButtonGroup';
-import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import RemoveIcon from '@mui/icons-material/Remove';
 import Accordion from '@mui/material/Accordion';
@@ -28,6 +22,7 @@ const defaultValues = {
     identificationNum: "",
     iSsuedOn: "",
     description: "",
+    status: "normal",
 
     phones: [
       {
@@ -38,17 +33,39 @@ const defaultValues = {
 
     addresses: [
       {
-        name: "1",
-        type: "Mobile",
+        nameAddress: "Main",
+        firstName: "1",
+        lastName: "Mobile",
+        addressLineOne: "",
+        addressLineTwo: "",
+        zipcode: "",
+        city: "",
+        region: "",
+        country: ""
       },
       {
-        name: "2",
-        type: "Mobile",
+        nameAddress: "Saler",
+        firstName: "Anton",
+        lastName: "Barinov",
+        addressLineOne: "",
+        addressLineTwo: "",
+        zipcode: "",
+        city: "",
+        region: "",
+        country: ""
       },
       {
-        name: "3",
-        type: "Mobile",
+        nameAddress: "MainNet",
+        firstName: "1",
+        lastName: "Mobile",
+        addressLineOne: "addressLineOne",
+        addressLineTwo: "addressLineTwo",
+        zipcode: "zipcode",
+        city: "city",
+        region: "region",
+        country: "country"
       },
+
     ],
 
   };
@@ -86,7 +103,6 @@ function EditCustomerPage() {
     };
 
     const handleAddPhone = () => {
-
       const tmpArr = {
         phones: 
         [
@@ -97,13 +113,34 @@ function EditCustomerPage() {
           }
         ]
       };
-
       setFormValues({
         ...formValues,
         ...tmpArr
       });
+    };
 
-
+    const handleAddAddress = () => {
+      const tmpArr = {
+        addresses: 
+        [
+          ...formValues.addresses, 
+          {
+            nameAddress: "Type address",
+            firstName: "",
+            lastName: "",
+            addressLineOne: "",
+            addressLineTwo: "",
+            zipcode: "",
+            city: "",
+            region: "",
+            country: ""
+          }
+        ]
+      };
+      setFormValues({
+        ...formValues,
+        ...tmpArr
+      });
     };
 
     const handleDelPhone = (index) => { // удаление номера телефона
@@ -113,6 +150,30 @@ function EditCustomerPage() {
       });
     }
 
+    const handleDelAddress = (index) => {
+      setFormValues({
+        ...formValues,
+        addresses: [...formValues.addresses.filter((address, indexArr) => index !== indexArr )]
+      });
+    }
+
+    const handleInputChangeAddress = (e) => {
+      const { name, value } = e.target;
+      const tmpArr = formValues.addresses.map((address, index) => {
+        if (index === parseInt(name.split('[')[1].split(']')[0])) { // проверяем поле в котором вносятся изменения, дробим имя для поиска индекса
+          return {
+            ...address,
+            [name.split('[')[0]]: value,
+          }
+        }
+        return address;
+      })
+      setFormValues({
+        ...formValues,
+        addresses: [...tmpArr]
+      });
+    }
+    
     const handleSubmit = (event) => {
       event.preventDefault();
       console.log(formValues);
@@ -167,8 +228,9 @@ function EditCustomerPage() {
                         )                        
                       })
                     }
-                    <Button variant="text" onClick={handleAddPhone} size="small">+ Add phone</Button>
+                    
                     </Grid>
+                    <Button variant="text" onClick={handleAddPhone} size="small">+ Add phone</Button>
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
@@ -246,6 +308,26 @@ function EditCustomerPage() {
                     />
                   </Grid>
                   <Grid item xs={12}>
+                    <FormControl>
+                      <Select
+                        name="status"
+                        label="Status"
+                        value={formValues.status}
+                        onChange={handleInputChange}
+                      >
+                        <MenuItem key="normal" value="normal">
+                          Normal
+                        </MenuItem>
+                        <MenuItem key="active" value="active">
+                          Active
+                        </MenuItem>
+                        <MenuItem key="negative " value="negative">
+                          Negative
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
                     {
                       formValues.addresses.map((address, index) => {
                         return (
@@ -256,19 +338,129 @@ function EditCustomerPage() {
                               id={`panel${index}bh-header`}
                             >
                               <Typography sx={{ width: '33%', flexShrink: 0 }}>
-                                Main address
+                                {address.nameAddress} { index > 0 && <IconButton onClick={() => handleDelAddress(index)}><RemoveIcon/></IconButton> }
                               </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
-                              <Typography>
-                                Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat.
-                                Aliquam eget maximus est, id dignissim quam.
-                              </Typography>
+                              <Grid container spacing={2}>
+                                {
+                                  index > 0 &&
+                                  <Grid item xs={12}>
+                                    <TextField
+                                      id={`nameAddress${index}`}
+                                      name={`nameAddress[${index}]`}
+                                      label="Type of address"
+                                      type="text"
+                                      size="small"
+                                      variant="outlined"
+                                      value={address.nameAddress}
+                                      onChange={handleInputChangeAddress}
+                                    />
+                                  </Grid>
+                                }
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`firstName${index}`}
+                                    name={`firstName[${index}]`}
+                                    label="First Name"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.firstName}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`lastName${index}`}
+                                    name={`lastName[${index}]`}
+                                    label="Last Name"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.lastName}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`addressLineOne${index}`}
+                                    name={`addressLineOne[${index}]`}
+                                    label="Address"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.addressLineOne}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`addressLineTwo${index}`}
+                                    name={`addressLineTwo[${index}]`}
+                                    label="Address"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.addressLineTwo}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`zipcode${index}`}
+                                    name={`zipcode[${index}]`}
+                                    label="Zipcode"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.zipcode}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`city${index}`}
+                                    name={`city[${index}]`}
+                                    label="City"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.city}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`region${index}`}
+                                    name={`region[${index}]`}
+                                    label="Region"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.region}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <TextField
+                                    id={`country${index}`}
+                                    name={`country[${index}]`}
+                                    label="Country"
+                                    type="text"
+                                    size="small"
+                                    variant="outlined"
+                                    value={address.country}
+                                    onChange={handleInputChangeAddress}
+                                  />
+                                </Grid>
+                              </Grid>
                             </AccordionDetails>
                           </Accordion>
                         );
                       })
                     }
+                    <Button variant="text" onClick={handleAddAddress} size="small">+ Add address</Button>
                   </Grid>
                   <Grid item xs={12}>
                     <Button variant="contained" color="primary" type="submit">
@@ -279,5 +471,13 @@ function EditCustomerPage() {
             </form>
     );
 }
+
+/**
+ zipcode: "zipcode",
+        city: "city",
+        region: "region",
+        country: "country"
+ 
+ */
 
 export { EditCustomerPage };
