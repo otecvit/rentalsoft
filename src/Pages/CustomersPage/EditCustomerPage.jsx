@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { customerActions } from '../../_actions';
+
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
@@ -76,6 +80,7 @@ function EditCustomerPage() {
     const [selectedBtn, setSelectedBtn] = useState(1);
     const [phonesArr, setPhone] = useState(defaultValues.phones);
     const [expanded, setExpanded] = React.useState('panel0');
+    const dispatch = useDispatch();
     
     const handleInputChange = (e) => {
       const { name, value } = e.target;
@@ -176,7 +181,9 @@ function EditCustomerPage() {
     
     const handleSubmit = (event) => {
       event.preventDefault();
-      console.log(formValues);
+      //console.log(formValues);
+      dispatch(customerActions.insert(formValues));
+
     };
 
     const handleChange = (panel) => (event, isExpanded) => {
