@@ -79,6 +79,7 @@ function EditCustomerPage() {
     const [formValues, setFormValues] = useState(defaultValues);
     const [selectedBtn, setSelectedBtn] = useState(1);
     const [phonesArr, setPhone] = useState(defaultValues.phones);
+    const user = useSelector(state => state.authentication.user);
     const [expanded, setExpanded] = React.useState('panel0');
     const dispatch = useDispatch();
     
@@ -181,9 +182,9 @@ function EditCustomerPage() {
     
     const handleSubmit = (event) => {
       event.preventDefault();
-      //console.log(formValues);
+      formValues["token"] = user.token; // приклеиваем токен
+      formValues["iType"] = selectedBtn; // тип клиента
       dispatch(customerActions.insert(formValues));
-
     };
 
     const handleChange = (panel) => (event, isExpanded) => {
@@ -478,13 +479,5 @@ function EditCustomerPage() {
             </form>
     );
 }
-
-/**
- zipcode: "zipcode",
-        city: "city",
-        region: "region",
-        country: "country"
- 
- */
 
 export { EditCustomerPage };

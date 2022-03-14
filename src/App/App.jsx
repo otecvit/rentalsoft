@@ -7,8 +7,6 @@ import { PrivateRoute } from '../_components';
 import { HomePage } from '../HomePage';
 import { AuthenticationPage } from '../Pages/AuthenticationPage';
 
-
-
 function App() {
 
     return (
@@ -28,29 +26,3 @@ function App() {
 }
 
 export { App };
-
-/*
-<PrivateRoute path="/dashboard" component={HomePage} />
-<PrivateRoute path="/customers" component={HomePage} />
-                            <Route exact path="/">
-                                <Redirect exact from="/" to="dashboard" />
-                            </Route>
-                            <Route path="/login" component={LoginPage} />
-                            <Route path="/register" component={RegisterPage} />
-                            <Redirect from="*" to="/" />
-
-
-<PrivateRoute exact path="/" component={HomePage} />
-<Redirect from="*" to="/" />
-*/ 
-
-/**
-                            <PrivateRoute exact path="/dashboard" component={HomePage} />
-                            <PrivateRoute exact path="/customers" component={{main: CustomersPage}} />
-                            
-                            <Route exact path="/">
-                                <Redirect exact from="/" to="dashboard" />
-                            </Route>
- 
-
-*/

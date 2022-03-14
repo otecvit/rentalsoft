@@ -9,7 +9,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
+                test: /\.js$|jsx?$/,
                 loader: 'babel-loader'
             }
         ]
@@ -22,12 +22,13 @@ module.exports = {
     })],
     devServer: {
         historyApiFallback: true,
+        disableHostCheck: true,
         contentBase: path.join(__dirname, 'dist'),
     },
     externals: {
         // global app config object
         config: JSON.stringify({
-            apiUrl: 'http://localhost:4000'
+            apiUrl: 'http://crm.mirprokata.by/api_v2'
         })
     }
 }
