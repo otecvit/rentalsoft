@@ -1,6 +1,7 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
+
 module.exports = {
     mode: 'development',
     resolve: {
@@ -11,7 +12,7 @@ module.exports = {
             {
                 test: /\.js$|jsx?$/,
                 loader: 'babel-loader'
-            }
+            },
         ]
     },
     output: {

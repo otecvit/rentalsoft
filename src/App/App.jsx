@@ -14,6 +14,7 @@ function App() {
             <Switch>
                 <PrivateRoute path="/dashboard" component={HomePage} />
                 <PrivateRoute path="/customers" component={HomePage} />
+                <PrivateRoute path="/inventory" component={HomePage} />
                 <Route exact path="/">
                     <Redirect exact from="/" to="dashboard" />
                 </Route>

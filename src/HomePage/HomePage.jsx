@@ -6,8 +6,9 @@ import { userActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 
-import { CustomersPage } from '../Pages/CustomersPage'
-import { DashBoardPage } from '../Pages/DashBoardPage'
+import { CustomersPage } from '../Pages/CustomersPage';
+import { DashBoardPage } from '../Pages/DashBoardPage';
+import { InventoryPage } from '../Pages/InventoryPage';
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -29,6 +30,7 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import PeopleIcon from '@mui/icons-material/People'; 
+import InventoryIcon from '@mui/icons-material/Inventory';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -145,17 +147,23 @@ function HomePage(comp) {
         </DrawerHeader>
         <Divider />
         <ListItem button key="Dashboard" component={Link} to="/dashboard">
-                <ListItemIcon>
-                  <PeopleIcon />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItem>
-              <ListItem button key="Customers" component={Link} to="/customers">
-                <ListItemIcon>
-                  <PeopleIcon />
-                </ListItemIcon>
-                <ListItemText primary="Customers" />
-              </ListItem>
+          <ListItemIcon>
+            <PeopleIcon />
+          </ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItem>
+        <ListItem button key="Customers" component={Link} to="/customers">
+          <ListItemIcon>
+            <PeopleIcon />
+          </ListItemIcon>
+          <ListItemText primary="Customers" />
+        </ListItem>
+        <ListItem button key="Inventory" component={Link} to="/inventory">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Inventory" />
+        </ListItem>
         <List>
           {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
             <ListItem button key={text}>
@@ -181,9 +189,10 @@ function HomePage(comp) {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
           <Switch>
-                    <Route path="/customers" component={CustomersPage} />
-                    <Route path="/dashboard" component={DashBoardPage} />
-                </Switch>
+            <Route path="/customers" component={CustomersPage} />
+            <Route path="/dashboard" component={DashBoardPage} />
+            <Route path="/inventory" component={InventoryPage} />
+          </Switch>
       </Box>
     </Box>
 
