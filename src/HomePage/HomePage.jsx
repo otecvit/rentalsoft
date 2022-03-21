@@ -36,6 +36,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 const drawerWidth = 240;
 
+
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -53,7 +54,7 @@ const closedMixin = (theme) => ({
   overflowX: 'hidden',
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(9)} + 1px)`,
+    width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
 
@@ -128,7 +129,7 @@ function HomePage(comp) {
             onClick={handleDrawerOpen}
             edge="start"
             sx={{
-              marginRight: '36px',
+              marginRight: 5,
               ...(open && { display: 'none' }),
             }}
           >
@@ -186,7 +187,7 @@ function HomePage(comp) {
           ))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: '#f0f3f4' }}>
         <DrawerHeader />
           <Switch>
             <Route path="/customers" component={CustomersPage} />
@@ -198,21 +199,7 @@ function HomePage(comp) {
 
 
       );
-
-
-    /*
-    return (
-        <div className="col-lg-8 offset-lg-2">
-            <h1>Hi {user.email}!</h1>
-            <p>You're logged in with React Hooks!!</p>
-            <h3>All registered users:</h3>
-            <p>
-                <Link to="/login">Logout</Link>
-            </p>
-        </div>
-    );
-    */  
-    
+   
 }
 
 export { HomePage };
