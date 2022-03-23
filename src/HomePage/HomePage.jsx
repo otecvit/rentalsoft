@@ -9,6 +9,7 @@ import { history } from '../_helpers';
 import { CustomersPage } from '../Pages/CustomersPage';
 import { DashBoardPage } from '../Pages/DashBoardPage';
 import { InventoryPage } from '../Pages/InventoryPage';
+import { BrowseSettingsPage } from '../Pages/SettingsPages';
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -31,6 +32,7 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import PeopleIcon from '@mui/icons-material/People'; 
 import InventoryIcon from '@mui/icons-material/Inventory';
+import SettingsIcon from '@mui/icons-material/Settings';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -165,27 +167,13 @@ function HomePage(comp) {
           </ListItemIcon>
           <ListItemText primary="Inventory" />
         </ListItem>
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
+        <ListItem button key="Settings" component={Link} to="/settings">
+          <ListItemIcon>
+            <SettingsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Settings" />
+        </ListItem>
         <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
       </Drawer>
       <Box sx={{ flexGrow: 1, backgroundColor: '#f0f3f4' }}>
         <DrawerHeader />
@@ -193,6 +181,7 @@ function HomePage(comp) {
             <Route path="/customers" component={CustomersPage} />
             <Route path="/dashboard" component={DashBoardPage} />
             <Route path="/inventory" component={InventoryPage} />
+            <Route path="/settings" component={BrowseSettingsPage} />
           </Switch>
       </Box>
     </Box>
