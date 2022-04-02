@@ -1,57 +1,16 @@
 import { categoryConstants } from '../_constants';
 
-const data = [
-    {
-      id: "1",
-      name: "Медтехника",
-      children: [
-        {
-          id: "3",
-          name: "Костыли",
-          children: []
-        },
-        {
-          id: "15",
-          name: "Ходунки",
-          children: []
-        },
-        {
-          id: "5",
-          name: "Коляски",
-          children: []
-        }
-  
-  
-  
-      ]
-    },
-    {
-      id: "2",
-      name: "Italian",
-      children: [
-        {
-          id: "4",
-          name: "Level A",
-          children: []
-        }
-      ]
-    }
-  ];
-
-export function category(state = data, action) {
+export function category(state = [], action) {
     switch (action.type) {
         case categoryConstants.LOAD_REQUEST_CATEGORY: {
-            return {
-                ...state,
-                ...action.category
-            };
+            return action.category;
         }
         case categoryConstants.EDIT_CATEGORY: {
             return findAndChange(action.category.id, action.category.newValue, state);
         }
 
         case categoryConstants.ADD_CATEGORY: {
-            return findAndAdd(action.category.id, action.category.value, state);
+            return findAndAdd(action.category, state);
         }
 
         case categoryConstants.REMOVE_CATEGORY: {
@@ -76,23 +35,33 @@ export function category(state = data, action) {
   }
 
   /// ищем и добавляем значение категории
-  const findAndAdd = (search, value, treeItems) => { 
+  const findAndAdd = (treeSearch, treeItems) => { 
+
+    if (treeSearch.iParent === "0")  {
+      return [
+        ...treeItems,
+        {
+          id: treeSearch.id,
+          name: treeSearch.chName,
+          children: []
+        }
+      ]
+    }
+
     return treeItems.map(treeItemData => {
       let children = undefined;
       if (treeItemData.children && treeItemData.children.length > 0) {
-        children = findAndAdd(search, value,treeItemData.children);
+        children = findAndAdd(treeSearch, treeItemData.children);
       }
-      if (treeItemData.id === search) {
+      if (treeItemData.id === treeSearch.iParent) {
             treeItemData.children = [
                 ...treeItemData.children,
                 {
-                    id: "132",
-                    name: value,
+                    id: treeSearch.id,
+                    name: treeSearch.chName,
                     children: [],
                 }
             ]
-            
-            
       }
       return treeItemData;
     });

@@ -3,151 +3,85 @@ import { authHeader, history } from '../_helpers';
 
 export const categoryService = {
     load,
-    insert,
+    add,
     edit,
+    remove,
 };
 
 function edit(category) {
-
-    console.log("services");
-
-    /*
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customer)
+        body: JSON.stringify(category)
     };
 
-    return fetch(`${config.apiUrl}/Customers/InsertCustomer.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Category/EditCategory.php`, requestOptions)
         .then(handleResponse)
-        .then(customers => {
-            return customers[0].data;
-            }
-        );
-    */
-}
-
-
-
-
-
-function insert(customer) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customer)
-    };
-
-    return fetch(`${config.apiUrl}/Customers/InsertCustomer.php`, requestOptions)
-        .then(handleResponse)
-        .then(customers => {
-            return customers[0].data;
-            }
-        );
-}
-
-
-function load(user) {
-    
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
-    };
-
-    return fetch(`${config.apiUrl}/Customers/LoadCustomers.php`, requestOptions)
-        .then(handleResponse)
-        .then(customers => {
-            return customers[0].data;
+        .then(category => {
+            return category[0].data;
             }
         );
     
 }
-/*
-function login(username, password) {
+
+function add(category) {
+
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify(category)
     };
 
-    return fetch(`http://crm.mirprokata.by/api_v2/Users/AuthenticatetUsers.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Category/InsertCategory.php`, requestOptions)
         .then(handleResponse)
-        .then(user => {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('user', JSON.stringify(user));
-
-            return user;
-        });
-
+        .then(category => {
+            return category[0].data;
+            }
+        );
+    
 }
 
-function logout() {
 
-    // remove user from local storage to log user out
-    localStorage.removeItem('user');
-}
-*/
-/*
-function getAll() {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
-}
-
-function getById(id) {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
-}
-*/
-/*
-function register(user) {
+function load(category) {
+    
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
+        body: JSON.stringify(category)
     };
 
-    //return fetch(`${config.apiUrl}/users/register`, requestOptions).then(handleResponse);
-    return fetch(`http://crm.mirprokata.by/api_v2/Users/InsertUsers.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Category/LoadCategory.php`, requestOptions)
         .then(handleResponse)
-        .then(user => {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('user', JSON.stringify(user));
-            return user;
-        });
+        .then(category => {
+            return category[0].data;
+            }
+        );
+    
 }
-*/
-/*
-function update(user) {
+
+
+function remove(category) {
+    
+    //console.log(category);
+    
     const requestOptions = {
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(category)
     };
 
-    return fetch(`${config.apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);;
-}
-*/
+    return fetch(`${config.apiUrl}/Category/RemoveCategory.php`, requestOptions)
+        .then(handleResponse)
+        .then(category => {
+            return category[0].data;
+            }
+        );
 
-/*
-// prefixed function name with underscore because delete is a reserved word in javascript
-function _delete(id) {
-    const requestOptions = {
-        method: 'DELETE',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
+        
+    
 }
-*/
+
+
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);

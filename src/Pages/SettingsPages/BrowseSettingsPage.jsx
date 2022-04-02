@@ -40,6 +40,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 
 import { TreeViewCategory } from "../../_components/FormComponents/TreeViewCategory";
+import { PricingTemplateBrowse } from "../../_components/FormComponents/PricingTemplateBrowse";
 
 function handleClickBreadcrumbs(event) {
     event.preventDefault();
@@ -227,6 +228,12 @@ function BrowseSettingsPage() {
                             </ListItemIcon>
                             <ListItemText primary="Category" />
                         </ListItem>
+                        <ListItem button key="Pricing" component={LinkRouter} to="/settings/pricing">
+                            <ListItemIcon>
+                                <AccountTreeIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Pricing" />
+                        </ListItem>
                     </Paper>
                     </Grid>
                     <Grid item xs={9}>
@@ -241,6 +248,7 @@ function BrowseSettingsPage() {
                       >
                         <Switch>
                           <Route path="/settings/category" component={TreeViewCategory} />
+                          <Route path="/settings/pricing" component={PricingTemplateBrowse} />
                         </Switch>
                       </Paper>
                     </Grid>

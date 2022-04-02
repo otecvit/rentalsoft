@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FormProvider, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
@@ -51,6 +51,7 @@ const CustomContent = React.forwardRef(function CustomContent(props, ref) {
   const [openNewNode, setOpenNewNode] = useState(false);
   const [openAlertDialog, setAlertDialog] = useState(false);
   
+  const user = useSelector(state => state.authentication.user);
   const dispatch = useDispatch();
 
   const { handleSubmit, control, reset, setValue } = useForm({
@@ -96,18 +97,16 @@ const CustomContent = React.forwardRef(function CustomContent(props, ref) {
 
   const handleEditCategory = ({ name }) => {
     //dispatch(categoryActions.edit(findAndChange(nodeId, name, data)));
-    dispatch(categoryActions.edit({id: nodeId, newValue: name}));
+    dispatch(categoryActions.edit({id: nodeId, newValue: name, companyToken: user.companyToken}));
     setOpen(false);
   }
 
   const handleNewCategory = ({ newNode }) => {
-    //console.log(newNode);
-    dispatch(categoryActions.add({id: nodeId, value: newNode}));
+    dispatch(categoryActions.add({id: nodeId, value: newNode, companyToken: user.companyToken}));
     setOpenNewNode(false);
   }
 
   const handleClickNo = () => {
-    console.log("No");
     setAlertDialog(false);
   }
 
@@ -235,18 +234,60 @@ const getTreeItemsFromData = treeItems => {
 
 export const TreeViewCategory = () => {
 
-  const category = useSelector(state => state.category);
+  const { handleSubmit, control, reset, setValue } = useForm({
+    defaultValues: { 
+        newNode: "",
+    }
+  });
 
-  console.log(category);
+  const category = useSelector(state => state.category);
+  const user = useSelector(state => state.authentication.user);
+  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleNewCategory = ({ newNode }) => {
+    dispatch(categoryActions.add({id: "0", value: newNode, companyToken: user.companyToken}));
+    setOpen(false);
+  }
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    // загружаем категории
+    dispatch(categoryActions.load({ companyToken: user.companyToken }));  
+  }, []);
 
   return (
-    <TreeView
-      aria-label="icon expansion"
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
-      sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
-    >
-        {getTreeItemsFromData(category)}
-    </TreeView>
+    <Box>
+      <TreeView
+        aria-label="icon expansion"
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+        sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+      >
+          {getTreeItemsFromData(category)}
+      </TreeView>
+      <Button variant="outlined" onClick={handleClickOpen}>Add category</Button>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Subscribe</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            To subscribe to this website, please enter your email address here. We
+            will send updates occasionally.
+          </DialogContentText>
+          <FormInputText name="newNode" control={control} label="Name" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleSubmit(handleNewCategory)}>Save</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

@@ -1,19 +1,37 @@
 import React from "react";
 import Select from "@mui/material/Select";
 import { Controller } from "react-hook-form";
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from "@mui/material/FormControl";
 
 export const FormInputSelect = ({
   name,
   control,
   defaultValue,
   children,
+  label,
+  labelId
 }) => {
   return (
     <Controller
         render={({ field }) => (
-            <Select {...field}>
-                {children}
+          <FormControl>
+            <InputLabel 
+              shrink={true} 
+              id={labelId}
+            >
+              {label}  
+            </InputLabel>
+            <Select 
+              {...field} 
+              labelId={labelId} 
+              label={label}
+              displayEmpty
+              notched={true}
+            >
+              {children}
             </Select>
+          </FormControl>
         )}
         name={name}
         control={control}
