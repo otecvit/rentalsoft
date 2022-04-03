@@ -10,6 +10,7 @@ export const FormInputSelect = ({
   defaultValue,
   children,
   label,
+  size,
   labelId
 }) => {
   return (
@@ -28,6 +29,7 @@ export const FormInputSelect = ({
               label={label}
               displayEmpty
               notched={true}
+              size={size}
             >
               {children}
             </Select>
