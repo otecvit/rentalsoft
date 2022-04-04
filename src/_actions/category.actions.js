@@ -12,8 +12,6 @@ export const categoryActions = {
 
 function edit(category) {
 
-    //console.log("category.actions -> ", category);
-
     return dispatch => {
         categoryService.edit(category)
             .then(

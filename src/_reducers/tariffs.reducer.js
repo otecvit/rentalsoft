@@ -12,12 +12,11 @@ export function tariffs(state = [], action) {
             });
         }
 
-        case tariffsConstants.INSERT_REQUEST_TARRIFS: {
-            
-            return {
+        case tariffsConstants.ADD_TARIFF: {
+            return [
                ...state,
-               /*customers: [...state.customer, action.customer]*/
-            };
+               action.tariff
+            ];
         }
         default:
             return state

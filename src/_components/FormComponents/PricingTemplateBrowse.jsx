@@ -98,34 +98,61 @@ export const PricingTemplateBrowse = () => {
     const { handleSubmit, control, reset, setValue } = useForm(
       {
         defaultValues: { 
+            id: "",
             name: "",
             tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
         }
       }
     );
-    const { fields, prepend, remove } = useFieldArray({
+
+    const { fields, append, remove, replace } = useFieldArray({
       control, 
       name: "tariffDetail", 
     });
 
+    
     useEffect(() => {
+      console.log("useEffect");
       // загружаем тарифы
       dispatch(tariffsActions.load({ companyToken: user.companyToken }));  
     }, []);
+    
 
-    const onSubmit = data => console.log(data);
+    
+    
+
+    const onSubmit = data => {
+
+      // закрываем диалог
+      setOpenDialog(false);
+      
+      // добавляем наш тариф
+      dispatch(tariffsActions.add({...data, companyToken: user.companyToken}));
+
+      // сброс формы
+      reset({ 
+        name: "",
+        tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
+      });
+      //////
+      
+
+    }
 
     const  currentlySelected = (params) => {
         const value = params.colDef.field;
-
         if (!(value === "edit" || value === "delete")) {
         return;
         }
+        // определяем текущий тариф
+        const currentTariff = tariffs.find( (item) => params.id === item.id );
+        // заменяем значение в react-hook-form
+        setValue("name", currentTariff.name);
+        setValue("id", currentTariff.id);
+        replace(currentTariff.arrTariffDetail);
+        ////////////////////////////////////////
 
-        const fields = tariffs.find( (item) => params.id === item.id );
-
-        setSelectedTariff(fields);
-        
+        // открываем диалог
         setOpenDialog(true);
     }
 
@@ -135,10 +162,16 @@ export const PricingTemplateBrowse = () => {
 
     const handleClose = () => {
         setOpenDialog(false);
-      };
+        // сброс формы
+        reset({ 
+          name: "",
+          tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
+        });
+        //////
+    };
 
     const handleAddTariffDetail = () => {
-      prepend({
+      append({
         label: "",
         duration: "",
         period: "1", 
@@ -193,7 +226,6 @@ export const PricingTemplateBrowse = () => {
                                   label="Period"
                                   labelId="rental-period-id"
                                   size="small"
-                                  
                                 >
                                     <MenuItem value="1">Hours</MenuItem>
                                     <MenuItem value="2">Days</MenuItem>
