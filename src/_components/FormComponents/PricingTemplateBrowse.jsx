@@ -39,6 +39,7 @@ const DataGrid = styled(MuiDataGrid)(({ theme }) => ({
     
   }));
 
+  /*
 const rows = [
     {
       id: "1111",
@@ -51,7 +52,7 @@ const rows = [
       stars: 15000,
     },
   ];
-  
+  */
   const columns = [
     { field: 'name', headerName: "Label", width: 150 },
     { field: 'stars', width: 150 },
@@ -91,6 +92,7 @@ export const PricingTemplateBrowse = () => {
     const [selectedTariff, setSelectedTariff] = useState({});
     const [openDialog, setOpenDialog] = useState(false);
     const user = useSelector(state => state.authentication.user);
+    const tariffs = useSelector(state => state.tariffs);
     const dispatch = useDispatch();
 
     const { handleSubmit, control, reset, setValue } = useForm(
@@ -108,7 +110,7 @@ export const PricingTemplateBrowse = () => {
 
     useEffect(() => {
       // загружаем тарифы
-      dispatch(tariffsActions.load({ token: user.token }));  
+      dispatch(tariffsActions.load({ companyToken: user.companyToken }));  
     }, []);
 
     const onSubmit = data => console.log(data);
@@ -120,7 +122,7 @@ export const PricingTemplateBrowse = () => {
         return;
         }
 
-        const fields = rows.find( (item) => params.id === item.id );
+        const fields = tariffs.find( (item) => params.id === item.id );
 
         setSelectedTariff(fields);
         
@@ -155,7 +157,7 @@ export const PricingTemplateBrowse = () => {
             <Button onClick={handleAddTariff} color="primary">Add</Button>
             <DataGrid
                 columns={columns}
-                rows={rows}
+                rows={tariffs}
                 onCellClick={currentlySelected}
                 hideFooter
                 sx={{

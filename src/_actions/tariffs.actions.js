@@ -123,6 +123,7 @@ function load(tariffs) {
         tariffsService.load(tariffs)
             .then(
                 tariffs => { 
+                    
                     /*
                     const tree = array => array
                     .reduce ((a, c) => {
@@ -143,7 +144,7 @@ function load(tariffs) {
         
     };
 
-    function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARRIFS, tariffs } }
+    function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARIFFS, tariffs } }
     function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: categoryConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
