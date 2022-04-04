@@ -39,53 +39,39 @@ const DataGrid = styled(MuiDataGrid)(({ theme }) => ({
     
   }));
 
-  /*
-const rows = [
-    {
-      id: "1111",
-      name: 'Костыли',
-      stars: 'От 8 BYN за 2 недели',
-    },
-    {
-      id: "222",
-      name: 'DataGrid',
-      stars: 15000,
-    },
-  ];
-  */
-  const columns = [
-    { field: 'name', headerName: "Label", width: 150 },
-    { field: 'stars', width: 150 },
-    {
-        field: "edit",
-        headerName: "",
-        sortable: false,
-        width: 50,
-        disableClickEventBubbling: true,
-        renderCell: () => {
-          return (
-            <IconButton aria-label="edit" size="small">
-                <EditIcon fontSize="small" />
-            </IconButton>
-          );
-        }
-    },
-    {
-        field: "delete",
-        headerName: "",
-        width: 50,
-        sortable: false,
-        disableClickEventBubbling: true,
-        renderCell: () => {
-          return (
-            <IconButton aria-label="delete" size="small">
-                <DeleteIcon fontSize="small" />
-            </IconButton>
-          );
-        }
-    },
+const columns = [
+  { field: 'name', headerName: "Label", width: 150 },
+  { field: 'stars', width: 150 },
+  {
+      field: "edit",
+      headerName: "",
+      sortable: false,
+      width: 50,
+      disableClickEventBubbling: true,
+      renderCell: () => {
+        return (
+          <IconButton aria-label="edit" size="small">
+              <EditIcon fontSize="small" />
+          </IconButton>
+        );
+      }
+  },
+  {
+      field: "delete",
+      headerName: "",
+      width: 50,
+      sortable: false,
+      disableClickEventBubbling: true,
+      renderCell: () => {
+        return (
+          <IconButton aria-label="delete" size="small">
+              <DeleteIcon fontSize="small" />
+          </IconButton>
+        );
+      }
+  },
 
-  ];
+];
 
 export const PricingTemplateBrowse = () => {
 
@@ -109,41 +95,35 @@ export const PricingTemplateBrowse = () => {
       control, 
       name: "tariffDetail", 
     });
-
     
     useEffect(() => {
       console.log("useEffect");
       // загружаем тарифы
       dispatch(tariffsActions.load({ companyToken: user.companyToken }));  
     }, []);
-    
 
     
-    
-
     const onSubmit = data => {
-
       // закрываем диалог
       setOpenDialog(false);
-      
       // добавляем наш тариф
       dispatch(tariffsActions.add({...data, companyToken: user.companyToken}));
-
-      // сброс формы
-      reset({ 
-        name: "",
-        tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
-      });
-      //////
-      
-
     }
 
+
+    
     const  currentlySelected = (params) => {
         const value = params.colDef.field;
         if (!(value === "edit" || value === "delete")) {
         return;
         }
+
+        reset({ 
+          id: "",
+          name: "",
+          tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
+        });
+
         // определяем текущий тариф
         const currentTariff = tariffs.find( (item) => params.id === item.id );
         // заменяем значение в react-hook-form
@@ -157,17 +137,16 @@ export const PricingTemplateBrowse = () => {
     }
 
     const handleAddTariff = () => {
+      reset({ 
+        id: "",
+        name: "",
+        tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
+      });
       setOpenDialog(true);
     }
 
     const handleClose = () => {
         setOpenDialog(false);
-        // сброс формы
-        reset({ 
-          name: "",
-          tariffDetail: [{label: "", duration: "", period: "1", price: ""}]
-        });
-        //////
     };
 
     const handleAddTariffDetail = () => {
