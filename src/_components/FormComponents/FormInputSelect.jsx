@@ -15,29 +15,30 @@ export const FormInputSelect = ({
 }) => {
   return (
     <Controller
-        render={({ field }) => (
-          <FormControl>
-            <InputLabel 
-              shrink={true} 
-              id={labelId}
-            >
-              {label}  
-            </InputLabel>
-            <Select 
-              {...field} 
-              labelId={labelId} 
-              label={label}
-              displayEmpty
-              notched={true}
-              size={size}
-            >
-              {children}
-            </Select>
-          </FormControl>
-        )}
-        name={name}
-        control={control}
-        defaultValue={defaultValue}
+      render={({ field }) => (
+        <FormControl sx={{ width: "100%" }}>
+          <InputLabel
+            shrink={true}
+            id={labelId}
+          >
+            {label}
+          </InputLabel>
+          <Select
+            {...field}
+            labelId={labelId}
+            label={label}
+            displayEmpty
+
+            notched={true}
+            size={size}
+          >
+            {children}
+          </Select>
+        </FormControl>
+      )}
+      name={name}
+      control={control}
+      defaultValue={defaultValue}
     />
   );
 };
