@@ -14,13 +14,11 @@ export const FormInputNumber = ({ name, control, label, InputProps }) => {
       }) => (
         <TextField
           helperText={error ? error.message : null}
-          size="small"
           error={!!error}
           onChange={onChange}
           value={value}
           fullWidth
           label={label}
-          variant="outlined"
           InputProps={InputProps}
           type="number"
           InputLabelProps={{

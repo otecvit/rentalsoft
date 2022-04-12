@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory, Link, Route, Redirect, Switch  } from "react-router-dom";
+import { useHistory, Link, Route, Redirect, Switch } from "react-router-dom";
 
+import { NewInventoryPage } from './NewInventoryPage';
 import { EditInventoryPage } from '../InventoryPage/EditInventoryPage';
 import { BrowseInventoryPage } from '../InventoryPage/BrowseInventoryPage';
 
@@ -13,8 +14,9 @@ function InventoryPage() {
     return (
         <div>
             <Switch>
-                <Route path="/inventory/new" component={EditInventoryPage}/>
-                <Route path="/inventory" component={BrowseInventoryPage}/>
+                <Route path="/inventory/new" component={NewInventoryPage} />
+                <Route path="/inventory/detail" component={EditInventoryPage} />
+                <Route path="/inventory" component={BrowseInventoryPage} />
             </Switch>
         </div>
     );

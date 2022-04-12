@@ -30,7 +30,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import PeopleIcon from '@mui/icons-material/People'; 
+import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Button from '@mui/material/Button';
@@ -106,22 +106,22 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 function HomePage(comp) {
 
-   
-    const user = useSelector(state => state.authentication.user);
 
-    const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
-  
-    const handleDrawerOpen = () => {
-      setOpen(true);
-    };
-  
-    const handleDrawerClose = () => {
-      setOpen(false);
-    };
+  const user = useSelector(state => state.authentication.user);
 
-    return (
-      <Box sx={{ display: 'flex' }}>
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
@@ -175,20 +175,20 @@ function HomePage(comp) {
         </ListItem>
         <Divider />
       </Drawer>
-      <Box sx={{ flexGrow: 1, backgroundColor: '#f0f3f4' }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: '#ffffff' }}>
         <DrawerHeader />
-          <Switch>
-            <Route path="/customers" component={CustomersPage} />
-            <Route path="/dashboard" component={DashBoardPage} />
-            <Route path="/inventory" component={InventoryPage} />
-            <Route path="/settings" component={BrowseSettingsPage} />
-          </Switch>
+        <Switch>
+          <Route path="/customers" component={CustomersPage} />
+          <Route path="/dashboard" component={DashBoardPage} />
+          <Route path="/inventory" component={InventoryPage} />
+          <Route path="/settings" component={BrowseSettingsPage} />
+        </Switch>
       </Box>
     </Box>
 
 
-      );
-   
+  );
+
 }
 
 export { HomePage };
