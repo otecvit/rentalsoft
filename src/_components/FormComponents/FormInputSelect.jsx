@@ -11,7 +11,7 @@ export const FormInputSelect = ({
   children,
   label,
   size,
-  labelId
+  labelId,
 }) => {
   return (
     <Controller
@@ -28,7 +28,6 @@ export const FormInputSelect = ({
             labelId={labelId}
             label={label}
             displayEmpty
-
             notched={true}
             size={size}
           >

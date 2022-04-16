@@ -7,6 +7,7 @@ import { customers } from './customers.reducer';
 import { category } from './category.reducer';
 import { tariffs } from './tariffs.reducer';
 import { alert } from './alert.reducer';
+import { support } from './support.reducer';
 
 const rootReducer = combineReducers({
     authentication,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
     customers,
     category,
     tariffs,
+    support,
     alert
 });
 

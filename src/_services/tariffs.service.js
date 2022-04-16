@@ -2,7 +2,9 @@ import config from 'config';
 
 export const tariffsService = {
     load,
-    add
+    add,
+    remove,
+    edit
 };
 
 function load(tariffs) {
@@ -15,9 +17,9 @@ function load(tariffs) {
         .then(handleResponse)
         .then(tariffs => {
             return tariffs[0].data;
-            }
+        }
         );
-    
+
 }
 
 function add(tariff) {
@@ -30,9 +32,39 @@ function add(tariff) {
         .then(handleResponse)
         .then(tariff => {
             return tariff[0].data;
-            }
+        }
         );
-    
+
+}
+
+function remove(tariff) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tariff)
+    };
+    return fetch(`${config.apiUrl}/Tariffs/RemoveTariff.php`, requestOptions)
+        .then(handleResponse)
+        .then(tariff => {
+            return tariff[0].data;
+        }
+        );
+
+}
+
+function edit(tariff) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tariff)
+    };
+    return fetch(`${config.apiUrl}/Tariffs/EditTariff.php`, requestOptions)
+        .then(handleResponse)
+        .then(tariff => {
+            return tariff[0].data;
+        }
+        );
+
 }
 
 
@@ -40,7 +72,7 @@ function add(tariff) {
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
-        
+
         if (!response.ok) {
             /*
             if (response.status === 401) {

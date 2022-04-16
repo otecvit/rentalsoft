@@ -50,7 +50,6 @@ const previewStyle = {
 }
 
 const Layout = ({ input, previews, submitButton, dropzoneProps, files, extra: { maxFiles } }) => {
-    console.log(previews);
     return (
         <div>
             <div {...dropzoneProps}>
@@ -121,7 +120,7 @@ export const CustomLayout = () => {
     const getUploadParams = () => ({ url: 'https://httpbin.org/post' })
 
     const handleSubmit = (files, allFiles) => {
-        console.log(files.map(f => f.meta))
+        //console.log(files.map(f => f.meta))
         allFiles.forEach(f => f.remove())
     }
 
