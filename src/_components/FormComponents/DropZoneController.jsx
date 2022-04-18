@@ -1,5 +1,7 @@
-import React from 'react';
-import Dropzone from 'react-dropzone-uploader'
+import React from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import Dropzone from 'react-dropzone-uploader';
+
 import { getDroppedOrSelectedFiles } from 'html5-file-selector';
 import {
     Box,
@@ -108,7 +110,6 @@ const Input = ({ accept, onFiles, files, getFilesFromEvent }) => {
                 multiple
                 onChange={e => {
                     getFilesFromEvent(e).then(chosenFiles => {
-
                         onFiles(chosenFiles)
                     })
                 }}
@@ -117,22 +118,7 @@ const Input = ({ accept, onFiles, files, getFilesFromEvent }) => {
     )
 }
 
-
-export const CustomLayout = (props) => {
-    const getUploadParams = () => ({ url: 'https://httpbin.org/post' })
-
-    const handleSubmit = (files, allFiles) => {
-        console.log('uploads files:', files)
-        // Get set state function from props
-        props.setFiles(files)
-    }
-
-
-    // const handleSubmit = (files, allFiles) => {
-    //     props.setFiles(files)
-    //     // console.log(files.map(f => f.meta))
-    //     // allFiles.forEach(f => f.remove())
-    // }
+export const DropZoneController = ({ name, control, label, InputProps, handleControlledDropzonChangeStatus }) => {
 
     const getFilesFromEvent = e => {
         return new Promise(resolve => {
@@ -143,14 +129,19 @@ export const CustomLayout = (props) => {
     }
 
     return (
-        <Dropzone
-            getUploadParams={getUploadParams}
-            LayoutComponent={Layout}
-            onSubmit={handleSubmit}
-            InputComponent={Input}
-            getFilesFromEvent={getFilesFromEvent}
-
+        <Controller
+            control={control}
+            name={name}
+            render={({ onChange }) => (
+                <Dropzone
+                    InputComponent={Input}
+                    LayoutComponent={Layout}
+                    onChangeStatus={(file, status, allFiles) => {
+                        handleControlledDropzonChangeStatus(status, allFiles, onChange);
+                    }}
+                    getFilesFromEvent={getFilesFromEvent}
+                />
+            )}
         />
-    )
-}
-
+    );
+};

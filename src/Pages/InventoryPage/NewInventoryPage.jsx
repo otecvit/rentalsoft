@@ -1,7 +1,8 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
 import MUIRichTextEditor from 'mui-rte';
+import { convertToRaw } from 'draft-js'
 
 import {
     Container,
@@ -16,9 +17,11 @@ import {
     FormControlLabel,
     InputAdornment,
     Button,
-    Checkbox,
+    Link,
     Autocomplete,
-    TextField
+    TextField,
+    Switch,
+    Breadcrumbs
 } from '@mui/material';
 
 import SearchIcon from '@mui/icons-material/Search';
@@ -37,9 +40,12 @@ import { FormInputSelectControlValue } from "../../_components/FormComponents/Fo
 import { FormInputNumber } from "../../_components/FormComponents/FormInputNumber";
 //import { Previews } from '../../_components/FormComponents/DropZone';
 import { CustomLayout } from '../../_components/FormComponents/DropZoneUploader';
+import { DropZoneController } from '../../_components/FormComponents/DropZoneController';
 import { DialogEditTarif } from '../../_components/FormComponents/DialogEditTariff';
 import BoxStyled from '../../_components/StyledComponent/BoxStyled';
 import BoxStyledTextEditor from '../../_components/StyledComponent/BoxStyledTextEditor';
+import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
+import { update } from "react-spring";
 
 const tags = [
     { title: 'aaaaaaaa', idTag: 1994 },
@@ -50,37 +56,83 @@ const tags = [
 ]
 
 
+
+
 function NewInventoryPage() {
 
-    const { handleSubmit, control, reset, setValue } = useForm({
+    const {
+        handleSubmit,
+        control,
+        reset,
+        setValue,
+        getValues,
+        register,
+        formState: {
+            errors,
+        },
+    } = useForm({
         defaultValues: {
-            name: "",
-            article: "",
-            identifier: "",
+            productName: "",
+            description: "",
             sellPrice: "0",
             depositAmount: "0",
-            category: "Select Category",
-            countItem: "0",
-            rentalTariff: "",
+            salesTax: "",
             options: [{ optionName: "", optionValue: "" }],
+            productTracking: [],
+            countItem: "0",
+            identifier: "",
+            category: "Select Category",
+            rentalLocation: "",
+            rentalTariff: "",
+            yourSKU: "",
+            makeFeatured: false,
+            weight: "",
+            height: "",
+            width: "",
+            length: "",
+            freeShipping: false,
         }
     });
 
-    const { fields, append } = useFieldArray({
+    const { fields, append, remove, update } = useFieldArray({
         control,
         name: "options",
     })
+
+    // const files = watch('files');
 
     const [open, setOpen] = useState(false);
     const [openNewTariff, setOpenNewTariff] = useState(false);
     const [selectedTariff, setTariff] = useState("");
     const [selectedCategory, setCategory] = useState("");
-    const [trackMethod, setTrackMethod] = React.useState("0");
+    const [tagsInventory, setTag] = useState([]);
+    const [files, setFiles] = useState(null)
+
+    const [trackMethod, setTrackMethod] = useState("0");
     const user = useSelector(state => state.authentication.user);
     const category = useSelector(state => state.category);
     const tariffs = useSelector(state => state.tariffs);
     const support = useSelector(state => state.support);
     const dispatch = useDispatch();
+
+    const breadcrumbs = [
+        <Link underline="hover" key="1" color="inherit" href="/">
+            <Typography>
+                Dashboard
+            </Typography>
+        </Link>,
+        <Link
+            underline="hover"
+            key="2"
+            color="inherit"
+            href="/material-ui/getting-started/installation/"
+        >
+            Core
+        </Link>,
+        <Typography variant="body3" key="3">
+            Breadcrumb
+        </Typography>,
+    ];
 
     useEffect(() => {
         // загружаем категории
@@ -99,6 +151,7 @@ function NewInventoryPage() {
 
     }, [tariffs]);
 
+
     const SelectCategoryBtn = () => {
         return (
             <IconButton onClick={handleClickOpen} sx={{ p: '10px' }} aria-label="search">
@@ -114,9 +167,6 @@ function NewInventoryPage() {
         })
     };
 
-    const handleDelOptions = () => {
-
-    }
 
     /// ищем значение категории по id
     const findById = (array, id) => {
@@ -125,11 +175,15 @@ function NewInventoryPage() {
         return result;
     };
 
+    // обратная функция выбора категории в диалоговом окне
     const handleOk = (currentCategory) => {
-        // Записываем в форму
-        setValue("category", findById(category, currentCategory).name);
-        // сохраняем в state категоррию
-        setCategory(currentCategory);
+
+        if (!!currentCategory) {
+            // Записываем в форму
+            setValue("category", findById(category, currentCategory).name);
+            // сохраняем в state категоррию
+            setCategory(currentCategory);
+        }
         setOpen(false);
     }
 
@@ -168,30 +222,80 @@ function NewInventoryPage() {
         setOpenNewTariff(false);
     }
 
+    const handleControlledDropzonChangeStatus = (status, allFiles) => {
+        setTimeout(() => {
+            if (['done', 'removed'].includes(status)) {
+                //console.log([...allFiles]);
+                setFiles([...allFiles]);
+            }
+        }, 0);
+    };
+
+
+    const handleSubmitInventory = (data) => {
+
+        //console.log(files);
+
+        console.log({
+            ...data,
+            tariff: selectedTariff,
+            categoryID: selectedCategory,
+            tags: tagsInventory,
+            files: files,
+        })
+    }
+
+
 
     return (
         <Box>
             <Container maxWidth="lg">
-                <Box>
-                    Create a new product
-                </Box>
+                <BoxStyledTitle>
+
+                    <Typography variant="h4">
+                        Create a new product
+                    </Typography>
+                    <Breadcrumbs separator="›" aria-label="breadcrumb">
+                        {breadcrumbs}
+                    </Breadcrumbs>
+
+                </BoxStyledTitle>
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={8}>
                         <Paper elevation={0} variant="main">
-                            <FormInputText name="name" control={control} label="Product name" />
+                            <FormInputText
+                                name="productName"
+                                control={control}
+                                label="Product name"
+                                rules={{
+                                    required: {
+                                        value: true,
+                                        message: "Product name is required."
+                                    }
+                                }} />
                             <BoxStyled>
                                 <Typography variant="body2">
                                     Description
                                 </Typography>
                                 <BoxStyledTextEditor>
-                                    <MUIRichTextEditor label="Start typing..." />
+                                    <MUIRichTextEditor
+                                        label="Start typing..."
+                                        controls={["title", "bold", "italic", "underline", "strikethrough", "highlight", "undo", "redo", "link", "numberList", "bulletList", "quote", "code", "clear"]}
+                                        onChange={value => {
+                                            const content = JSON.stringify(
+                                                convertToRaw(value.getCurrentContent())
+                                            );
+                                            setValue("description", content);
+                                        }}
+                                    />
                                 </BoxStyledTextEditor>
                             </BoxStyled>
                             <BoxStyled>
                                 <Typography variant="body2">
                                     Images
                                 </Typography>
-                                <CustomLayout />
+                                {/* <CustomLayout setFiles={setFiles} /> */}
+                                <DropZoneController name="files" control={control} handleControlledDropzonChangeStatus={handleControlledDropzonChangeStatus} />
                             </BoxStyled>
                         </Paper>
                         <Paper elevation={0} variant="mainMargin">
@@ -303,9 +407,9 @@ function NewInventoryPage() {
                             <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
                                 {
                                     fields.map((item, index) => (
-                                        <Fragment key={index}>
+                                        <Fragment key={item.id}>
                                             <Grid item xs={12} sm={6} md={6}>
-                                                <FormInputText name={`options[${index}].optionName`} control={control} label="Option name" value={item.optionName} />
+                                                <FormInputText name={`options[${index}].optionName`} control={control} label="Option name" defaultValue={item.optionName} />
                                             </Grid>
                                             <Grid item xs={12} sm={5} md={5}>
                                                 <FormInputText name={`options[${index}].optionValue`} control={control} label="Option value" value={item.optionValue} />
@@ -313,7 +417,7 @@ function NewInventoryPage() {
                                             <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                                 {
                                                     index < fields.length - 1 ?
-                                                        <IconButton aria-label="add" onClick={handleDelOptions}>
+                                                        <IconButton aria-label="del" onClick={() => remove(index)}>
                                                             <DeleteIcon />
                                                         </IconButton> :
                                                         <IconButton aria-label="add" onClick={handleAddOptions}>
@@ -340,8 +444,8 @@ function NewInventoryPage() {
                                 onChange={handleChangeTrackMethod}
                                 row
                             >
-                                <FormControlLabel value="0" control={<Radio />} label="Group items" />
-                                <FormControlLabel value="1" control={<Radio />} label="Individual item" />
+                                <FormControlLabel value="0" control={<Radio />} {...register("productTracking")} label="Group items" />
+                                <FormControlLabel value="1" control={<Radio />} {...register("productTracking")} label="Individual item" />
                             </RadioGroup>
                             <BoxStyled>
                                 {
@@ -356,8 +460,8 @@ function NewInventoryPage() {
                             </BoxStyled>
                             <BoxStyled>
                                 <FormInputSelect
-                                    id="profissao"
-                                    name="profissao"
+                                    id="rentalLocation"
+                                    name="rentalLocation"
                                     control={control}
                                     defaultValue=""
                                     variant="outlined"
@@ -366,11 +470,9 @@ function NewInventoryPage() {
                                     labelId="rental-location-label-id"
                                 >
                                     <MenuItem value="">Select rental location</MenuItem>
-                                    <MenuItem value="servidor">1</MenuItem>
-                                    <MenuItem value="clt">2</MenuItem>
-                                    <MenuItem value="autonomo">3</MenuItem>
-                                    <MenuItem value="desempregado">4</MenuItem>
-                                    <MenuItem value="empresario">5</MenuItem>
+                                    <MenuItem value="111111">Chikago</MenuItem>
+                                    <MenuItem value="222222">New-York</MenuItem>
+                                    <MenuItem value="333333">Baltimor</MenuItem>
                                 </FormInputSelect>
                             </BoxStyled>
                         </Paper>
@@ -381,11 +483,13 @@ function NewInventoryPage() {
                                 options={tags}
                                 getOptionLabel={(option) => option.title}
                                 defaultValue={[]}
+                                onChange={(event, newValue) => {
+                                    setTag(newValue);
+                                }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
-                                        variant="standard"
-                                        label="Multiple values"
+                                        label="Tags"
                                         placeholder=""
                                     />
                                 )}
@@ -394,80 +498,48 @@ function NewInventoryPage() {
                                 <FormInputText name="yourSKU" control={control} label="Your SKU" />
                             </BoxStyled>
                             <BoxStyled>
-                                <FormControlLabel control={<Checkbox />} label="Make as featured" />
+                                <FormControlLabel control={<Switch />} {...register("makeFeatured")} label="Make as featured" />
                             </BoxStyled>
                         </Paper>
                         <Paper elevation={0} variant="mainMargin">
                             <Typography variant="body2">
                                 Shipping Params
                             </Typography>
-                            <FormInputText name="identifier" control={control} label="Weight" />
+                            <FormInputText name="weight" control={control} label="Weight" />
                             <BoxStyled>
-                                <FormInputText name="identifier" control={control} label="Height" />
+                                <FormInputText name="height" control={control} label="Height" />
                             </BoxStyled>
                             <BoxStyled>
-                                <FormInputText name="identifier" control={control} label="Width" />
+                                <FormInputText name="width" control={control} label="Width" />
                             </BoxStyled>
                             <BoxStyled>
-                                <FormInputText name="identifier" control={control} label="Length" />
+                                <FormInputText name="length" control={control} label="Length" />
                             </BoxStyled>
                             <BoxStyled>
-                                <FormControlLabel control={<Checkbox />} label="Free shipping" />
+                                <FormControlLabel control={<Switch />} {...register("freeShipping")} label="Free shipping" />
                             </BoxStyled>
                         </Paper>
+                        <BoxStyled>
+                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                <Grid item xs={12} md={6}>
+                                    <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={handleOpenNewTariffDialog}>
+                                        Cancel
+                                    </Button>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Button variant="contained" themecolor="rentalThemeSubmit" size="large" onClick={handleSubmit(handleSubmitInventory)}>
+                                        Save
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </BoxStyled>
                     </Grid>
                 </Grid>
             </Container>
         </Box>
     );
 
-    /*
 
-    return (
-        <Container maxWidth="lg">
-            <Box sx={{ py: 10 }}>
-                <Paper elevation={1} sx={{ p: 2 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6} md={4}>
-                            <Typography variant="h6" gutterBottom component="div">Basic details</Typography>
-                        </Grid>
-                        <Grid item xs={6} md={8}>
-                            <Box
-                                style={{
-                                    display: "grid",
-                                    gridRowGap: "20px",
-                                }}
-                            >
-                                <FormInputText name="name" control={control} label="Product name" />
-                                <FormInputText name="category" control={control} label="Category" InputProps={{ readOnly: true, endAdornment: <SelectCategoryBtn /> }} />
-                                {open && <DialogSelectCategory data={data} handleOk={handleOk} handleClose={handleClose} />}
-                                <FormInputSelect
-                                    id="profissao"
-                                    name="profissao"
-                                    control={control}
-                                    defaultValue=""
-                                    variant="outlined"
-                                    margin="normal"
-                                    label="Rental Location"
-                                    labelId="rental-location-label-id"
-                                >
-                                    <MenuItem value="">Select rental location</MenuItem>
-                                    <MenuItem value="servidor">1</MenuItem>
-                                    <MenuItem value="clt">2</MenuItem>
-                                    <MenuItem value="autonomo">3</MenuItem>
-                                    <MenuItem value="desempregado">4</MenuItem>
-                                    <MenuItem value="empresario">5</MenuItem>
-                                </FormInputSelect>
-                                <FormInputText name="sku" control={control} label="SKU" />
-
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </Paper>
-            </Box>
-        </Container>
-    )
-    */
 }
 
 export { NewInventoryPage }

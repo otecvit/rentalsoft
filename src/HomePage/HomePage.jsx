@@ -175,7 +175,7 @@ function HomePage(comp) {
         </ListItem>
         <Divider />
       </Drawer>
-      <Box sx={{ flexGrow: 1, backgroundColor: '#ffffff' }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: '#ffffff', padding: '70px 16px' }}>
         <DrawerHeader />
         <Switch>
           <Route path="/customers" component={CustomersPage} />

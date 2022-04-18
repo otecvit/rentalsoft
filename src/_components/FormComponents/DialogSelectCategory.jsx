@@ -17,7 +17,7 @@ import TreeItem from '@mui/lab/TreeItem';
 export const DialogSelectCategory = ({ data, handleOk, handleClose }) => {
 
     const [open, setOpen] = useState(true);
-    const [currentCategory, setCategory] = useState('Uncategorized');
+    const [currentCategory, setCategory] = useState('');
 
     const renderTree = (nodes) => (
 

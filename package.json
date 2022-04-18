@@ -23,6 +23,7 @@
         "@redux-devtools/extension": "^3.2.2",
         "@unicef/material-ui-currency-textfield": "^0.8.6",
         "antd": "^4.19.1",
+        "draft-js": "^0.11.7",
         "history": "^4.10.1",
         "html5-file-selector": "^2.1.0",
         "mui-rte": "^2.0.1",

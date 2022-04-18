@@ -59,6 +59,58 @@ const customTheme = createTheme({
                         }
                     }
                 },
+                {
+                    props: { themecolor: "rentalThemeSubmit" },
+                    style: {
+                        textTransform: 'capitalize',
+                        fontWeight: '700',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgb(32, 101, 209)',
+                        color: 'rgb(255, 255, 255)',
+                        boxShadow: 'rgb(32 101 209 / 24%) 0px 8px 16px 0px',
+                        width: '100%',
+                        height: '100%',
+                        transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                        '&:hover': {
+                            backgroundColor: 'rgb(16, 57, 150)',
+                            boxShadow: 'none',
+                        },
+                        '&:active': {
+                            boxShadow: 'rgb(145 158 171 / 20%) 0px 5px 5px -3px, rgb(145 158 171 / 14%) 0px 8px 10px 1px, rgb(145 158 171 / 12%) 0px 3px 14px 2px'
+                        },
+                        '&:focus': {
+                            outline: 0,
+                            border: 0,
+                        }
+                    }
+                },
+                {
+                    props: { themecolor: "rentalThemeCancel" },
+                    style: {
+                        textTransform: 'capitalize',
+                        fontWeight: '700',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(145, 158, 171, 0.32)',
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        color: 'rgb(33, 43, 54)',
+                        boxShadow: 'none',
+                        width: '100%',
+                        height: '100%',
+                        transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                        '&:hover': {
+                            backgroundColor: 'rgba(145, 158, 171, 0.08)',
+                            boxShadow: 'none',
+                        },
+                        '&:active': {
+                            boxShadow: 'none'
+                        },
+                        '&:focus': {
+                            outline: 0,
+                            border: 0,
+                        }
+                    }
+                },
+
             ]
         },
         MuiFormControl: {
@@ -93,6 +145,18 @@ const customTheme = createTheme({
                     fontWeight: 600,
                     fontSize: '0.875rem',
                     color: 'rgb(99, 115, 129)',
+                },
+                body3: {
+                    margin: '0px 0px 8px',
+                    fontWeight: 400,
+                    fontSize: '0.875rem',
+                    color: 'rgb(99, 115, 129)',
+                },
+                h4: {
+                    margin: '0px 0px 8px',
+                    fontWeight: 700,
+                    fontSize: '1.5rem',
+                    color: 'rgb(33, 43, 54)',
                 }
             },
         },
