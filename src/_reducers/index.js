@@ -8,6 +8,7 @@ import { category } from './category.reducer';
 import { tariffs } from './tariffs.reducer';
 import { alert } from './alert.reducer';
 import { support } from './support.reducer';
+import { inventory } from './inventory.reducer';
 
 const rootReducer = combineReducers({
     authentication,
@@ -17,7 +18,8 @@ const rootReducer = combineReducers({
     category,
     tariffs,
     support,
-    alert
+    alert,
+    inventory
 });
 
 export default rootReducer;

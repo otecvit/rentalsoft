@@ -30,7 +30,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { styled } from '@mui/system';
 
-import { categoryActions, tariffsActions, supportActions } from '../../_actions';
+import { categoryActions, tariffsActions, supportActions, inventoryActions } from '../../_actions';
 
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { DialogSelectCategory } from "../../_components/FormComponents/DialogSelectCategory";
@@ -234,15 +234,41 @@ function NewInventoryPage() {
 
     const handleSubmitInventory = (data) => {
 
-        //console.log(files);
+        //console.log(files[0].file);
+        //console.log('---++', data.fileUpload)
 
-        console.log({
+        // console.log({
+        //     ...data,
+        //     tariff: selectedTariff,
+        //     categoryID: selectedCategory,
+        //     tags: tagsInventory,
+        //     fileToUpload: files[0].file,
+        //     companyToken: user.companyToken
+        // })
+
+        //fileToUpload: files[0].file,
+
+
+        // dispatch(inventoryActions.add({
+        //     ...data,
+        //     tariff: selectedTariff,
+        //     categoryID: selectedCategory,
+        //     tags: tagsInventory,
+        //     fileToUpload: files ? files[0].file : null,
+        //     companyToken: user.companyToken,
+        // }));
+
+        console.log(files);
+
+        dispatch(inventoryActions.addFiles({
             ...data,
             tariff: selectedTariff,
             categoryID: selectedCategory,
             tags: tagsInventory,
-            files: files,
-        })
+            filesToUpload: files ? files : null,
+            companyToken: user.companyToken,
+        }));
+
     }
 
 
@@ -294,7 +320,6 @@ function NewInventoryPage() {
                                 <Typography variant="body2">
                                     Images
                                 </Typography>
-                                {/* <CustomLayout setFiles={setFiles} /> */}
                                 <DropZoneController name="files" control={control} handleControlledDropzonChangeStatus={handleControlledDropzonChangeStatus} />
                             </BoxStyled>
                         </Paper>

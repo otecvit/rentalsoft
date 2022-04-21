@@ -122,17 +122,11 @@ export const CustomLayout = (props) => {
     const getUploadParams = () => ({ url: 'https://httpbin.org/post' })
 
     const handleSubmit = (files, allFiles) => {
-        console.log('uploads files:', files)
+        //console.log('uploads files:', files)
         // Get set state function from props
         props.setFiles(files)
     }
 
-
-    // const handleSubmit = (files, allFiles) => {
-    //     props.setFiles(files)
-    //     // console.log(files.map(f => f.meta))
-    //     // allFiles.forEach(f => f.remove())
-    // }
 
     const getFilesFromEvent = e => {
         return new Promise(resolve => {

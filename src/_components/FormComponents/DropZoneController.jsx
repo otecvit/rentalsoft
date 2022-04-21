@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import Dropzone from 'react-dropzone-uploader';
 
 import { getDroppedOrSelectedFiles } from 'html5-file-selector';
