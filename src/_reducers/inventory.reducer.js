@@ -3,13 +3,7 @@ import { inventoryConstants } from '../_constants';
 export function inventory(state = [], action) {
     switch (action.type) {
         case inventoryConstants.LOAD_REQUEST_INVENTORY: {
-            // парсим результат, arrTariffDetail - текстовая интерпритация массива, поэтому JSON.parse
-            return action.tariffs.map(item => {
-                return {
-                    ...item,
-                    arrTariffDetail: JSON.parse(item.arrTariffDetail)
-                };
-            });
+            return action.inventory;
         }
 
         case inventoryConstants.ADD_INVENTORY: {

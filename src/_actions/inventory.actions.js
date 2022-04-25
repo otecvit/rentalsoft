@@ -3,9 +3,10 @@ import { inventoryService } from '../_services';
 import { alertActions } from './';
 import { supportActions } from './support.actions';
 
+import { history } from '../_helpers';
+
 export const inventoryActions = {
     add,
-    addFiles,
     load,
     remove,
     edit
@@ -19,6 +20,7 @@ function add(inventory) {
             .then(
                 inventory => {
                     dispatch(request(inventory));
+                    history.push('/inventory');
                     //dispatch(request(inventory));
 
                 },
@@ -36,14 +38,14 @@ function add(inventory) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function addFiles(inventory) {
 
+
+function load(companyToken) {
     return dispatch => {
-        inventoryService.addFiles(inventory)
+        inventoryService.load(companyToken)
             .then(
                 inventory => {
                     dispatch(request(inventory));
-                    //dispatch(request(inventory));
 
                 },
                 error => {
@@ -51,35 +53,11 @@ function addFiles(inventory) {
                     dispatch(alertActions.error(error.toString()));
                 }
             );
-    };
 
-    function request(inventory) { return { type: inventoryConstants.ADD_INVENTORY, inventory } }
-    function lastTariffId(tariffid) { return { type: supportConstants.LAST_TARIFF_INSERT, tariffid } }
+    };
+    function request(inventory) { return { type: inventoryConstants.LOAD_REQUEST_INVENTORY, inventory } }
     function success(inventory) { return { type: inventoryConstants.INSERT_SUCCESS_CUSTOMER, inventory } }
     function failure(error) { return { type: inventoryConstants.INSERT_FAILURE_CUSTOMER, error } }
-    //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
-}
-
-
-
-function load(tariffs) {
-    return dispatch => {
-        tariffsService.load(tariffs)
-            .then(
-                tariffs => {
-                    dispatch(request(tariffs));
-
-                },
-                error => {
-                    dispatch(failure(error.toString()));
-                    dispatch(alertActions.error(error.toString()));
-                }
-            );
-
-    };
-    function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARIFFS, tariffs } }
-    function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: categoryConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 

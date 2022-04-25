@@ -234,33 +234,8 @@ function NewInventoryPage() {
 
     const handleSubmitInventory = (data) => {
 
-        //console.log(files[0].file);
-        //console.log('---++', data.fileUpload)
 
-        // console.log({
-        //     ...data,
-        //     tariff: selectedTariff,
-        //     categoryID: selectedCategory,
-        //     tags: tagsInventory,
-        //     fileToUpload: files[0].file,
-        //     companyToken: user.companyToken
-        // })
-
-        //fileToUpload: files[0].file,
-
-
-        // dispatch(inventoryActions.add({
-        //     ...data,
-        //     tariff: selectedTariff,
-        //     categoryID: selectedCategory,
-        //     tags: tagsInventory,
-        //     fileToUpload: files ? files[0].file : null,
-        //     companyToken: user.companyToken,
-        // }));
-
-        console.log(files);
-
-        dispatch(inventoryActions.addFiles({
+        dispatch(inventoryActions.add({
             ...data,
             tariff: selectedTariff,
             categoryID: selectedCategory,
@@ -275,7 +250,7 @@ function NewInventoryPage() {
 
     return (
         <Box>
-            <Container maxWidth="lg">
+            <Container maxWidth="xl">
                 <BoxStyledTitle>
 
                     <Typography variant="h4">

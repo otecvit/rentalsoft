@@ -4,91 +4,11 @@ import { authHeader, history } from '../_helpers';
 export const inventoryService = {
     load,
     add,
-    addFiles
 };
 
 function add(inventory) {
 
-    if (!!inventory.fileToUpload) {
-        //console.log();
-        // добавляем инвентарь
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(inventory)
-        };
-
-        return fetch(`${config.apiUrl}/Inventory/InsertInventory.php`, requestOptions)
-            .then(handleResponse)
-            .then(item => {
-
-                // собираем body для файла
-                let formData = new FormData();
-                formData.append(
-                    "fileToUpload",
-                    inventory.fileToUpload,
-                    inventory.fileToUpload.name
-                );
-
-                formData.append("companyToken", inventory.companyToken);
-
-                const requestOptionsFiles = {
-                    method: 'POST',
-                    body: formData
-                }
-
-                // отправляем файл
-                return fetch(`${config.apiUrl}/Support/UploadFile.php`, requestOptionsFiles)
-                    .then(handleResponse)
-                    .then(file => {
-                        return {
-                            ...item[0].data,
-                            ...file[0].data,
-                        }
-                    })
-            })
-            .then(result => {
-
-                // записываем url картинки в базу данных
-                const requestOptionsEditFile = {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        file: result.file,
-                        chTokenInventory: result.chTokenInventory,
-                    })
-                };
-
-                return fetch(`${config.apiUrl}/Inventory/EditFileName.php`, requestOptionsEditFile)
-                    .then(handleResponse)
-                    .then(() => {
-                        return result;
-                    })
-
-            })
-    }
-    else {
-        // добавляем инвентарь
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(inventory)
-        };
-
-        return fetch(`${config.apiUrl}/Inventory/InsertInventory.php`, requestOptions)
-            .then(handleResponse)
-            .then(item => {
-                return item[0].data
-            })
-
-    }
-
-}
-
-function addFiles(inventory) {
-
     if (!!inventory.filesToUpload) {
-        //console.log();
         // добавляем инвентарь
         const requestOptions = {
             method: 'POST',
@@ -110,6 +30,7 @@ function addFiles(inventory) {
 
                     );
                 }
+
                 formData.append("companyToken", inventory.companyToken);
 
                 const requestOptionsFiles = {
@@ -123,7 +44,7 @@ function addFiles(inventory) {
                     .then(file => {
                         return {
                             ...item[0].data,
-                            ...file[0].data,
+                            ...file[0],
                         }
                     })
             })
@@ -134,7 +55,7 @@ function addFiles(inventory) {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        file: result.file,
+                        files: result.data,
                         chTokenInventory: result.chTokenInventory,
                     })
                 };
@@ -163,22 +84,21 @@ function addFiles(inventory) {
 
     }
 
+
 }
 
-
-
-function load(user) {
+function load(companyToken) {
 
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
+        body: JSON.stringify(companyToken)
     };
 
-    return fetch(`${config.apiUrl}/Customers/LoadCustomers.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Inventory/LoadInventory.php`, requestOptions)
         .then(handleResponse)
-        .then(customers => {
-            return customers[0].data;
+        .then(inventory => {
+            return inventory[0].data;
         }
         );
 
@@ -271,7 +191,7 @@ function _delete(id) {
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
-        console.log("---", data);
+
         if (!response.ok) {
             /*
             if (response.status === 401) {

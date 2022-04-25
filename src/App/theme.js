@@ -14,6 +14,7 @@ const customTheme = createTheme({
                         padding: 24,
                     }
                 },
+
                 {
                     props: { variant: 'mainMargin' },
                     style: {
@@ -25,9 +26,70 @@ const customTheme = createTheme({
                     }
                 },
                 {
+                    props: { variant: 'mainMarginNoPadding' },
+                    style: {
+                        margin: "40px 0px 0px",
+                        boxShadow:
+                            "rgb(145 158 171 / 20%) 0px 0px 2px 0px, rgb(145 158 171 / 12%) 0px 12px 24px -4px",
+                        borderRadius: 16,
+                        padding: 0,
+                    }
+                },
+                {
+
+                    props: { variant: 'titleTabDatagrid' },
+                    style: {
+                        backgroundColor: 'rgb(244, 246, 248)',
+                        boxShadow: 'none',
+                        borderRadius: '16px 16px 0px 0px',
+                    }
+                },
+                {
                     props: { contentalign: 'center' },
                     style: {
                         textAlign: 'center',
+                    }
+                }
+            ]
+        },
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'capitalize',
+                    color: 'rgb(99, 115, 129)',
+                    fontWeight: '600',
+                    fontSize: '0.875rem',
+                    '&:focus': {
+                        outline: 0,
+                        border: 0,
+                    },
+                    "&.Mui-selected": {
+                        color: 'rgb(33, 43, 54)',
+                    }
+                },
+                labelIcon: {
+                    minHeight: '50px',
+                }
+
+            }
+        },
+        MuiIconButton: {
+            styleOverrides: {
+                root: {
+                    '&:focus': {
+                        outline: 0,
+                        border: 0,
+                    }
+                }
+            }
+        },
+        MuiAvatar: {
+            variants: [
+                {
+                    props: { variant: "avatartable" },
+                    style: {
+                        borderRadius: '12px',
+                        marginRight: '16px',
                     }
                 }
             ]
@@ -85,6 +147,33 @@ const customTheme = createTheme({
                     }
                 },
                 {
+                    props: { themecolor: "rentalBtnSmall" },
+                    style: {
+                        textTransform: 'capitalize',
+                        color: 'rgb(255, 255, 255)',
+                        minWidth: '64px',
+                        fontWeight: '700',
+                        lineHeight: '1.71429',
+                        fontSize: '0.875rem',
+                        padding: '6px 16px',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgb(32, 101, 209)',
+                        boxShadow: 'rgb(32 101 209 / 24%) 0px 8px 16px 0px',
+                        transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                        '&:hover': {
+                            backgroundColor: 'rgb(16, 57, 150)',
+                            boxShadow: 'none',
+                        },
+                        '&:active': {
+                            boxShadow: 'rgb(145 158 171 / 20%) 0px 5px 5px -3px, rgb(145 158 171 / 14%) 0px 8px 10px 1px, rgb(145 158 171 / 12%) 0px 3px 14px 2px'
+                        },
+                        '&:focus': {
+                            outline: 0,
+                            border: 0,
+                        }
+                    }
+                },
+                {
                     props: { themecolor: "rentalThemeCancel" },
                     style: {
                         textTransform: 'capitalize',
@@ -112,6 +201,62 @@ const customTheme = createTheme({
                 },
 
             ]
+        },
+        MuiTableHead: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: 'rgb(244, 246, 248)',
+                    fontWeight: 700,
+                    color: 'rgb(99, 115, 129)',
+
+                }
+            }
+        },
+
+        MuiTableSortLabel: {
+            styleOverrides: {
+                root: {
+                    color: 'inherit',
+                    '&:hover': {
+                        color: 'inherit',
+                    },
+                    '&:active': {
+                        color: 'inherit',
+                    },
+                    '&:focus': {
+                        color: 'inherit',
+                    }
+                }
+            },
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    borderBottom: 'none',
+                    fontWeight: 'inherit',
+                    color: 'inherit',
+                    '&:hover': {
+                        color: 'inherit',
+                    },
+                    '&:active': {
+                        color: 'inherit',
+                    },
+                    '&:focus': {
+                        color: 'inherit',
+                    }
+                },
+                head: {
+                    '&:hover': {
+                        color: 'rgb(33, 43, 54)',
+                    },
+                    '&:active': {
+                        color: 'rgb(33, 43, 54)',
+                    },
+                    '&:focus': {
+                        color: 'rgb(33, 43, 54)',
+                    }
+                }
+            }
         },
         MuiFormControl: {
             variants: [
@@ -157,8 +302,46 @@ const customTheme = createTheme({
                     fontWeight: 700,
                     fontSize: '1.5rem',
                     color: 'rgb(33, 43, 54)',
+                },
+                subtitle2: {
+                    margin: '0px',
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: 'rgb(33, 43, 54)',
                 }
             },
+        },
+        MuiMenuItem: {
+            variants: [
+                {
+                    props: {
+                        variant: 'datagridmenu',
+                    },
+                    style: {
+                        color: 'rgb(33, 43, 54)',
+                        '&:hover': {
+                            borderRadius: '6px',
+                        },
+
+                    },
+                },
+                {
+                    props: {
+                        variant: 'datagridmenu',
+                        color: 'red',
+                    },
+                    style: {
+                        color: 'rgb(255, 72, 66)',
+                    }
+                }
+            ]
+        },
+        MuiTableContainer: {
+            styleOverrides: {
+                root: {
+                    borderBottom: "1px solid rgba(145, 158, 171, 0.32)",
+                }
+            }
         },
         MUIRichTextEditor: {
             styleOverrides: {
