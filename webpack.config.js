@@ -24,6 +24,22 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.(sass|less|css)$/,
+                loaders: ['style-loader', 'css-loader', 'less-loader']
+            },
+            {
+                test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+                use: [
+                    {
+                        loader: "file-loader",
+                        options: {
+                            name: "[name].[ext]",
+                            outputPath: "fonts/",
+                        },
+                    },
+                ],
+            },
 
         ]
     },

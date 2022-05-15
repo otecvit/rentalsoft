@@ -1,0 +1,30 @@
+/* react-responsive-carousel */
+
+.carousel .thumbs {
+    padding-inline-start: 0px;
+    text-align: center;
+}
+
+.thumbs-wrapper button.control-next.control-arrow:before {
+    border-left: 8px solid #637481;
+}
+
+.thumbs-wrapper button.control-next.control-arrow {
+    right: -10px;
+}
+
+.thumbs-wrapper button.control-prev.control-arrow {
+    left: -10px;
+}
+
+.thumbs-wrapper button.control-prev.control-arrow:before {
+    border-right: 8px solid #637481;
+}
+
+.thumbs-wrapper button.control-arrow {
+    margin-top: -23px;
+}
+
+.carousel .thumbs-wrapper {
+    margin-bottom: 0px;
+}

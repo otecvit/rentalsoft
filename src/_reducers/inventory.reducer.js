@@ -27,6 +27,11 @@ export function inventory(state = [], action) {
             return state.filter(item => item.id !== action.tariff.id);
         }
 
+        case inventoryConstants.CLEAR_INVENTORY: {
+
+            return action.message;
+        }
+
         default:
             return state
     }

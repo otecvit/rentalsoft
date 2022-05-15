@@ -8,7 +8,10 @@ const initialState = {
 export function support(state = initialState, action) {
     switch (action.type) {
         case supportConstants.APPLY_IS_LOADING: {
-            return state;
+            return {
+                ...state,
+                isLoading: action.message,
+            }
         }
 
         case supportConstants.LAST_TARIFF_INSERT: {

@@ -37,6 +37,7 @@ import { DialogSelectCategory } from "../../_components/FormComponents/DialogSel
 import { FormInputSelect } from "../../_components/FormComponents/FormInputSelect";
 import { FormInputSelectControlValue } from "../../_components/FormComponents/FormInputSelectControlValue";
 
+
 import { FormInputNumber } from "../../_components/FormComponents/FormInputNumber";
 //import { Previews } from '../../_components/FormComponents/DropZone';
 import { CustomLayout } from '../../_components/FormComponents/DropZoneUploader';
@@ -45,6 +46,7 @@ import { DialogEditTarif } from '../../_components/FormComponents/DialogEditTari
 import BoxStyled from '../../_components/StyledComponent/BoxStyled';
 import BoxStyledTextEditor from '../../_components/StyledComponent/BoxStyledTextEditor';
 import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
+import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponent';
 import { update } from "react-spring";
 
 const tags = [
@@ -117,9 +119,7 @@ function NewInventoryPage() {
 
     const breadcrumbs = [
         <Link underline="hover" key="1" color="inherit" href="/">
-            <Typography>
-                Dashboard
-            </Typography>
+            Dashboard
         </Link>,
         <Link
             underline="hover"
@@ -129,9 +129,10 @@ function NewInventoryPage() {
         >
             Core
         </Link>,
-        <Typography variant="body3" key="3">
+        <span key="4">
             Breadcrumb
-        </Typography>,
+        </span>
+        ,
     ];
 
     useEffect(() => {
@@ -252,14 +253,7 @@ function NewInventoryPage() {
         <Box>
             <Container maxWidth="xl">
                 <BoxStyledTitle>
-
-                    <Typography variant="h4">
-                        Create a new product
-                    </Typography>
-                    <Breadcrumbs separator="›" aria-label="breadcrumb">
-                        {breadcrumbs}
-                    </Breadcrumbs>
-
+                    <HeaderComponent title="Create a new product" breadcrumbs={breadcrumbs} />
                 </BoxStyledTitle>
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={8}>

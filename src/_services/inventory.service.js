@@ -3,6 +3,7 @@ import { authHeader, history } from '../_helpers';
 
 export const inventoryService = {
     load,
+    loadViewInventory,
     add,
 };
 
@@ -103,6 +104,25 @@ function load(companyToken) {
         );
 
 }
+
+
+// загрузка инвентаря для просмотра
+function loadViewInventory(companyToken) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(companyToken)
+    };
+
+    return fetch(`${config.apiUrl}/Inventory/LoadViewInventory.php`, requestOptions)
+        .then(handleResponse)
+        .then(inventory => {
+            return inventory[0].data;
+        }
+        );
+
+}
+
 /*
 function login(username, password) {
     const requestOptions = {

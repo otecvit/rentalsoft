@@ -44,6 +44,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import BoxStyled from '../../_components/StyledComponent/BoxStyled';
 import BoxStyledTextEditor from '../../_components/StyledComponent/BoxStyledTextEditor';
 import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
+import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponent';
 
 import BoxChipVariants from '../../_components/StyledComponent/BoxChipVariants';
 
@@ -125,9 +126,10 @@ function BrowseInventoryPage() {
         >
             Core
         </Link>,
-        <Typography key="3" color="text.primary">
+        <span key="4">
             Breadcrumb
-        </Typography>,
+        </span>
+        ,
     ];
 
     const dispatch = useDispatch();
@@ -165,12 +167,7 @@ function BrowseInventoryPage() {
                 <BoxStyledTitle>
                     <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 3, md: 12 }} justifyContent="center" alignItems="center">
                         <Grid item xs={12} sm={2} md={8} >
-                            <Typography variant="h4">
-                                Inventory
-                            </Typography>
-                            <Breadcrumbs separator="›" aria-label="breadcrumb">
-                                {breadcrumbs}
-                            </Breadcrumbs>
+                            <HeaderComponent title="Innventory" breadcrumbs={breadcrumbs} />
                         </Grid>
                         <Grid item xs={12} sm={1} md={4} style={{ textAlign: 'right' }}>
                             <Button variant="contained" themecolor="rentalBtnSmall" startIcon={<AddIcon />} onClick={handleAddCustomer}>
@@ -179,7 +176,7 @@ function BrowseInventoryPage() {
                         </Grid>
                     </Grid>
                 </BoxStyledTitle>
-                <Paper elevation={0} variant="mainMargin">
+                {/* <Paper elevation={0} variant="mainMargin">
                     <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 24 }}>
                         <Grid item xs={12} sm={6} md={5}>
                             <FormInputText name="" control={control} label="Option name" defaultValue="" />
@@ -199,7 +196,7 @@ function BrowseInventoryPage() {
                             </Button>
                         </Grid>
                     </Grid>
-                </Paper>
+                </Paper> */}
 
                 <Paper elevation={0} variant="mainMarginNoPadding">
                     <Paper variant="titleTabDatagrid">
@@ -230,6 +227,27 @@ function BrowseInventoryPage() {
                                 </IconButton>
                             </Stack>
                         </div>
+                    </Paper>
+                    <Paper elevation={0} variant="mainNoneBorder">
+                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 24 }}>
+                            <Grid item xs={12} sm={6} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={5} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={1} md={4} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                <Button variant="contained" themecolor="rentalThemeSubmit" startIcon={<SearchIcon />} size="large">
+                                    Search
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </Paper>
                     <DataGridComponent data={inventory} />
                 </Paper>

@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { useHistory } from "react-router-dom";
+
+
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -153,30 +156,32 @@ EnhancedTableHead.propTypes = {
 const EnhancedTableToolbar = (props) => {
     const { numSelected } = props;
 
-    return (
-        <Toolbar
-            sx={{
-                pl: { sm: 2 },
-                pr: { xs: 1, sm: 1 },
-            }}
-        >
-            <Typography
-                sx={{ flex: '1 1 100%' }}
-                variant="h6"
-                id="tableTitle"
-                component="div"
-            >
-                Nutrition
-            </Typography>
+    return (<></>)
 
-            <Tooltip title="Filter list">
-                <IconButton>
-                    <FilterListIcon />
-                </IconButton>
-            </Tooltip>
+    // return (
+    //     <Toolbar
+    //         sx={{
+    //             pl: { sm: 2 },
+    //             pr: { xs: 1, sm: 1 },
+    //         }}
+    //     >
+    //         <Typography
+    //             sx={{ flex: '1 1 100%' }}
+    //             variant="h6"
+    //             id="tableTitle"
+    //             component="div"
+    //         >
+    //             Nutrition
+    //         </Typography>
 
-        </Toolbar>
-    );
+    //         <Tooltip title="Filter list">
+    //             <IconButton>
+    //                 <FilterListIcon />
+    //             </IconButton>
+    //         </Tooltip>
+
+    //     </Toolbar>
+    // );
 };
 
 EnhancedTableToolbar.propTypes = {
@@ -189,16 +194,21 @@ export const DataGridComponent = ({ data }) => {
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
     const [selected, setSelected] = React.useState([]);
+    const [currentInventory, setCurrent] = React.useState("");
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const history = useHistory();
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
-    const handleClickMenu = (event) => {
+    const handleClickMenu = (event, chTokenInventory) => {
+
+        setCurrent(chTokenInventory);
         setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
+        setCurrent("");
         setAnchorEl(null);
     };
 
@@ -211,23 +221,24 @@ export const DataGridComponent = ({ data }) => {
 
 
     const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
-        let newSelected = [];
+        // const selectedIndex = selected.indexOf(name);
+        // let newSelected = [];
 
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1),
-            );
-        }
+        // if (selectedIndex === -1) {
+        //     newSelected = newSelected.concat(selected, name);
+        // } else if (selectedIndex === 0) {
+        //     newSelected = newSelected.concat(selected.slice(1));
+        // } else if (selectedIndex === selected.length - 1) {
+        //     newSelected = newSelected.concat(selected.slice(0, -1));
+        // } else if (selectedIndex > 0) {
+        //     newSelected = newSelected.concat(
+        //         selected.slice(0, selectedIndex),
+        //         selected.slice(selectedIndex + 1),
+        //     );
+        // }
 
-        setSelected(newSelected);
+        // setSelected(newSelected);
+        //console.log("name", selected.indexOf(name));
     };
 
     const handleChangePage = (event, newPage) => {
@@ -242,6 +253,11 @@ export const DataGridComponent = ({ data }) => {
     const handleChangeDense = (event) => {
         setDense(event.target.checked);
     };
+
+    const handleClickView = () => {
+        let path = `/inventory/view/${currentInventory}`;
+        history.push(path);
+    }
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
@@ -302,11 +318,11 @@ export const DataGridComponent = ({ data }) => {
                                             <TableCell align="left">
                                                 <IconButton
                                                     aria-label="more"
-                                                    id="long-button"
+                                                    id={index}
                                                     aria-controls={open ? 'long-menu' : undefined}
                                                     aria-expanded={open ? 'true' : undefined}
                                                     aria-haspopup="true"
-                                                    onClick={handleClickMenu}
+                                                    onClick={(event) => handleClickMenu(event, row.chTokenInventory)}
                                                 >
                                                     <MoreVertIcon />
                                                 </IconButton>
@@ -377,7 +393,7 @@ export const DataGridComponent = ({ data }) => {
                     transformOrigin={{ horizontal: 160, vertical: 15 }}
                     anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
                 >
-                    <MenuItem variant="datagridmenu">
+                    <MenuItem variant="datagridmenu" onClick={handleClickView}>
                         <ListItemIcon>
                             <VisibilityIcon fontSize="small" />
                         </ListItemIcon>

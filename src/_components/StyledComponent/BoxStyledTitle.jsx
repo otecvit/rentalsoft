@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 
 const BoxStyledTitle = styled(Box)(({ theme, myColor }) => ({
-    marginBottom: 40,
+    marginBottom: 30,
 }));
 
 export default BoxStyledTitle;

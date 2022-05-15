@@ -10,6 +10,7 @@ import { PrivateRoute } from '../_components';
 import { HomePage } from '../HomePage';
 import { AuthenticationPage } from '../Pages/AuthenticationPage';
 import customTheme from '../App/theme';
+import './App.css';
 
 function App() {
 

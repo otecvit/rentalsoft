@@ -28,7 +28,7 @@ const customTheme = createTheme({
                 {
                     props: { variant: 'mainMarginNoPadding' },
                     style: {
-                        margin: "40px 0px 0px",
+                        margin: "30px 0px 0px",
                         boxShadow:
                             "rgb(145 158 171 / 20%) 0px 0px 2px 0px, rgb(145 158 171 / 12%) 0px 12px 24px -4px",
                         borderRadius: 16,
@@ -36,12 +36,19 @@ const customTheme = createTheme({
                     }
                 },
                 {
-
                     props: { variant: 'titleTabDatagrid' },
                     style: {
                         backgroundColor: 'rgb(244, 246, 248)',
                         boxShadow: 'none',
                         borderRadius: '16px 16px 0px 0px',
+                    }
+                },
+                {
+                    props: { variant: 'mainNoneBorder' },
+                    style: {
+                        boxShadow: 'none',
+                        border: 'none',
+                        padding: 24,
                     }
                 },
                 {
@@ -51,6 +58,13 @@ const customTheme = createTheme({
                     }
                 }
             ]
+        },
+        MuiBreadcrumbs: {
+            styleOverrides: {
+                root: {
+                    fontSize: '0.8rem'
+                }
+            }
         },
         MuiTab: {
             styleOverrides: {
@@ -255,6 +269,16 @@ const customTheme = createTheme({
                     '&:focus': {
                         color: 'rgb(33, 43, 54)',
                     }
+                }
+            }
+        },
+        MuiAccordion: {
+            styleOverrides: {
+                rounded: {
+                    boxShadow: 'none',
+                    '&:before': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.07)',
+                    },
                 }
             }
         },
