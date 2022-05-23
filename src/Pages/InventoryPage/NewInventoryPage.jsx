@@ -226,7 +226,7 @@ function NewInventoryPage() {
     const handleControlledDropzonChangeStatus = (status, allFiles) => {
         setTimeout(() => {
             if (['done', 'removed'].includes(status)) {
-                //console.log([...allFiles]);
+                console.log([...allFiles]);
                 setFiles([...allFiles]);
             }
         }, 0);

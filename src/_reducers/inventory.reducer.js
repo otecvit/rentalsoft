@@ -14,12 +14,7 @@ export function inventory(state = [], action) {
         }
 
         case inventoryConstants.EDIT_INVENTORY: {
-            return state.map((item) => {
-                if (item.id === action.tariff.id)
-                    return action.tariff;
-                else
-                    return item;
-            });
+            return state;
         }
 
         case inventoryConstants.REMOVE_INVENTORY: {

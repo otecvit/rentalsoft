@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
+import { styled } from '@mui/system';
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import MUIRichTextEditor from 'mui-rte';
 import {
     useParams,
@@ -45,7 +47,6 @@ import {
 
 
 import { tableCellClasses } from "@mui/material/TableCell";
-import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -124,6 +125,7 @@ function ViewInventoryPage() {
     });
 
 
+    const viewThemeEditor = createTheme({});
 
     const breadcrumbs = [
         <Link underline="hover" key="1" color="inherit" href="/" onClick={handleClickBreadcrumbs}>
@@ -538,11 +540,13 @@ function ViewInventoryPage() {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {onSkeleton ?
-                                        <MUIRichTextEditor
-                                            value={inventory[0].txtDescription}
-                                            toolbar={false}
-                                            readOnly
-                                        />
+                                        <ThemeProvider theme={viewThemeEditor}>
+                                            <MUIRichTextEditor
+                                                value={inventory[0].txtDescription}
+                                                toolbar={false}
+                                                readOnly
+                                            />
+                                        </ThemeProvider>
                                         : <Skeleton />}
                                 </AccordionDetails>
                             </Accordion>
@@ -567,58 +571,50 @@ function ViewInventoryPage() {
                                                     }
                                                 }}
                                             >
-                                                <TableBody>
-                                                    <TableRow
-                                                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                                    >
-                                                        <StyledTableCell component="th" scope="row">
-                                                            {onSkeleton ? <DescriptionParam>Option name 1</DescriptionParam> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            {onSkeleton ? <DescriptionValue>1111</DescriptionValue> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                    </TableRow>
-                                                    <TableRow
-                                                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                                    >
-                                                        <StyledTableCell component="th" scope="row">
-                                                            {onSkeleton ? <DescriptionParam>Option name 2</DescriptionParam> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            {onSkeleton ? <DescriptionValue>222</DescriptionValue> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                    </TableRow>
-                                                    <TableRow
-                                                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                                    >
-                                                        <StyledTableCell component="th" scope="row">
-                                                            {onSkeleton ? <DescriptionParam>Option name 3</DescriptionParam> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            {onSkeleton ? <DescriptionValue>333</DescriptionValue> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                    </TableRow>
-                                                    <TableRow
-                                                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                                    >
-                                                        <StyledTableCell component="th" scope="row">
-                                                            {onSkeleton ? <DescriptionParam>Option name 4</DescriptionParam> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            {onSkeleton ? <DescriptionValue>444</DescriptionValue> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                    </TableRow>
-                                                    <TableRow
-                                                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                                    >
-                                                        <StyledTableCell component="th" scope="row">
-                                                            {onSkeleton ? <DescriptionParam>Option name 5</DescriptionParam> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            {onSkeleton ? <DescriptionValue>555</DescriptionValue> : <Skeleton />}
-                                                        </StyledTableCell>
-                                                    </TableRow>
-                                                </TableBody>
+
+                                                {onSkeleton ?
+                                                    <TableBody>
+                                                        {inventory[0].arrOptions.map((item, index) => (
+                                                            <TableRow key={index}>
+                                                                <StyledTableCell component="th" scope="row">
+                                                                    <DescriptionParam>{item.optionName}</DescriptionParam>
+                                                                </StyledTableCell>
+                                                                <StyledTableCell>
+                                                                    <DescriptionValue>{item.optionValue}</DescriptionValue>
+                                                                </StyledTableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                    :
+                                                    <TableBody>
+                                                        <TableRow>
+                                                            <StyledTableCell component="th" scope="row">
+                                                                <Skeleton />
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Skeleton />
+                                                            </StyledTableCell>
+                                                        </TableRow>
+                                                        <TableRow>
+                                                            <StyledTableCell component="th" scope="row">
+                                                                <Skeleton />
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Skeleton />
+                                                            </StyledTableCell>
+                                                        </TableRow>
+                                                        <TableRow>
+                                                            <StyledTableCell component="th" scope="row">
+                                                                <Skeleton />
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Skeleton />
+                                                            </StyledTableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                }
+
+
                                             </Table>
                                         </Grid>
                                     </Grid>

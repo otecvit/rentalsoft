@@ -111,14 +111,16 @@ function remove(tariff) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function edit(tariff) {
+function edit(inventory) {
 
     return dispatch => {
-        tariffsService.edit(tariff)
+        inventoryService.edit(inventory)
             .then(
-                tariff => {
-                    dispatch(request(tariff));
-                    //dispatch(success());
+                inventory => {
+                    dispatch(request(inventory));
+                    //history.push('/inventory');
+                    //dispatch(request(inventory));
+
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -127,10 +129,12 @@ function edit(tariff) {
             );
     };
 
-    function request(tariff) { return { type: tariffsConstants.EDIT_TARIFF, tariff } }
-    function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function request(inventory) { return { type: inventoryConstants.EDIT_INVENTORY, inventory } }
+    function lastTariffId(tariffid) { return { type: supportConstants.LAST_TARIFF_INSERT, tariffid } }
+    function success(inventory) { return { type: inventoryConstants.INSERT_SUCCESS_CUSTOMER, inventory } }
+    function failure(error) { return { type: inventoryConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
+
 }
 
 

@@ -160,6 +160,10 @@ function BrowseInventoryPage() {
         };
     }, []);
 
+    const handleClearInventory = () => {
+        dispatch(inventoryActions.clearInventoryState());
+    }
+
 
     return (
         <Box>
@@ -249,7 +253,7 @@ function BrowseInventoryPage() {
                             </Grid>
                         </Grid>
                     </Paper>
-                    <DataGridComponent data={inventory} />
+                    <DataGridComponent data={inventory} handleClear={handleClearInventory} />
                 </Paper>
             </Container>
         </Box>

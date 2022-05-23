@@ -5,6 +5,7 @@ export const inventoryService = {
     load,
     loadViewInventory,
     add,
+    edit,
 };
 
 function add(inventory) {
@@ -28,8 +29,9 @@ function add(inventory) {
                     formData.append(
                         "fileToUpload[]",
                         inventory.filesToUpload[i].file
-
                     );
+
+                    console.log(inventory.filesToUpload[i].file)
                 }
 
                 formData.append("companyToken", inventory.companyToken);
@@ -123,6 +125,109 @@ function loadViewInventory(companyToken) {
 
 }
 
+function edit(inventory) {
+
+    if (!!inventory.filesToUpload) {
+        // добавляем инвентарь
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(inventory)
+        };
+
+        return fetch(`${config.apiUrl}/Inventory/EditInventory.php`, requestOptions)
+            .then(handleResponse)
+            .then(item => {
+
+                // собираем body для файла
+                let formData = new FormData();
+
+                for (var i = 0; i < inventory.filesToUpload.length; i++) {
+                    formData.append(
+                        "fileToUpload[]",
+                        inventory.filesToUpload[i].file
+                    );
+                }
+
+                formData.append("companyToken", inventory.companyToken);
+
+                const requestOptionsFiles = {
+                    method: 'POST',
+                    body: formData
+                }
+
+                // отправляем файл
+                return fetch(`${config.apiUrl}/Support/UploadFiles.php`, requestOptionsFiles)
+                    .then(handleResponse)
+                    .then(file => {
+                        return {
+                            ...item[0].data,
+                            ...file[0],
+                        }
+                    })
+            })
+            .then(result => {
+
+                // записываем url картинки в базу данных
+                // files объединяем два маасива: картинки которые оставляем и картинки которые загрузили
+                const requestOptionsEditFile = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+
+                        files: [...inventory.filesToLeave, ...result.data],
+                        chTokenInventory: result.chTokenInventory,
+                    })
+                };
+
+                return fetch(`${config.apiUrl}/Inventory/EditFileName.php`, requestOptionsEditFile)
+                    .then(handleResponse)
+                    .then(() => {
+                        return result;
+                    })
+
+            })
+            .then(result => {
+
+                if (!inventory.filesToRemove.length) return result;
+
+                const requestOptionsRemoveFile = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        files: inventory.filesToRemove,
+                        companyToken: inventory.companyToken,
+                    })
+                };
+
+                return fetch(`${config.apiUrl}/Support/DeleteFiles.php`, requestOptionsRemoveFile)
+                    .then(handleResponse)
+                    .then(() => {
+                        return result;
+                    })
+
+            })
+
+    }
+    else {
+        // добавляем инвентарь
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(inventory)
+        };
+
+        return fetch(`${config.apiUrl}/Inventory/EditInventory.php`, requestOptions)
+            .then(handleResponse)
+            .then(item => {
+                return item[0].data
+            })
+
+    }
+
+
+}
+
 /*
 function login(username, password) {
     const requestOptions = {
@@ -211,7 +316,7 @@ function _delete(id) {
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
-
+        console.log(data);
         if (!response.ok) {
             /*
             if (response.status === 401) {

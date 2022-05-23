@@ -189,7 +189,7 @@ EnhancedTableToolbar.propTypes = {
 };
 
 
-export const DataGridComponent = ({ data }) => {
+export const DataGridComponent = ({ data, handleClear }) => {
 
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
@@ -256,6 +256,13 @@ export const DataGridComponent = ({ data }) => {
 
     const handleClickView = () => {
         let path = `/inventory/view/${currentInventory}`;
+        handleClear(); // чистим state перед переходом
+        history.push(path);
+    }
+
+    const handleClickEdit = () => {
+        let path = `/inventory/detail/${currentInventory}`;
+        handleClear(); // чистим state перед переходом
         history.push(path);
     }
 
@@ -304,7 +311,7 @@ export const DataGridComponent = ({ data }) => {
                                             <TableCell align="left"><Typography variant="subtitle2">#{row.iNom}</Typography></TableCell>
                                             <TableCell align="left">
                                                 <Stack direction="row" justifyContent="flex-start" alignItems="center">
-                                                    <Avatar alt={row.chName} src={row.arrFilePath ? row.arrFilePath[0].file : ""} variant="avatartable" />
+                                                    {/* <Avatar alt={row.chName} src={row.arrFilePath ? row.arrFilePath[0].file : ""} variant="avatartable" /> */}
                                                     <Typography variant="subtitle2">{row.chName}</Typography>
                                                 </Stack>
                                             </TableCell>
@@ -399,7 +406,7 @@ export const DataGridComponent = ({ data }) => {
                         </ListItemIcon>
                         View
                     </MenuItem>
-                    <MenuItem variant="datagridmenu">
+                    <MenuItem variant="datagridmenu" onClick={handleClickEdit}>
                         <ListItemIcon>
                             <EditIcon fontSize="small" />
                         </ListItemIcon>

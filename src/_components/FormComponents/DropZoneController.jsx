@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Controller } from "react-hook-form";
 import Dropzone from 'react-dropzone-uploader';
 
@@ -84,6 +84,8 @@ const Layout = ({ input, previews, submitButton, dropzoneProps, files, extra: { 
     )
 }
 
+
+
 const Input = ({ accept, onFiles, files, getFilesFromEvent }) => {
     const text = files.length > 0 ? 'Add more files' : 'Choose files'
 
@@ -118,7 +120,9 @@ const Input = ({ accept, onFiles, files, getFilesFromEvent }) => {
     )
 }
 
-export const DropZoneController = ({ name, control, label, InputProps, handleControlledDropzonChangeStatus }) => {
+export const DropZoneController = ({ name, control, label, InputProps, handleControlledDropzonChangeStatus, initialfiles = "" }) => {
+
+    const [file, setFile] = useState(undefined);
 
     const getFilesFromEvent = e => {
         return new Promise(resolve => {
@@ -128,6 +132,7 @@ export const DropZoneController = ({ name, control, label, InputProps, handleCon
         })
     }
 
+
     return (
         <Controller
             control={control}
@@ -136,12 +141,14 @@ export const DropZoneController = ({ name, control, label, InputProps, handleCon
                 <Dropzone
                     InputComponent={Input}
                     LayoutComponent={Layout}
+
                     onChangeStatus={(file, status, allFiles) => {
                         handleControlledDropzonChangeStatus(status, allFiles, onChange);
                     }}
                     getFilesFromEvent={getFilesFromEvent}
                 />
-            )}
+            )
+            }
         />
     );
 };
