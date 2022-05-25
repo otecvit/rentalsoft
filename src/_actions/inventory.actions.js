@@ -8,7 +8,7 @@ import { history } from '../_helpers';
 export const inventoryActions = {
     add,
     load,
-    loadViewInventory,
+    loadDataInventory,
     remove,
     edit,
     clearInventoryState
@@ -63,14 +63,16 @@ function load(companyToken) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function loadViewInventory(companyToken) {
+function loadDataInventory(companyToken) {
 
     return dispatch => {
+        // включаем режим загрузки
         dispatch(loading(true));
-        inventoryService.loadViewInventory(companyToken)
+        inventoryService.loadDataInventory(companyToken)
             .then(
                 inventory => {
                     dispatch(request(inventory));
+                    // включаем режим загрузки
                     dispatch(loading(false));
                 },
                 error => {
@@ -118,7 +120,7 @@ function edit(inventory) {
             .then(
                 inventory => {
                     dispatch(request(inventory));
-                    //history.push('/inventory');
+                    history.push('/inventory');
                     //dispatch(request(inventory));
 
                 },

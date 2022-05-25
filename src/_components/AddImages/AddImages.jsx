@@ -1,6 +1,8 @@
 import React, { useCallback, useState, useEffect, Fragment } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
+    Box,
+    Typography,
     Paper,
     IconButton,
     ImageList,
@@ -8,6 +10,28 @@ import {
     ImageListItemBar
 } from '@mui/material';
 import { Cancel } from '@mui/icons-material';
+
+import UploadLogo from '../../image/icons/upload.svg';
+
+const baseStyle = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '40px 8px',
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: 'rgba(145, 158, 171, 0.32)',
+    borderStyle: 'dashed',
+    backgroundColor: 'rgb(244, 246, 248)',
+    color: '#bdbdbd',
+    outline: 'none',
+    transition: 'border .24s ease-in-out',
+    width: '100%',
+    cursor: 'pointer',
+    boxShadow: 'none',
+};
+
 
 const AddImages = (props) => {
 
@@ -42,8 +66,10 @@ const AddImages = (props) => {
         const newFiles = [...files];
         newFiles.splice(index, 1);
         setFiles(newFiles);
-        // отправляем новый массив и путь к удаляемому файлу
         handleDeleteFile(newFiles, preview);
+
+
+
     };
 
     const ImagesList = () => {
@@ -51,9 +77,11 @@ const AddImages = (props) => {
             <ImageList
                 rowHeight={150}
                 sx={{
+                    mt: files.length ? 2 : 0,
                     '&.MuiImageList-root': {
                         gridTemplateColumns:
                             'repeat(auto-fill, minmax(150px, 1fr))!important',
+                        marginBottom: '0px',
                     },
                 }}
             >
@@ -91,31 +119,23 @@ const AddImages = (props) => {
         )
     };
 
-    // useEffect(() => {
-    //     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-    //     return () => files.forEach(file => URL.revokeObjectURL(file.preview));
-    // }, []);
-
     return (
         <>
-            <Paper
-                sx={{
-                    cursor: 'pointer',
-                    background: '#fafafa',
-                    color: '#bdbdbd',
-                    border: '1px dashed #ccc',
-                    '&:hover': { border: '1px solid #ccc' },
-                }}
-            >
-                <div style={{ padding: '16px' }} {...getRootProps()} >
-                    <input {...getInputProps()} />
-                    {isDragActive ? (
-                        <p style={{ color: 'green' }}>Drop the files here...</p>
-                    ) : (
-                        <p>Drag 'n' Drop some files here, or click to select files</p>
-                    )}
-                    <em>(images with *.jpeg, *.png, *.jpg extension will be accepted)</em>
+            <Paper style={baseStyle}  {...getRootProps()}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Box sx={{ width: 220 }}>
+                        <img src={UploadLogo} alt="upload logo" />
+                    </Box>
+                    <Box sx={{ paddingLeft: '24px' }}>
+                        <Typography variant="h5">
+                            Drop or Select file
+                        </Typography>
+                        <Typography variant="body2">
+                            Drop files here or click browse thorough your machine
+                        </Typography>
+                    </Box>
                 </div>
+                <input {...getInputProps()} />
             </Paper>
             <ImagesList />
         </>

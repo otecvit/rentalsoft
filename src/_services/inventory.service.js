@@ -3,7 +3,7 @@ import { authHeader, history } from '../_helpers';
 
 export const inventoryService = {
     load,
-    loadViewInventory,
+    loadDataInventory,
     add,
     edit,
 };
@@ -108,15 +108,15 @@ function load(companyToken) {
 }
 
 
-// загрузка инвентаря для просмотра
-function loadViewInventory(companyToken) {
+// загрузка инвентаря 
+function loadDataInventory(companyToken) {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(companyToken)
     };
 
-    return fetch(`${config.apiUrl}/Inventory/LoadViewInventory.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Inventory/LoadDataInventory.php`, requestOptions)
         .then(handleResponse)
         .then(inventory => {
             return inventory[0].data;
@@ -127,104 +127,92 @@ function loadViewInventory(companyToken) {
 
 function edit(inventory) {
 
-    if (!!inventory.filesToUpload) {
-        // добавляем инвентарь
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(inventory)
-        };
+    // изменяем инвентарь
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inventory)
+    };
 
-        return fetch(`${config.apiUrl}/Inventory/EditInventory.php`, requestOptions)
-            .then(handleResponse)
-            .then(item => {
+    return fetch(`${config.apiUrl}/Inventory/EditInventory.php`, requestOptions)
+        .then(handleResponse)
+        .then(item => {
 
-                // собираем body для файла
-                let formData = new FormData();
+            if (!inventory.filesToUpload.length) return {
+                ...item[0].data,
+                data: [],
+            };
 
-                for (var i = 0; i < inventory.filesToUpload.length; i++) {
-                    formData.append(
-                        "fileToUpload[]",
-                        inventory.filesToUpload[i].file
-                    );
-                }
+            // собираем body для файла
+            let formData = new FormData();
 
-                formData.append("companyToken", inventory.companyToken);
+            for (var i = 0; i < inventory.filesToUpload.length; i++) {
+                formData.append(
+                    "fileToUpload[]",
+                    inventory.filesToUpload[i].file
+                );
+            }
 
-                const requestOptionsFiles = {
-                    method: 'POST',
-                    body: formData
-                }
+            formData.append("companyToken", inventory.companyToken);
 
-                // отправляем файл
-                return fetch(`${config.apiUrl}/Support/UploadFiles.php`, requestOptionsFiles)
-                    .then(handleResponse)
-                    .then(file => {
-                        return {
-                            ...item[0].data,
-                            ...file[0],
-                        }
-                    })
-            })
-            .then(result => {
+            const requestOptionsFiles = {
+                method: 'POST',
+                body: formData
+            }
 
-                // записываем url картинки в базу данных
-                // files объединяем два маасива: картинки которые оставляем и картинки которые загрузили
-                const requestOptionsEditFile = {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+            // отправляем файл
+            return fetch(`${config.apiUrl}/Support/UploadFiles.php`, requestOptionsFiles)
+                .then(handleResponse)
+                .then(file => {
+                    return {
+                        ...item[0].data,
+                        ...file[0],
+                    }
+                })
+        })
+        .then(result => {
 
-                        files: [...inventory.filesToLeave, ...result.data],
-                        chTokenInventory: result.chTokenInventory,
-                    })
-                };
+            // записываем url картинки в базу данных
+            // files объединяем два маасива: картинки которые оставляем и картинки которые загрузили
+            const requestOptionsEditFile = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
 
-                return fetch(`${config.apiUrl}/Inventory/EditFileName.php`, requestOptionsEditFile)
-                    .then(handleResponse)
-                    .then(() => {
-                        return result;
-                    })
+                    files: [...inventory.filesToLeave, ...result.data],
+                    chTokenInventory: result.chTokenInventory,
+                })
+            };
 
-            })
-            .then(result => {
+            return fetch(`${config.apiUrl}/Inventory/EditFileName.php`, requestOptionsEditFile)
+                .then(handleResponse)
+                .then(() => {
+                    return result;
+                })
 
-                if (!inventory.filesToRemove.length) return result;
+        })
+        .then(result => {
 
-                const requestOptionsRemoveFile = {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        files: inventory.filesToRemove,
-                        companyToken: inventory.companyToken,
-                    })
-                };
+            // нет файлов для удаления
+            if (!inventory.filesToRemove.length) return result;
 
-                return fetch(`${config.apiUrl}/Support/DeleteFiles.php`, requestOptionsRemoveFile)
-                    .then(handleResponse)
-                    .then(() => {
-                        return result;
-                    })
+            // удаляем файлы с сервера
+            const requestOptionsRemoveFile = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    files: inventory.filesToRemove,
+                    companyToken: inventory.companyToken,
+                })
+            };
 
-            })
+            return fetch(`${config.apiUrl}/Support/DeleteFiles.php`, requestOptionsRemoveFile)
+                .then(handleResponse)
+                .then(() => {
+                    return result;
+                })
 
-    }
-    else {
-        // добавляем инвентарь
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(inventory)
-        };
-
-        return fetch(`${config.apiUrl}/Inventory/EditInventory.php`, requestOptions)
-            .then(handleResponse)
-            .then(item => {
-                return item[0].data
-            })
-
-    }
-
+        })
 
 }
 

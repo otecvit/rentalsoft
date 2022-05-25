@@ -77,7 +77,7 @@ function ViewInventoryPage() {
 
     useEffect(() => {
         // загружаем продукт для просмотра
-        dispatch(inventoryActions.loadViewInventory({ token: user.companyToken, inventoryToken: inventoryToken }));
+        dispatch(inventoryActions.loadDataInventory({ token: user.companyToken, inventoryToken: inventoryToken }));
     }, []);
 
     useEffect(() => {

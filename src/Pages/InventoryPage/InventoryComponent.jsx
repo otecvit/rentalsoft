@@ -6,7 +6,6 @@ import { convertToRaw } from 'draft-js'
 
 import {
     Container,
-    Box,
     Paper,
     Grid,
     Typography,
@@ -27,8 +26,6 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-import { styled } from '@mui/system';
 
 import { categoryActions, tariffsActions, supportActions, inventoryActions } from '../../_actions';
 
@@ -58,8 +55,7 @@ const tags = [
     { title: 'rrrrrrr', idTag: 1957 },
 ]
 
-
-const InventoryComponent = ({ inventoryToken }) => {
+const InventoryComponent = ({ inventoryToken = "" }) => {
     const {
         handleSubmit,
         control,
@@ -72,8 +68,9 @@ const InventoryComponent = ({ inventoryToken }) => {
         },
     } = useForm({
         defaultValues: {
-            productName: "",
-            description: "",
+            chName: "",
+            txtDescription: "",
+
             sellPrice: "0",
             depositAmount: "0",
             salesTax: "",
@@ -106,7 +103,7 @@ const InventoryComponent = ({ inventoryToken }) => {
     const [selectedCategory, setCategory] = useState("");
     const [onSkeleton, setSceleton] = useState(false);
     const [tagsInventory, setTag] = useState([]);
-    const [files, setFiles] = useState(null)
+    const [arrCurrentFiles, setFiles] = useState(null); // state в котором хранятся текущие файлы, которые отображаются
     const [removeFiles, setRemoveFiles] = useState([])
 
     const [trackMethod, setTrackMethod] = useState("0");
@@ -136,7 +133,7 @@ const InventoryComponent = ({ inventoryToken }) => {
     ];
 
     useEffect(() => {
-        dispatch(inventoryActions.loadViewInventory({ token: user.companyToken, inventoryToken: inventoryToken }));
+        dispatch(inventoryActions.loadDataInventory({ token: user.companyToken, inventoryToken: inventoryToken }));
         dispatch(categoryActions.load({ companyToken: user.companyToken }));
         dispatch(tariffsActions.load({ companyToken: user.companyToken }));
     }, []);
@@ -146,7 +143,6 @@ const InventoryComponent = ({ inventoryToken }) => {
         if (inventory !== undefined && inventory.length != 0) {
             setSceleton(true);
             initialValue(); // инициализация значений
-
         }
         else
             setSceleton(false);
@@ -157,7 +153,7 @@ const InventoryComponent = ({ inventoryToken }) => {
 
         if (support.lastTariffID && support.lastTariffID !== "") {
             setValue("rentalTariff", support.lastTariffID); // меняем значение формы
-            setTariff(support.lastTariffID); // устанавливаем текущий пароль
+            setTariff(support.lastTariffID); // устанавливаем текущий тариф
             dispatch(supportActions.lastTariff("")); // очищаем редюсер
         }
 
@@ -165,10 +161,12 @@ const InventoryComponent = ({ inventoryToken }) => {
 
 
     const initialValue = () => {
-        setValue("productName", inventory[0].chName); // Product Name
-        setValue("files", inventory[0].arrFilePath); // Product Name
+        setValue("chName", inventory[0].chName); // Product Name
+        setValue("txtDescription", inventory[0].txtDescription);
+
+        setValue("files", inventory[0].arrFilePath);
+
         setFiles(inventory[0].arrFilePath.map((item) => { return { preview: item.file } }));
-        //setValue("description", inventory[0].txtDescription); // Description
     }
 
     const SelectCategoryBtn = () => {
@@ -256,8 +254,12 @@ const InventoryComponent = ({ inventoryToken }) => {
 
     const handleSubmitInventory = (data) => {
 
+
+        console.log(arrCurrentFiles);
+        console.log(data.files);
+
         // возвращаем массив только Файлов
-        const filesToUpload = files.filter((item) => {
+        const filesToUpload = arrCurrentFiles.filter((item) => {
             if (Blob && item instanceof Blob)
                 return item;
         });
@@ -266,6 +268,10 @@ const InventoryComponent = ({ inventoryToken }) => {
         const s = new Set(removeFiles);
         const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
 
+        // массив файлов, которые надо удалить filesToRemove
+        // проверяем на blob при удалении еще не закачанной картинки
+        const filesToRemove = removeFiles.filter(e => e.search('blob:') == -1);
+
         console.log({
             ...data,
             inventoryToken: inventoryToken,
@@ -273,7 +279,7 @@ const InventoryComponent = ({ inventoryToken }) => {
             categoryID: selectedCategory,
             tags: tagsInventory,
             filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-            filesToRemove: removeFiles ? removeFiles : null,
+            filesToRemove: filesToRemove ? filesToRemove : null,
             filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
             companyToken: user.companyToken,
         });
@@ -285,7 +291,7 @@ const InventoryComponent = ({ inventoryToken }) => {
             categoryID: selectedCategory,
             tags: tagsInventory,
             filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-            filesToRemove: removeFiles ? removeFiles : null,
+            filesToRemove: filesToRemove ? filesToRemove : null,
             filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
             companyToken: user.companyToken,
         }));
@@ -297,7 +303,7 @@ const InventoryComponent = ({ inventoryToken }) => {
         <Container maxWidth="xl">
             <BoxStyledTitle>
                 {onSkeleton ?
-                    <HeaderComponent title={inventory[0].chName} breadcrumbs={breadcrumbs} />
+                    <HeaderComponent title={getValues("chName")} breadcrumbs={breadcrumbs} />
                     : <Skeleton width="50%" />
                 }
 
@@ -306,7 +312,7 @@ const InventoryComponent = ({ inventoryToken }) => {
                 <Grid item xs={12} md={8}>
                     <Paper elevation={0} variant="main">
                         <FormInputText
-                            name="productName"
+                            name="chName"
                             control={control}
                             label="Product name"
                             rules={{
@@ -322,13 +328,13 @@ const InventoryComponent = ({ inventoryToken }) => {
                             <BoxStyledTextEditor>
                                 <MUIRichTextEditor
                                     label="Start typing..."
-                                    value={onSkeleton && inventory[0].txtDescription}
+                                    value={onSkeleton && getValues("txtDescription")}
                                     controls={["title", "bold", "italic", "underline", "strikethrough", "highlight", "undo", "redo", "link", "numberList", "bulletList", "quote", "code", "clear"]}
                                     onChange={value => {
                                         const content = JSON.stringify(
                                             convertToRaw(value.getCurrentContent())
                                         );
-                                        setValue("description", content);
+                                        setValue("txtDescription", content);
                                     }}
                                 />
                             </BoxStyledTextEditor>
@@ -338,11 +344,10 @@ const InventoryComponent = ({ inventoryToken }) => {
                                 Images
                             </Typography>
                             <AddImages
-                                initialfiles={onSkeleton ? files : []}
+                                initialfiles={onSkeleton ? arrCurrentFiles : []}
                                 handleControlledDropzone={handleControlledDropzone}
                                 handleDeleteFile={handleDeleteFile}
                             />
-                            {/* <DropZoneController name="files" initialfiles="http://crm.mirprokata.by/api_v2/images/db461d237ae326b4982ad10b622acf/2022-04-24/6db1aabdea010c12433c777339376ddb.jpg" control={control} handleControlledDropzonChangeStatus={handleControlledDropzonChangeStatus} /> */}
                         </BoxStyled>
                     </Paper>
                     <Paper elevation={0} variant="mainMargin">

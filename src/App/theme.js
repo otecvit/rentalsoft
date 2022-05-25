@@ -35,6 +35,7 @@ const customTheme = createTheme({
                         padding: 0,
                     }
                 },
+
                 {
                     props: { variant: 'titleTabDatagrid' },
                     style: {
