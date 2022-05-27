@@ -7,7 +7,7 @@ import FormControl from "@mui/material/FormControl";
 export const FormInputSelectControlValue = ({
     name,
     control,
-    defaultValue,
+    defaultValue = "",
     children,
     label,
     size,
@@ -15,6 +15,7 @@ export const FormInputSelectControlValue = ({
     onChange = () => { },
     value = ""
 }) => {
+
     return (
         <Controller
             render={({ field }) => (

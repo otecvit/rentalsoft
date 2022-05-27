@@ -16,8 +16,8 @@ function InventoryPage() {
         <div>
             <Switch>
                 <Route path="/inventory/new" component={NewInventoryPage} />
-                <Route path="/inventory/view/:inventoryToken" component={ViewInventoryPage} />
-                <Route path="/inventory/detail/:inventoryToken" component={EditInventoryPage} />
+                <Route path="/inventory/view/:chTokenInventory" component={ViewInventoryPage} />
+                <Route path="/inventory/detail/:chTokenInventory" component={EditInventoryPage} />
                 <Route path="/inventory" component={BrowseInventoryPage} />
             </Switch>
         </div>

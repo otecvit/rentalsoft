@@ -102,7 +102,7 @@ export const PricingTemplateBrowse = () => {
 
   useEffect(() => {
     // загружаем тарифы
-    dispatch(tariffsActions.load({ companyToken: user.companyToken }));
+    dispatch(tariffsActions.load({ chTokenCompany: user.chTokenCompany }));
   }, []);
 
 
@@ -111,9 +111,9 @@ export const PricingTemplateBrowse = () => {
     setOpenDialog(false);
 
     if (!!data.id)
-      dispatch(tariffsActions.edit({ ...data, companyToken: user.companyToken })); // редактируем наш тариф
+      dispatch(tariffsActions.edit({ ...data, chTokenCompany: user.chTokenCompany })); // редактируем наш тариф
     else
-      dispatch(tariffsActions.add({ ...data, companyToken: user.companyToken })); // добавляем наш тариф
+      dispatch(tariffsActions.add({ ...data, chTokenCompany: user.chTokenCompany })); // добавляем наш тариф
   }
 
   // удаляем тариф
@@ -123,7 +123,7 @@ export const PricingTemplateBrowse = () => {
     // удаляем тариф наш тариф
     dispatch(tariffsActions.remove({
       id: selectedTariff,
-      companyToken: user.companyToken
+      chTokenCompany: user.chTokenCompany
     }));
     // очищаем текущий тариф
     setSelectedTariff("");

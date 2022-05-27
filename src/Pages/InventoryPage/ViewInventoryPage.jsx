@@ -66,7 +66,7 @@ import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponen
 import BoxChipVariants from '../../_components/StyledComponent/BoxChipVariants';
 
 function ViewInventoryPage() {
-    let { inventoryToken } = useParams();
+    let { chTokenInventory } = useParams();
     const [currentTab, setTab] = useState('1');
     const [expanded, setExpanded] = useState('panel1');
     const [onSkeleton, setSceleton] = useState(false);
@@ -77,7 +77,7 @@ function ViewInventoryPage() {
 
     useEffect(() => {
         // загружаем продукт для просмотра
-        dispatch(inventoryActions.loadDataInventory({ token: user.companyToken, inventoryToken: inventoryToken }));
+        dispatch(inventoryActions.loadDataInventory({ chTokenCompany: user.chTokenCompany, chTokenInventory: chTokenInventory }));
     }, []);
 
     useEffect(() => {

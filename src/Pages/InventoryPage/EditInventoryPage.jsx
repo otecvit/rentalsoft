@@ -29,12 +29,12 @@ import { DialogSelectCategory } from "../../_components/FormComponents/DialogSel
 
 
 function EditInventoryPage() {
-  let { inventoryToken } = useParams();
+  let { chTokenInventory } = useParams();
 
 
   return (
     <Box>
-      <InventoryComponent inventoryToken={inventoryToken} />
+      <InventoryComponent chTokenInventory={chTokenInventory} actions="edit" />
     </Box>
   );
 

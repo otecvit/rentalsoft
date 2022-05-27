@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm, useWatch, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
 import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
@@ -32,6 +32,7 @@ import { categoryActions, tariffsActions, supportActions, inventoryActions } fro
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { DialogSelectCategory } from "../../_components/FormComponents/DialogSelectCategory";
 import { FormInputSelect } from "../../_components/FormComponents/FormInputSelect";
+
 import { FormInputSelectControlValue } from "../../_components/FormComponents/FormInputSelectControlValue";
 
 
@@ -55,7 +56,7 @@ const tags = [
     { title: 'rrrrrrr', idTag: 1957 },
 ]
 
-const InventoryComponent = ({ inventoryToken = "" }) => {
+const InventoryComponent = ({ chTokenInventory = "", actions }) => {
     const {
         handleSubmit,
         control,
@@ -70,31 +71,30 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
         defaultValues: {
             chName: "",
             txtDescription: "",
-
-            sellPrice: "0",
-            depositAmount: "0",
-            salesTax: "",
-            options: [{ optionName: "", optionValue: "" }],
-            productTracking: [],
-            productFiles: [],
-            countItem: "0",
-            identifier: "",
-            category: "Select Category",
-            rentalLocation: "",
-            rentalTariff: "",
-            yourSKU: "",
-            makeFeatured: false,
-            weight: "",
-            height: "",
-            width: "",
-            length: "",
-            freeShipping: false,
+            chSellPrice: "0",
+            chDepositAmount: "0",
+            chSalesTax: "",
+            arrOptions: [{ optionName: "", optionValue: "" }],
+            chTariff: "",
+            chProductTracking: "0",
+            chCountItem: "0",
+            chIdentifier: "",
+            chRentalLocation: "",
+            chYourSKU: "",
+            chWeight: "",
+            chHeight: "",
+            chWidth: "",
+            chLength: "",
+            blMakeFeatured: false,
+            blFreeShipping: false,
+            chCategoryName: "Find category",
+            arrTagsNew: []
         }
     });
 
     const { fields, append, remove, update } = useFieldArray({
         control,
-        name: "options",
+        name: "arrOptions",
     })
 
     const [open, setOpen] = useState(false);
@@ -133,26 +133,34 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
     ];
 
     useEffect(() => {
-        dispatch(inventoryActions.loadDataInventory({ token: user.companyToken, inventoryToken: inventoryToken }));
-        dispatch(categoryActions.load({ companyToken: user.companyToken }));
-        dispatch(tariffsActions.load({ companyToken: user.companyToken }));
+        dispatch(categoryActions.load({ chTokenCompany: user.chTokenCompany }));
+        dispatch(tariffsActions.load({ chTokenCompany: user.chTokenCompany }));
+        if (actions === "edit")
+            dispatch(inventoryActions.loadDataInventory({ chTokenCompany: user.chTokenCompany, chTokenInventory: chTokenInventory }));
+        else
+            dispatch(inventoryActions.clearInventoryState());
     }, []);
 
     useEffect(() => {
         // статус загрузки
-        if (inventory !== undefined && inventory.length != 0) {
+        if (actions === "edit")
+            if (inventory !== undefined && inventory.length != 0) {
+                setSceleton(true);
+                initialValueEdit(); // инициализация значений
+            }
+            else
+                setSceleton(false);
+        if (actions === "add") {
             setSceleton(true);
-            initialValue(); // инициализация значений
+            initialValueAdd(); // инициализация значений
         }
-        else
-            setSceleton(false);
     }, [support.isLoading]);
 
 
     useEffect(() => {
 
         if (support.lastTariffID && support.lastTariffID !== "") {
-            setValue("rentalTariff", support.lastTariffID); // меняем значение формы
+            setValue("chTariff", support.lastTariffID); // меняем значение формы
             setTariff(support.lastTariffID); // устанавливаем текущий тариф
             dispatch(supportActions.lastTariff("")); // очищаем редюсер
         }
@@ -160,13 +168,35 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
     }, [tariffs]);
 
 
-    const initialValue = () => {
+    const initialValueEdit = () => {
         setValue("chName", inventory[0].chName); // Product Name
         setValue("txtDescription", inventory[0].txtDescription);
+        setValue("files", inventory[0].arrFilePath.length ? inventory[0].arrFilePath : []);
+        setFiles(inventory[0].arrFilePath.length ? inventory[0].arrFilePath.map((item) => { return { preview: item.file } }) : []);
+        setValue("chSellPrice", inventory[0].chSellPrice);
+        setValue("chDepositAmount", inventory[0].chDepositAmount);
+        setValue("chSalesTax", inventory[0].chSalesTax);
+        setValue("chTariff", inventory[0].chTariff);
+        setTariff(inventory[0].chTariff);
+        setValue("arrOptions", inventory[0].arrOptions);
+        setValue("chProductTracking", inventory[0].chProductTracking);
+        setTrackMethod(inventory[0].chProductTracking);
+        setValue("chCountItem", inventory[0].chCountItem);
+        setValue("chIdentifier", inventory[0].chIdentifier);
+        setValue("chRentalLocation", inventory[0].chRentalLocation);
+        setValue("chYourSKU", inventory[0].chYourSKU);
+        setValue("chWeight", inventory[0].chWeight);
+        setValue("chHeight", inventory[0].chHeight);
+        setValue("chWidth", inventory[0].chWidth);
+        setValue("chLength", inventory[0].chLength);
+        setValue("blMakeFeatured", inventory[0].blMakeFeatured === "1" ? true : false);
+        setValue("blFreeShipping", inventory[0].blFreeShipping === "1" ? true : false);
+        handleSelectCategory(inventory[0].chCategoryID);
+        setTag(tags.filter(x => inventory[0].arrTags.includes(x.idTag)));
+    }
 
-        setValue("files", inventory[0].arrFilePath);
-
-        setFiles(inventory[0].arrFilePath.map((item) => { return { preview: item.file } }));
+    const initialValueAdd = () => {
+        setFiles([]);
     }
 
     const SelectCategoryBtn = () => {
@@ -185,6 +215,14 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
     };
 
 
+    // /// ищем значение тэга по id
+    // const findByIdTag = (array, id) => {
+    //     var result;
+    //     array.some(item => result = item.idTag === id ? item : findById(item.children || [], id));
+    //     return result;
+    // };
+
+
     /// ищем значение категории по id
     const findById = (array, id) => {
         var result;
@@ -193,11 +231,10 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
     };
 
     // обратная функция выбора категории в диалоговом окне
-    const handleOk = (currentCategory) => {
-
+    const handleSelectCategory = (currentCategory) => {
         if (!!currentCategory) {
             // Записываем в форму
-            setValue("category", findById(category, currentCategory).name);
+            setValue("chCategoryName", findById(category, currentCategory).name);
             // сохраняем в state категоррию
             setCategory(currentCategory);
         }
@@ -213,11 +250,25 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
     };
 
     const handleChangeTrackMethod = (event) => {
-        setTrackMethod(event.target.value)
+        setTrackMethod(event.target.value);
+        setValue("chProductTracking", event.target.value);
+    }
+
+    const handleChangeFeatured = (event) => {
+        setValue("blMakeFeatured", !getValues("blMakeFeatured"));
+    };
+
+    const handleChangeShiping = (event) => {
+        setValue("blFreeShipping", !getValues("blFreeShipping"))
     }
 
     const handleChangeCount = () => {
 
+    }
+
+    const handleChangeTags = (newValue) => {
+        console.log(newValue)
+        //setTag(newValue);
     }
 
     const handleChangeTariff = (event) => {
@@ -251,12 +302,7 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
         setRemoveFiles(prev => [...prev, preview]);
     }
 
-
     const handleSubmitInventory = (data) => {
-
-
-        console.log(arrCurrentFiles);
-        console.log(data.files);
 
         // возвращаем массив только Файлов
         const filesToUpload = arrCurrentFiles.filter((item) => {
@@ -264,38 +310,81 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                 return item;
         });
 
-        // возвращаем массив файлов, которые надо оставить и не удалять
-        const s = new Set(removeFiles);
-        const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
+
 
         // массив файлов, которые надо удалить filesToRemove
         // проверяем на blob при удалении еще не закачанной картинки
         const filesToRemove = removeFiles.filter(e => e.search('blob:') == -1);
 
-        console.log({
-            ...data,
-            inventoryToken: inventoryToken,
-            tariff: selectedTariff,
-            categoryID: selectedCategory,
-            tags: tagsInventory,
-            filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-            filesToRemove: filesToRemove ? filesToRemove : null,
-            filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
-            companyToken: user.companyToken,
-        });
+        // console.log({
+        //     ...data,
+        //     chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
+        //     chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
+        //     blMakeFeatured: data.blMakeFeatured ? "1" : "0",
+        //     blFreeShipping: data.blFreeShipping ? "1" : "0",
+        //     chTokenInventory: chTokenInventory,
+        //     chTariff: selectedTariff,
+        //     chCategoryID: selectedCategory,
+        //     arrTags: tagsInventory.map(item => item.idTag),
+        //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
+        //     filesToRemove: filesToRemove ? filesToRemove : null,
+        //     filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
+        //     chTokenCompany: user.chTokenCompany,
+        // });
 
-        dispatch(inventoryActions.edit({
-            ...data,
-            inventoryToken: inventoryToken,
-            tariff: selectedTariff,
-            categoryID: selectedCategory,
-            tags: tagsInventory,
-            filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-            filesToRemove: filesToRemove ? filesToRemove : null,
-            filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
-            companyToken: user.companyToken,
-        }));
+        if (actions === "edit") {
 
+            // возвращаем массив файлов, которые надо оставить и не удалять
+            const s = new Set(removeFiles);
+            const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
+
+            dispatch(inventoryActions.edit({
+                ...data,
+                chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
+                chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
+                blMakeFeatured: data.blMakeFeatured ? "1" : "0",
+                blFreeShipping: data.blFreeShipping ? "1" : "0",
+                chTokenInventory: chTokenInventory,
+                chTariff: selectedTariff,
+                chCategoryID: selectedCategory,
+                arrTags: tagsInventory.map(item => item.idTag),
+                filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
+                filesToRemove: filesToRemove ? filesToRemove : null,
+                filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
+                chTokenCompany: user.chTokenCompany,
+            }));
+        }
+        else {
+            // console.log({
+            //     ...data,
+            //     chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
+            //     chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
+            //     blMakeFeatured: data.blMakeFeatured ? "1" : "0",
+            //     blFreeShipping: data.blFreeShipping ? "1" : "0",
+            //     chTariff: selectedTariff,
+            //     chCategoryID: selectedCategory,
+            //     arrTags: tagsInventory.map(item => item.idTag),
+            //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
+            //     filesToRemove: filesToRemove ? filesToRemove : null,
+            //     filesToLeave: null,
+            //     chTokenCompany: user.chTokenCompany,
+            // });
+
+            dispatch(inventoryActions.add({
+                ...data,
+                chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
+                chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
+                blMakeFeatured: data.blMakeFeatured ? "1" : "0",
+                blFreeShipping: data.blFreeShipping ? "1" : "0",
+                chTariff: selectedTariff,
+                chCategoryID: selectedCategory,
+                arrTags: tagsInventory.map(item => item.idTag),
+                filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
+                filesToRemove: filesToRemove ? filesToRemove : null,
+                filesToLeave: null,
+                chTokenCompany: user.chTokenCompany,
+            }));
+        }
     }
 
     return (
@@ -303,10 +392,9 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
         <Container maxWidth="xl">
             <BoxStyledTitle>
                 {onSkeleton ?
-                    <HeaderComponent title={getValues("chName")} breadcrumbs={breadcrumbs} />
+                    <HeaderComponent title={actions === "edit" ? getValues("chName") : "Create a new product"} breadcrumbs={breadcrumbs} />
                     : <Skeleton width="50%" />
                 }
-
             </BoxStyledTitle>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={8}>
@@ -354,7 +442,7 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                         <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 3, md: 3 }}>
                             <Grid item xs={12} sm={3} md={1}>
                                 <FormInputNumber
-                                    name="sellPrice"
+                                    name="chSellPrice"
                                     control={control}
                                     label="Sell Price"
                                     InputProps={{
@@ -365,7 +453,7 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                             </Grid>
                             <Grid item xs={12} sm={3} md={1}>
                                 <FormInputNumber
-                                    name="depositAmount"
+                                    name="chDepositAmount"
                                     control={control}
                                     label="Deposit Amount"
                                     InputProps={{
@@ -376,15 +464,14 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                             </Grid>
                             <Grid item xs={12} sm={3} md={1}>
                                 <FormInputSelect
-                                    id="salesTax"
-                                    name="salesTax"
+                                    id="chSalesTax"
+                                    name="chSalesTax"
                                     control={control}
                                     defaultValue=""
                                     variant="outlined"
                                     margin="normal"
                                     label="Sales Tax"
                                     labelId="sales-tax-label-id"
-
                                 >
                                     <MenuItem value="">Select Tax</MenuItem>
                                     <MenuItem value="servidor">1</MenuItem>
@@ -399,8 +486,8 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                             <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 3, md: 3 }}>
                                 <Grid item xs={12} sm={3} md={2}>
                                     <FormInputSelectControlValue
-                                        id="rentalTariff"
-                                        name="rentalTariff"
+                                        id="chTariff"
+                                        name="chTariff"
                                         control={control}
                                         defaultValue=""
                                         variant="outlined"
@@ -426,7 +513,6 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                                 </Grid>
                             </Grid>
                         </BoxStyled>
-
                         {
                             !!(selectedTariff) &&
                             (
@@ -450,7 +536,6 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                                 </BoxStyled>
                             )
                         }
-
                     </Paper>
                     <Paper elevation={0} variant="mainMargin">
                         <Typography variant="body2">
@@ -461,10 +546,10 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                                 fields.map((item, index) => (
                                     <Fragment key={item.id}>
                                         <Grid item xs={12} sm={6} md={6}>
-                                            <FormInputText name={`options[${index}].optionName`} control={control} label="Option name" defaultValue={item.optionName} />
+                                            <FormInputText name={`arrOptions[${index}].optionName`} control={control} label="Option name" defaultValue={item.optionName} />
                                         </Grid>
                                         <Grid item xs={12} sm={5} md={5}>
-                                            <FormInputText name={`options[${index}].optionValue`} control={control} label="Option value" value={item.optionValue} />
+                                            <FormInputText name={`arrOptions[${index}].optionValue`} control={control} label="Option value" value={item.optionValue} />
                                         </Grid>
                                         <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                             {
@@ -496,24 +581,24 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                             onChange={handleChangeTrackMethod}
                             row
                         >
-                            <FormControlLabel value="0" control={<Radio />} {...register("productTracking")} label="Group items" />
-                            <FormControlLabel value="1" control={<Radio />} {...register("productTracking")} label="Individual item" />
+                            <FormControlLabel value="0" control={<Radio />} {...register("chProductTracking")} label="Group items" />
+                            <FormControlLabel value="1" control={<Radio />} {...register("chProductTracking")} label="Individual item" />
                         </RadioGroup>
                         <BoxStyled>
                             {
                                 trackMethod === "0" ?
-                                    <FormInputNumber name="countItem" control={control} label="Count item" InputProps={{ inputProps: { min: 0, max: 100 } }} onChange={handleChangeCount} /> :
-                                    <FormInputText name="identifier" control={control} label="Identifier" />
+                                    <FormInputNumber name="chCountItem" control={control} label="Count item" InputProps={{ inputProps: { min: 0, max: 100 } }} onChange={handleChangeCount} /> :
+                                    <FormInputText name="chIdentifier" control={control} label="Identifier" />
                             }
                         </BoxStyled>
                         <BoxStyled>
-                            <FormInputText name="category" control={control} label="Category" InputProps={{ readOnly: true, endAdornment: <SelectCategoryBtn /> }} />
-                            {open && <DialogSelectCategory data={category} handleOk={handleOk} handleClose={handleClose} />}
+                            <FormInputText name="chCategoryName" control={control} label="Category" InputProps={{ readOnly: true, endAdornment: <SelectCategoryBtn /> }} />
+                            {open && <DialogSelectCategory data={category} handleOk={handleSelectCategory} handleClose={handleClose} />}
                         </BoxStyled>
                         <BoxStyled>
                             <FormInputSelect
                                 id="rentalLocation"
-                                name="rentalLocation"
+                                name="chRentalLocation"
                                 control={control}
                                 defaultValue=""
                                 variant="outlined"
@@ -534,41 +619,72 @@ const InventoryComponent = ({ inventoryToken = "" }) => {
                             id="tags-standard"
                             options={tags}
                             getOptionLabel={(option) => option.title}
-                            defaultValue={[]}
-                            onChange={(event, newValue) => {
+                            value={tagsInventory}
+                            onChange={(_, newValue) => {
                                 setTag(newValue);
                             }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     label="Tags"
-                                    placeholder=""
                                 />
                             )}
                         />
                         <BoxStyled>
-                            <FormInputText name="yourSKU" control={control} label="Your SKU" />
+                            <FormInputText name="chYourSKU" control={control} label="Your SKU" />
                         </BoxStyled>
                         <BoxStyled>
-                            <FormControlLabel control={<Switch />} {...register("makeFeatured")} label="Make as featured" />
+                            <Controller
+                                name="blMakeFeatured"
+                                control={control}
+                                render={(props) => {
+                                    return (
+                                        <>
+                                            <Switch
+                                                name="blMakeFeatured"
+                                                onChange={handleChangeFeatured}
+                                                value={getValues("blMakeFeatured")}
+                                                checked={getValues("blMakeFeatured")}
+                                            />
+                                            Make as featured
+                                        </>
+                                    );
+                                }}
+                            />
                         </BoxStyled>
                     </Paper>
                     <Paper elevation={0} variant="mainMargin">
                         <Typography variant="body2">
                             Shipping Params
                         </Typography>
-                        <FormInputText name="weight" control={control} label="Weight" />
+                        <FormInputText name="chWeight" control={control} label="Weight" />
                         <BoxStyled>
-                            <FormInputText name="height" control={control} label="Height" />
+                            <FormInputText name="chHeight" control={control} label="Height" />
                         </BoxStyled>
                         <BoxStyled>
-                            <FormInputText name="width" control={control} label="Width" />
+                            <FormInputText name="chWidth" control={control} label="Width" />
                         </BoxStyled>
                         <BoxStyled>
-                            <FormInputText name="length" control={control} label="Length" />
+                            <FormInputText name="chLength" control={control} label="Length" />
                         </BoxStyled>
                         <BoxStyled>
-                            <FormControlLabel control={<Switch />} {...register("freeShipping")} label="Free shipping" />
+                            <Controller
+                                name="blFreeShipping"
+                                control={control}
+                                render={(props) => {
+                                    return (
+                                        <>
+                                            <Switch
+                                                name="blFreeShipping"
+                                                onChange={handleChangeShiping}
+                                                value={getValues("blFreeShipping")}
+                                                checked={getValues("blFreeShipping")}
+                                            />
+                                            Free shipping
+                                        </>
+                                    );
+                                }}
+                            />
                         </BoxStyled>
                     </Paper>
                     <BoxStyled>

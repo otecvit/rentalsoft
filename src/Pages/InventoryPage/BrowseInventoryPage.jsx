@@ -153,7 +153,7 @@ function BrowseInventoryPage() {
         );
 
 
-        dispatch(inventoryActions.load({ token: user.companyToken }));
+        dispatch(inventoryActions.load({ chTokenCompany: user.chTokenCompany }));
 
         return () => {
             node.parentNode.removeChild(node);
