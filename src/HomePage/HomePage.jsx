@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, Route, Switch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
 
 import { userActions } from '../_actions';
 import { PrivateRoute } from '../_components';
@@ -35,6 +36,8 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 const drawerWidth = 240;
 
@@ -108,6 +111,7 @@ function HomePage(comp) {
 
 
   const user = useSelector(state => state.authentication.user);
+  const alert = useSelector(state => state.alert);
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -120,9 +124,39 @@ function HomePage(comp) {
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (!!alert.message) {
+      switch (alert.type) {
+        case 'alert-success': {
+          toast.success(alert.message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } break;
+        case 'alert-danger': {
+          toast.error(alert.message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } break;
+      }
+    }
+  }, [alert]);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      <ToastContainer />
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
@@ -155,6 +189,12 @@ function HomePage(comp) {
           </ListItemIcon>
           <ListItemText primary="Dashboard" />
         </ListItem>
+        <ListItem button key="Orders" component={Link} to="/orders">
+          <ListItemIcon>
+            <PeopleIcon />
+          </ListItemIcon>
+          <ListItemText primary="Orders" />
+        </ListItem>
         <ListItem button key="Customers" component={Link} to="/customers">
           <ListItemIcon>
             <PeopleIcon />
@@ -166,6 +206,36 @@ function HomePage(comp) {
             <InventoryIcon />
           </ListItemIcon>
           <ListItemText primary="Inventory" />
+        </ListItem>
+        <ListItem button key="Bundles" component={Link} to="/bundles">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Bundles" />
+        </ListItem>
+        <ListItem button key="Consumable" component={Link} to="/consumable">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Consumable" />
+        </ListItem>
+        <ListItem button key="Services" component={Link} to="/services">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Services" />
+        </ListItem>
+        <ListItem button key="Reports" component={Link} to="/reports">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Reports" />
+        </ListItem>
+        <ListItem button key="User managment" component={Link} to="/users">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="User managment" />
         </ListItem>
         <ListItem button key="Settings" component={Link} to="/settings">
           <ListItemIcon>

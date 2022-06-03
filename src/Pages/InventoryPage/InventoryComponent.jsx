@@ -316,27 +316,30 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
         // проверяем на blob при удалении еще не закачанной картинки
         const filesToRemove = removeFiles.filter(e => e.search('blob:') == -1);
 
-        // console.log({
-        //     ...data,
-        //     chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
-        //     chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
-        //     blMakeFeatured: data.blMakeFeatured ? "1" : "0",
-        //     blFreeShipping: data.blFreeShipping ? "1" : "0",
-        //     chTokenInventory: chTokenInventory,
-        //     chTariff: selectedTariff,
-        //     chCategoryID: selectedCategory,
-        //     arrTags: tagsInventory.map(item => item.idTag),
-        //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-        //     filesToRemove: filesToRemove ? filesToRemove : null,
-        //     filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
-        //     chTokenCompany: user.chTokenCompany,
-        // });
+
 
         if (actions === "edit") {
 
             // возвращаем массив файлов, которые надо оставить и не удалять
             const s = new Set(removeFiles);
             const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
+
+
+            // console.log({
+            //     ...data,
+            //     chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
+            //     chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
+            //     blMakeFeatured: data.blMakeFeatured ? "1" : "0",
+            //     blFreeShipping: data.blFreeShipping ? "1" : "0",
+            //     chTokenInventory: chTokenInventory,
+            //     chTariff: selectedTariff,
+            //     chCategoryID: selectedCategory,
+            //     arrTags: tagsInventory.map(item => item.idTag),
+            //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
+            //     filesToRemove: filesToRemove ? filesToRemove : null,
+            //     filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
+            //     chTokenCompany: user.chTokenCompany,
+            // });
 
             dispatch(inventoryActions.edit({
                 ...data,

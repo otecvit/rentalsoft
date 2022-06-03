@@ -48,33 +48,6 @@ import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponen
 
 import BoxChipVariants from '../../_components/StyledComponent/BoxChipVariants';
 
-// import Grid from '@mui/material/Grid';
-// import Button from '@mui/material/Button';
-// import ButtonGroup from '@mui/material/ButtonGroup';
-// import AddIcon from '@mui/icons-material/Add';
-// import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-// import SearchIcon from '@mui/icons-material/Search';
-// import ClickAwayListener from '@mui/material/ClickAwayListener';
-// import MenuItem from '@mui/material/MenuItem';
-// import MenuList from '@mui/material/MenuList';
-// import Popper from '@mui/material/Popper';
-// import Grow from '@mui/material/Grow';
-// import Paper from '@mui/material/Paper';
-// import Chip from '@mui/material/Chip';
-// import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-// import { DataGrid } from '@mui/x-data-grid';
-// import Typography from '@mui/material/Typography';
-// import Box from '@mui/material/Box';
-// import Stack from '@mui/material/Stack';
-// import Breadcrumbs from '@mui/material/Breadcrumbs';
-// import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-// import Link from '@mui/material/Link';
-// import IconButton from '@mui/material/IconButton';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import AlarmIcon from '@mui/icons-material/Alarm';
-// import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-
-
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { DataGridComponent } from "../../_components/FormComponents/DataGridComponent";
 
@@ -83,6 +56,47 @@ function handleClickBreadcrumbs(event) {
     event.preventDefault();
     console.info('You clicked a breadcrumb.');
 }
+
+const headCells = [
+    {
+        id: 'id',
+        numeric: false,
+        label: '#',
+        align: 'left',
+        width: 30,
+    },
+    {
+        id: 'chName',
+        numeric: false,
+        label: 'Name',
+        align: 'left',
+    },
+    {
+        id: 'chCountItem',
+        numeric: true,
+        label: 'Quantity',
+        align: 'left',
+    },
+    {
+        id: 'rentprice',
+        numeric: true,
+        label: 'Rent Price',
+        align: 'left',
+    },
+    {
+        id: 'status',
+        numeric: true,
+        label: 'Status',
+        align: 'left',
+    },
+    {
+        id: 'actions',
+        numeric: true,
+        label: '',
+        align: 'left',
+        width: 5,
+    },
+];
 
 function BrowseInventoryPage() {
     const history = useHistory();
@@ -160,6 +174,7 @@ function BrowseInventoryPage() {
         };
     }, []);
 
+
     const handleClearInventory = () => {
         dispatch(inventoryActions.clearInventoryState());
     }
@@ -180,27 +195,6 @@ function BrowseInventoryPage() {
                         </Grid>
                     </Grid>
                 </BoxStyledTitle>
-                {/* <Paper elevation={0} variant="mainMargin">
-                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 24 }}>
-                        <Grid item xs={12} sm={6} md={5}>
-                            <FormInputText name="" control={control} label="Option name" defaultValue="" />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={5}>
-                            <FormInputText name="" control={control} label="Option name" defaultValue="" />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={5}>
-                            <FormInputText name="" control={control} label="Option name" defaultValue="" />
-                        </Grid>
-                        <Grid item xs={12} sm={5} md={5}>
-                            <FormInputText name="" control={control} label="Option name" defaultValue="" />
-                        </Grid>
-                        <Grid item xs={12} sm={1} md={4} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                            <Button variant="contained" themecolor="rentalThemeSubmit" startIcon={<SearchIcon />} size="large">
-                                Search
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </Paper> */}
 
                 <Paper elevation={0} variant="mainMarginNoPadding">
                     <Paper variant="titleTabDatagrid">
@@ -253,7 +247,13 @@ function BrowseInventoryPage() {
                             </Grid>
                         </Grid>
                     </Paper>
-                    <DataGridComponent data={inventory} handleClear={handleClearInventory} />
+                    <DataGridComponent
+                        data={inventory}
+                        handleClear={handleClearInventory}
+                        type="inventory"
+                        headCells={headCells}
+                        chTokenCompany={user.chTokenCompany}
+                    />
                 </Paper>
             </Container>
         </Box>

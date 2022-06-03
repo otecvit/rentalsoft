@@ -276,10 +276,38 @@ const customTheme = createTheme({
         },
         MuiAccordion: {
             styleOverrides: {
-                rounded: {
-                    boxShadow: 'none',
+                root: {
+
+                    borderLeft: `1px solid rgb(221, 225, 227)`,
+                    borderRight: `1px solid rgb(221, 225, 227)`,
+                    borderTop: 0,
+                    borderBottom: 0,
+                    '&:first-of-type': {
+                        borderTop: `1px solid rgb(221, 225, 227)`,
+                    },
+
                     '&:before': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.07)',
+                        display: 'none',
+                    },
+                    boxShadow: 'none',
+
+                    '&.Mui-expanded': {
+                        margin: '0px',
+                        borderBottom: `1px solid rgb(221, 225, 227)`,
+                    },
+                }
+            }
+        },
+        MuiAccordionSummary: {
+            styleOverrides: {
+                root: {
+                    borderBottom: '1px solid rgb(221, 225, 227)',
+                    //borderBottom: '0',
+                    minHeight: 50,
+                    maxHeight: 50,
+                    '&.Mui-expanded': {
+                        minHeight: 50,
+                        maxHeight: 50,
                     },
                 }
             }

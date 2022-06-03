@@ -6,87 +6,10 @@ export const inventoryService = {
     loadDataInventory,
     add,
     edit,
+    remove,
 };
 
-// function add(inventory) {
 
-//     if (!!inventory.filesToUpload) {
-//         // добавляем инвентарь
-//         const requestOptions = {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify(inventory)
-//         };
-
-//         return fetch(`${config.apiUrl}/Inventory/InsertInventory.php`, requestOptions)
-//             .then(handleResponse)
-//             .then(item => {
-
-//                 // собираем body для файла
-//                 let formData = new FormData();
-
-//                 for (var i = 0; i < inventory.filesToUpload.length; i++) {
-//                     formData.append(
-//                         "fileToUpload[]",
-//                         inventory.filesToUpload[i].file
-//                     );
-//                 }
-
-//                 formData.append("companyToken", inventory.companyToken);
-
-//                 const requestOptionsFiles = {
-//                     method: 'POST',
-//                     body: formData
-//                 }
-
-//                 // отправляем файл
-//                 return fetch(`${config.apiUrl}/Support/UploadFiles.php`, requestOptionsFiles)
-//                     .then(handleResponse)
-//                     .then(file => {
-//                         return {
-//                             ...item[0].data,
-//                             ...file[0],
-//                         }
-//                     })
-//             })
-//             .then(result => {
-
-//                 // записываем url картинки в базу данных
-//                 const requestOptionsEditFile = {
-//                     method: 'POST',
-//                     headers: { 'Content-Type': 'application/json' },
-//                     body: JSON.stringify({
-//                         files: result.data,
-//                         chTokenInventory: result.chTokenInventory,
-//                     })
-//                 };
-
-//                 return fetch(`${config.apiUrl}/Inventory/EditFileName.php`, requestOptionsEditFile)
-//                     .then(handleResponse)
-//                     .then(() => {
-//                         return result;
-//                     })
-
-//             })
-//     }
-//     else {
-//         // добавляем инвентарь
-//         const requestOptions = {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify(inventory)
-//         };
-
-//         return fetch(`${config.apiUrl}/Inventory/InsertInventory.php`, requestOptions)
-//             .then(handleResponse)
-//             .then(item => {
-//                 return item[0].data
-//             })
-
-//     }
-
-
-// }
 
 function load(companyToken) {
 
@@ -125,15 +48,11 @@ function loadDataInventory(companyToken) {
 }
 
 function add(inventory) {
-
-    // изменяем инвентарь
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(inventory)
     };
-
-
 
     return fetch(`${config.apiUrl}/Inventory/InsertInventory.php`, requestOptions)
         .then(handleResponse)
@@ -160,8 +79,6 @@ function add(inventory) {
                 method: 'POST',
                 body: formData
             }
-
-
 
             // отправляем файл
             return fetch(`${config.apiUrl}/Support/UploadFiles.php`, requestOptionsFiles)
@@ -295,91 +212,42 @@ function edit(inventory) {
 
 }
 
-/*
-function login(username, password) {
+function remove(inventory) {
+
+    // удаляем инвентарь
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify(inventory)
     };
 
-    return fetch(`http://crm.mirprokata.by/api_v2/Users/AuthenticatetUsers.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Inventory/RemoveInventory.php`, requestOptions)
         .then(handleResponse)
-        .then(user => {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('user', JSON.stringify(user));
+        .then(result => {
 
-            return user;
-        });
+            // нет файлов для удаления
+            if (!inventory.filesToRemove.length) return result;
 
+            // удаляем файлы с сервера
+            const requestOptionsRemoveFile = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    files: inventory.filesToRemove.map(item => item.file),
+                    chTokenCompany: inventory.chTokenCompany,
+                })
+            };
+
+            return fetch(`${config.apiUrl}/Support/DeleteFiles.php`, requestOptionsRemoveFile)
+                .then(handleResponse)
+                .then(() => {
+                    return result[0];
+                })
+
+        })
 }
 
-function logout() {
 
-    // remove user from local storage to log user out
-    localStorage.removeItem('user');
-}
-*/
-/*
-function getAll() {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
-}
-
-function getById(id) {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
-}
-*/
-/*
-function register(user) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
-    };
-
-    //return fetch(`${config.apiUrl}/users/register`, requestOptions).then(handleResponse);
-    return fetch(`http://crm.mirprokata.by/api_v2/Users/InsertUsers.php`, requestOptions)
-        .then(handleResponse)
-        .then(user => {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('user', JSON.stringify(user));
-            return user;
-        });
-}
-*/
-/*
-function update(user) {
-    const requestOptions = {
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
-    };
-
-    return fetch(`${config.apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);;
-}
-*/
-
-/*
-// prefixed function name with underscore because delete is a reserved word in javascript
-function _delete(id) {
-    const requestOptions = {
-        method: 'DELETE',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
-}
-*/
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);

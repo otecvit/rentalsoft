@@ -22,8 +22,9 @@ function add(inventory) {
             .then(
                 inventory => {
                     dispatch(request(inventory));
+                    dispatch(alertActions.success("Succes add"));
                     history.push('/inventory');
-                    //dispatch(request(inventory));
+
 
                 },
                 error => {
@@ -90,14 +91,17 @@ function loadDataInventory(companyToken) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function remove(tariff) {
+function remove(inventory) {
+
+    //console.log(inventory);
 
     return dispatch => {
 
-        tariffsService.remove(tariff)
+        inventoryService.remove(inventory)
             .then(
-                tariff => {
-                    dispatch(request(tariff));
+                inventory => {
+                    dispatch(request(inventory));
+                    dispatch(alertActions.success("Remove complete"));
                     //dispatch(success());
                 },
                 error => {
@@ -107,7 +111,7 @@ function remove(tariff) {
             );
     };
 
-    function request(tariff) { return { type: tariffsConstants.REMOVE_TARIFF, tariff } }
+    function request(inventory) { return { type: inventoryConstants.REMOVE_INVENTORY, inventory } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
@@ -120,6 +124,7 @@ function edit(inventory) {
             .then(
                 inventory => {
                     dispatch(request(inventory));
+                    dispatch(alertActions.success("Succes edit"));
                     history.push('/inventory');
                     //dispatch(request(inventory));
 

@@ -11,8 +11,7 @@
         "start": "webpack-dev-server --open"
     },
     "dependencies": {
-        "@emotion/react": "^11.7.1",
-        "@emotion/styled": "^11.6.0",
+        "@date-io/date-fns": "^2.14.0",
         "@material-ui/data-grid": "^4.0.0-alpha.35",
         "@material-ui/x-license": "^4.0.0-alpha.37",
         "@mui/icons-material": "^5.4.1",
@@ -20,9 +19,9 @@
         "@mui/material": "^5.5.0",
         "@mui/styled-engine-sc": "^5.4.1",
         "@mui/x-data-grid": "^5.6.0",
+        "@mui/x-date-pickers": "^5.0.0-alpha.5",
         "@redux-devtools/extension": "^3.2.2",
         "@unicef/material-ui-currency-textfield": "^0.8.6",
-        "antd": "^4.19.1",
         "css-loader": "^5.2.7",
         "draft-js": "^0.11.7",
         "fg-loadcss": "^3.1.0",
@@ -41,6 +40,7 @@
         "react-responsive-carousel": "^3.2.23",
         "react-router-dom": "^5.1.2",
         "react-spring": "^9.4.4",
+        "react-toastify": "^9.0.1",
         "redux": "^4.0.5",
         "redux-logger": "^4.0.0",
         "redux-thunk": "^2.3.0",

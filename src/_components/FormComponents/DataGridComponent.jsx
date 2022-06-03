@@ -1,5 +1,6 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
 
 
 import PropTypes from 'prop-types';
@@ -31,10 +32,24 @@ import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+
+import useMediaQuery from '@mui/material/useMediaQuery';
+
+
 import { visuallyHidden } from '@mui/utils';
 
 
+import { CustomersTableCell } from './TableCellComponents/CustomersTableCell';
+import { InventoryTableCell } from './TableCellComponents/InventoryTableCell';
+
 import BoxChipVariants from '../StyledComponent/BoxChipVariants';
+import { inventoryActions } from '../../_actions';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -67,49 +82,9 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-const headCells = [
-    {
-        id: 'id',
-        numeric: false,
-        label: '#',
-        align: 'left',
-        width: 30,
-    },
-    {
-        id: 'chName',
-        numeric: false,
-        label: 'Name',
-        align: 'left',
-    },
-    {
-        id: 'chCountItem',
-        numeric: true,
-        label: 'Quantity',
-        align: 'left',
-    },
-    {
-        id: 'rentprice',
-        numeric: true,
-        label: 'Rent Price',
-        align: 'left',
-    },
-    {
-        id: 'status',
-        numeric: true,
-        label: 'Status',
-        align: 'left',
-    },
-    {
-        id: 'actions',
-        numeric: true,
-        label: '',
-        align: 'left',
-        width: 5,
-    },
-];
 
 function EnhancedTableHead(props) {
-    const { order, orderBy, rowCount, onRequestSort } =
+    const { order, orderBy, rowCount, onRequestSort, headCells } =
         props;
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
@@ -147,7 +122,6 @@ function EnhancedTableHead(props) {
 EnhancedTableHead.propTypes = {
 
     onRequestSort: PropTypes.func.isRequired,
-
     order: PropTypes.oneOf(['asc', 'desc']).isRequired,
     orderBy: PropTypes.string.isRequired,
     rowCount: PropTypes.number.isRequired,
@@ -189,26 +163,39 @@ EnhancedTableToolbar.propTypes = {
 };
 
 
-export const DataGridComponent = ({ data, handleClear }) => {
+export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, headCells }) => {
 
-    const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('calories');
-    const [selected, setSelected] = React.useState([]);
-    const [currentInventory, setCurrent] = React.useState("");
-    const [page, setPage] = React.useState(0);
-    const [dense, setDense] = React.useState(false);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState('calories');
+    const [selected, setSelected] = useState([]);
+    const [currentRow, setCurrent] = useState("");
+    const [page, setPage] = useState(0);
+    const [dense, setDense] = useState(false);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const dispatch = useDispatch();
+
     const history = useHistory();
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl);
-    const handleClickMenu = (event, chTokenInventory) => {
 
-        setCurrent(chTokenInventory);
+
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+
+    const handleClickMenu = (event, row) => {
+        switch (type) {
+            case 'inventory': {
+                setCurrent(row.chTokenInventory);
+            } break;
+            case 'customers': {
+                setCurrent(row.chTokenCustomer)
+            }
+        }
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
-        setCurrent("");
+        // setCurrent("");
         setAnchorEl(null);
     };
 
@@ -255,16 +242,35 @@ export const DataGridComponent = ({ data, handleClear }) => {
     };
 
     const handleClickView = () => {
-        let path = `/inventory/view/${currentInventory}`;
+        let path = `/${type}/view/${currentRow}`;
         handleClear(); // чистим state перед переходом
         history.push(path);
     }
 
     const handleClickEdit = () => {
-        let path = `/inventory/detail/${currentInventory}`;
+        let path = `/${type}/detail/${currentRow}`;
         handleClear(); // чистим state перед переходом
         history.push(path);
     }
+
+    const handleClickDelete = () => {
+        setOpenDeleteDialog(true);
+    }
+
+    const handleCloseDeleteDialog = () => {
+        setOpenDeleteDialog(false);
+    };
+
+    const handleOkDeleteDialog = (e) => {
+        //console.log(data);
+        dispatch(inventoryActions.remove({
+            chTokenInventory: currentRow,
+            chTokenCompany: chTokenCompany,
+            filesToRemove: data.filter(item => item.chTokenInventory === currentRow)[0].arrFilePath
+        }))
+        setOpenDeleteDialog(false);
+    };
+
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
@@ -287,6 +293,7 @@ export const DataGridComponent = ({ data, handleClear }) => {
                             orderBy={orderBy}
                             onRequestSort={handleRequestSort}
                             rowCount={data.length}
+                            headCells={headCells}
                         />
                         <TableBody>
                             {/* if you don't need to support IE11, you can replace the `stableSort` call with:
@@ -294,34 +301,16 @@ export const DataGridComponent = ({ data, handleClear }) => {
                             {stableSort(data, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
-                                    const isItemSelected = isSelected(row.name);
-                                    const labelId = `enhanced-table-checkbox-${index}`;
-
                                     return (
                                         <TableRow
                                             hover
                                             onClick={(event) => handleClick(event, row.name)}
                                             role="checkbox"
-                                            aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.chTokenInventory}
-                                            selected={isItemSelected}
+                                            key={index}
                                         >
-
-                                            <TableCell align="left"><Typography variant="subtitle2">#{row.iNom}</Typography></TableCell>
-                                            <TableCell align="left">
-                                                <Stack direction="row" justifyContent="flex-start" alignItems="center">
-                                                    {/* <Avatar alt={row.chName} src={row.arrFilePath ? row.arrFilePath[0].file : ""} variant="avatartable" /> */}
-                                                    <Typography variant="subtitle2">{row.chName}</Typography>
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <BoxChipVariants type="quantity" text={row.chCountItem} />
-                                            </TableCell>
-                                            <TableCell align="left">Starting at $20.00</TableCell>
-                                            <TableCell align="left">
-                                                <BoxChipVariants type="success" text="active" />
-                                            </TableCell>
+                                            {type === 'customers' && <CustomersTableCell row={row} />}
+                                            {type === 'inventory' && <InventoryTableCell row={row} />}
                                             <TableCell align="left">
                                                 <IconButton
                                                     aria-label="more"
@@ -329,7 +318,7 @@ export const DataGridComponent = ({ data, handleClear }) => {
                                                     aria-controls={open ? 'long-menu' : undefined}
                                                     aria-expanded={open ? 'true' : undefined}
                                                     aria-haspopup="true"
-                                                    onClick={(event) => handleClickMenu(event, row.chTokenInventory)}
+                                                    onClick={(event) => handleClickMenu(event, row)}
                                                 >
                                                     <MoreVertIcon />
                                                 </IconButton>
@@ -412,7 +401,7 @@ export const DataGridComponent = ({ data, handleClear }) => {
                         </ListItemIcon>
                         Edit
                     </MenuItem>
-                    <MenuItem variant="datagridmenu" color="red">
+                    <MenuItem variant="datagridmenu" color="red" onClick={handleClickDelete}>
                         <ListItemIcon>
                             <DeleteIcon fontSize="small" sx={{ color: 'rgb(255, 72, 66)' }} />
                         </ListItemIcon>
@@ -421,6 +410,29 @@ export const DataGridComponent = ({ data, handleClear }) => {
 
                 </Menu>
             </Paper>
+            <Dialog
+                open={openDeleteDialog}
+                onClose={handleCloseDeleteDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth
+                maxWidth="sm"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    Message
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Delete inventory?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDeleteDialog}>No</Button>
+                    <Button onClick={handleOkDeleteDialog} autoFocus>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

@@ -18,8 +18,8 @@ export function inventory(state = [], action) {
         }
 
         case inventoryConstants.REMOVE_INVENTORY: {
-            // удфляем тариф из state
-            return state.filter(item => item.id !== action.tariff.id);
+
+            return state.filter(item => item.chTokenInventory !== action.inventory.chTokenInventory);
         }
 
         case inventoryConstants.CLEAR_INVENTORY: {

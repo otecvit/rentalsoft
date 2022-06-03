@@ -4,9 +4,12 @@ import { authHeader, history } from '../_helpers';
 export const customerService = {
     load,
     insert,
+    add,
+    loadDataCustomer
 };
 
-function insert(customer) {
+
+function add(customer) {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -15,15 +18,83 @@ function insert(customer) {
 
     return fetch(`${config.apiUrl}/Customers/InsertCustomer.php`, requestOptions)
         .then(handleResponse)
-        .then(customers => {
-            return customers[0].data;
+        .then(item => {
+
+            if (!customer.filesToUpload.length) return {
+                ...item[0].data,
+                data: [],
+            };
+
+            // собираем body для файла
+            let formData = new FormData();
+
+            for (var i = 0; i < customer.filesToUpload.length; i++) {
+                formData.append(
+                    "fileToUpload[]",
+                    customer.filesToUpload[i].file
+                );
             }
-        );
+
+            formData.append("chTokenCompany", customer.chTokenCompany);
+
+            const requestOptionsFiles = {
+                method: 'POST',
+                body: formData
+            }
+
+            // отправляем файл
+            return fetch(`${config.apiUrl}/Support/UploadFiles.php`, requestOptionsFiles)
+                .then(handleResponse)
+                .then(file => {
+                    return {
+                        ...item[0].data,
+                        ...file[0],
+                    }
+                })
+        })
+        .then(result => {
+            // записываем url картинки в базу данных
+            // files объединяем два маасива: картинки которые оставляем и картинки которые загрузили
+            const requestOptionsEditFile = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    files: result.data,
+                    chTokenCustomer: result.chTokenCustomer,
+                })
+            };
+
+            return fetch(`${config.apiUrl}/Customers/EditFileName.php`, requestOptionsEditFile)
+                .then(handleResponse)
+                .then(() => {
+                    return result;
+                })
+
+        })
+        .then(result => {
+            return result;
+        })
+
+}
+
+function insert(customer) {
+    // const requestOptions = {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(customer)
+    // };
+
+    // return fetch(`${config.apiUrl}/Customers/InsertCustomer.php`, requestOptions)
+    //     .then(handleResponse)
+    //     .then(customers => {
+    //         return customers[0].data;
+    //     }
+    //     );
 }
 
 
 function load(user) {
-    
+
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,10 +105,29 @@ function load(user) {
         .then(handleResponse)
         .then(customers => {
             return customers[0].data;
-            }
+        }
         );
-    
+
 }
+
+function loadDataCustomer(companyToken) {
+
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(companyToken)
+    };
+
+    return fetch(`${config.apiUrl}/Customers/LoadDataCustomer.php`, requestOptions)
+        .then(handleResponse)
+        .then(customers => {
+            return customers[0].data;
+        }
+        );
+
+}
+
+
 /*
 function login(username, password) {
     const requestOptions = {
@@ -126,6 +216,7 @@ function _delete(id) {
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
+        console.log(data);
         if (!response.ok) {
             /*
             if (response.status === 401) {
