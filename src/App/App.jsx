@@ -20,6 +20,9 @@ function App() {
                 <Switch>
                     <PrivateRoute path="/dashboard" component={HomePage} />
                     <PrivateRoute path="/customers" component={HomePage} />
+                    <PrivateRoute path="/services" component={HomePage} />
+                    <PrivateRoute path="/consumables" component={HomePage} />
+                    <PrivateRoute path="/bundles" component={HomePage} />
                     <PrivateRoute path="/inventory" component={HomePage} />
                     <PrivateRoute path="/settings" component={HomePage} />
                     <Route exact path="/">

@@ -178,7 +178,7 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
         setValue("chSalesTax", inventory[0].chSalesTax);
         setValue("chTariff", inventory[0].chTariff);
         setTariff(inventory[0].chTariff);
-        setValue("arrOptions", inventory[0].arrOptions);
+        setValue("arrOptions", !!inventory[0].arrOptions ? inventory[0].arrOptions : [{ optionName: "", optionValue: "" }]);
         setValue("chProductTracking", inventory[0].chProductTracking);
         setTrackMethod(inventory[0].chProductTracking);
         setValue("chCountItem", inventory[0].chCountItem);
@@ -192,7 +192,7 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
         setValue("blMakeFeatured", inventory[0].blMakeFeatured === "1" ? true : false);
         setValue("blFreeShipping", inventory[0].blFreeShipping === "1" ? true : false);
         handleSelectCategory(inventory[0].chCategoryID);
-        setTag(tags.filter(x => inventory[0].arrTags.includes(x.idTag)));
+        if (!!inventory[0].arrTags) setTag(tags.filter(x => inventory[0].arrTags.includes(x.idTag)));
     }
 
     const initialValueAdd = () => {

@@ -47,9 +47,11 @@ import { visuallyHidden } from '@mui/utils';
 
 import { CustomersTableCell } from './TableCellComponents/CustomersTableCell';
 import { InventoryTableCell } from './TableCellComponents/InventoryTableCell';
+import { ConsumablesTableCell } from './TableCellComponents/ConsumablesTableCell';
+import { ServicesTableCell } from './TableCellComponents/ServicesTableCell';
 
 import BoxChipVariants from '../StyledComponent/BoxChipVariants';
-import { inventoryActions } from '../../_actions';
+import { inventoryActions, customerActions, consumablesActions, servicesActions } from '../../_actions';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -189,7 +191,13 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
             } break;
             case 'customers': {
                 setCurrent(row.chTokenCustomer)
-            }
+            } break;
+            case 'consumables': {
+                setCurrent(row.chTokenConsumable)
+            } break;
+            case 'services': {
+                setCurrent(row.chTokenService)
+            } break;
         }
         setAnchorEl(event.currentTarget);
     };
@@ -263,11 +271,37 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
 
     const handleOkDeleteDialog = (e) => {
         //console.log(data);
-        dispatch(inventoryActions.remove({
-            chTokenInventory: currentRow,
-            chTokenCompany: chTokenCompany,
-            filesToRemove: data.filter(item => item.chTokenInventory === currentRow)[0].arrFilePath
-        }))
+        switch (type) {
+            case 'inventory': {
+                dispatch(inventoryActions.remove({
+                    chTokenInventory: currentRow,
+                    chTokenCompany: chTokenCompany,
+                    filesToRemove: data.filter(item => item.chTokenInventory === currentRow)[0].arrFilePath
+                }))
+            } break;
+            case 'customers': {
+                dispatch(customerActions.remove({
+                    chTokenCustomer: currentRow,
+                    chTokenCompany: chTokenCompany,
+                    filesToRemove: data.filter(item => item.chTokenCustomer === currentRow)[0].arrFilePath
+                }))
+            } break;
+            case 'consumables': {
+                dispatch(consumablesActions.remove({
+                    chTokenConsumable: currentRow,
+                    chTokenCompany: chTokenCompany,
+                    filesToRemove: data.filter(item => item.chTokenConsumable === currentRow)[0].arrFilePath
+                }))
+            } break;
+            case 'services': {
+                dispatch(servicesActions.remove({
+                    chTokenService: currentRow,
+                    chTokenCompany: chTokenCompany,
+                    filesToRemove: data.filter(item => item.chTokenService === currentRow)[0].arrFilePath
+                }))
+            } break;
+
+        }
         setOpenDeleteDialog(false);
     };
 
@@ -311,6 +345,9 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
                                         >
                                             {type === 'customers' && <CustomersTableCell row={row} />}
                                             {type === 'inventory' && <InventoryTableCell row={row} />}
+                                            {type === 'consumables' && <ConsumablesTableCell row={row} />}
+                                            {type === 'services' && <ServicesTableCell row={row} />}
+
                                             <TableCell align="left">
                                                 <IconButton
                                                     aria-label="more"
@@ -423,7 +460,7 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Delete inventory?
+                        Delete {type}?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

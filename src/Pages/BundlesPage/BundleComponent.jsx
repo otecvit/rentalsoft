@@ -3,9 +3,11 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
 import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
+import { styled } from '@mui/system';
 
 import {
     Container,
+    Box,
     Paper,
     Grid,
     Typography,
@@ -18,6 +20,9 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
+    TextField,
+    Autocomplete,
+    CircularProgress
 } from '@mui/material';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -31,14 +36,18 @@ import { FormInputDate } from "../../_components/FormComponents/FormInputDate";
 import { FormInputSelect } from "../../_components/FormComponents/FormInputSelect";
 
 import { FormInputNumber } from "../../_components/FormComponents/FormInputNumber";
+import { AutocompleteAsyncSearch } from '../../_components/FormComponents/AutocompleteAsyncSearch';
 import BoxClear from '../../_components/StyledComponent/BoxClear';
 import BoxStyled from '../../_components/StyledComponent/BoxStyled';
+import BoxStyledBorderTop from '../../_components/StyledComponent/BoxStyledBorderTop';
 import BoxStyledTextEditor from '../../_components/StyledComponent/BoxStyledTextEditor';
 import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
 import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponent';
 import AddImages from '../../_components/AddImages/AddImages';
+import EmptyData from '../../_components/InterfaceComponent/EmptyData';
 
-const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
+
+const BundleComponent = ({ chTokenCustomer = "", actions }) => {
     const {
         handleSubmit,
         control,
@@ -49,6 +58,10 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
         },
     } = useForm({
         defaultValues: {
+
+            arrInventory: [],
+
+
             chFirstName: "",
             chLastName: "",
             chPatronymic: "",
@@ -85,6 +98,16 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
     });
 
     const {
+        fields: arrInventoryFields,
+        append: arrInventoryAppend,
+        remove: arrInventoryRemove,
+    } = useFieldArray({
+        control,
+        name: "arrInventory",
+    });
+
+
+    const {
         fields: arrAddressFields,
         append: arrAddressAppend,
         remove: arrAddressRemove,
@@ -106,11 +129,21 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
     const [arrCurrentFiles, setFiles] = useState(null); // state в котором хранятся текущие файлы, которые отображаются
     const [removeFiles, setRemoveFiles] = useState([])
     const [expanded, setExpanded] = useState('panel0');
+    const [open, setOpen] = React.useState(false);
+    const [options, setOptions] = React.useState([]);
+    const loading = open && options.length === 0;
+
 
     const user = useSelector(state => state.authentication.user);
     const support = useSelector(state => state.support);
     const customers = useSelector(state => state.customers);
     const dispatch = useDispatch();
+
+    const TableLabel = styled('div')({
+        fontSize: '0.80rem',
+        color: 'rgb(39, 44, 52)',
+        fontWeight: '700',
+    });
 
     const breadcrumbs = [
         <Link underline="hover" key="1" color="inherit" href="/">
@@ -137,6 +170,7 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
         else
             dispatch(customerActions.clearCustomerState());
     }, []);
+
 
     useEffect(() => {
         // статус загрузки
@@ -211,6 +245,14 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
         });
     }
 
+    // const handleAddInventory = () => {
+    //     arrInventoryAppend({
+    //         chName: "",
+    //         chQuantity: "1",
+    //         chDiscount: "0",
+    //     });
+    // }
+
     const handleControlledDropzone = (allFiles) => {
         // добавляем файлы
         setFiles(prev => [...prev, ...allFiles]);
@@ -244,6 +286,15 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
             date = str.split(" ");
 
         return [date[3], mnths[date[1]], date[2]].join("-");
+    }
+
+    const handleAddInventory = (inventorySelected) => {
+        arrInventoryAppend({
+            chTokenInventory: inventorySelected.chTokenInventory,
+            chName: inventorySelected.chName,
+            chQuantity: "1",
+            chDiscount: "0",
+        });
     }
 
 
@@ -330,37 +381,105 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
                 <Grid item xs={12} md={8}>
                     <Paper elevation={0} variant="main">
                         <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                            <Grid item xs={12} sm={4} md={4}>
+                            <Grid item xs={12} sm={12} md={12}>
                                 <FormInputText
-                                    name="chFirstName"
+                                    name="chName"
                                     control={control}
-                                    label="First name"
+                                    label="Bundle name"
                                     rules={{
                                         required: {
                                             value: true,
-                                            message: "First name is required."
+                                            message: "Bundle name is required."
                                         }
                                     }}
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm={4} md={4}>
-                                <FormInputText
-                                    name="chLastName"
-                                    control={control}
-                                    label="Last name"
-                                    rules={{
-                                        required: {
-                                            value: true,
-                                            message: "Last name is required."
-                                        }
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={4} md={4}>
-                                <FormInputText name="chPatronymic" control={control} label="Patronymic" />
                             </Grid>
                         </Grid>
                     </Paper>
+
+                    <Paper elevation={0} variant="mainMargin">
+                        <BoxClear>
+
+                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <AutocompleteAsyncSearch
+                                        fnAddToBundle={handleAddInventory}
+                                        data="inventory"
+                                    />
+                                </Grid>
+                            </Grid>
+                            {
+                                arrInventoryFields.length ?
+                                    <BoxStyled>
+                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                            <Grid item xs={12} sm={7} md={7}>
+                                            </Grid>
+                                            <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <TableLabel>Quantity</TableLabel>
+                                            </Grid>
+                                            <Grid item xs={11} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <TableLabel>Discount</TableLabel>
+                                            </Grid>
+                                            <Grid item xs={12} sm={1} md={1}>
+                                            </Grid>
+                                        </Grid>
+                                    </BoxStyled> :
+                                    <EmptyData title="This bundle is empty." subtitle="Please add some products." size="200px" />
+                            }
+
+                            {
+                                arrInventoryFields.map((item, index) => (
+
+                                    <BoxStyledBorderTop key={item.id}>
+                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                            <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
+                                                <TableLabel>{item.chName}</TableLabel>
+                                            </Grid>
+                                            <Grid item xs={12} sm={2} md={2}>
+                                                <FormInputNumber
+                                                    name={`arrInventory[${index}].chQuantity`}
+                                                    control={control}
+                                                    size="small"
+                                                    defaultValue={item.chQuantity}
+                                                    sx={{
+                                                        '& legend': { display: 'none' },
+                                                        '& fieldset': { top: 0 },
+                                                    }}
+                                                    InputProps={{
+                                                        inputProps: { min: 1 },
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={11} sm={2} md={2}>
+                                                <FormInputNumber
+                                                    name={`arrInventory[${index}].chDiscount`}
+                                                    control={control}
+                                                    size="small"
+                                                    defaultValue={item.chDiscount}
+                                                    sx={{
+                                                        '& legend': { display: 'none' },
+                                                        '& fieldset': { top: 0 },
+                                                    }}
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                                        inputProps: { min: 0, max: 100 },
+                                                    }}
+                                                />
+                                            </Grid>
+
+                                            <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <IconButton aria-label="del" onClick={() => arrInventoryRemove(index)}>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Grid>
+                                        </Grid>
+                                    </BoxStyledBorderTop>
+
+                                ))
+                            }
+                        </BoxClear>
+                    </Paper>
+
                     <Paper elevation={0} variant="mainMargin">
                         <BoxClear>
                             {
@@ -690,4 +809,4 @@ const CustomerComponent = ({ chTokenCustomer = "", actions }) => {
     );
 }
 
-export { CustomerComponent };
+export { BundleComponent };

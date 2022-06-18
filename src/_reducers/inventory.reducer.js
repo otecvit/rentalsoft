@@ -18,7 +18,6 @@ export function inventory(state = [], action) {
         }
 
         case inventoryConstants.REMOVE_INVENTORY: {
-
             return state.filter(item => item.chTokenInventory !== action.inventory.chTokenInventory);
         }
 

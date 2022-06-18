@@ -1,26 +1,26 @@
-import { supportConstants, customerConstants } from '../_constants';
+import { supportConstants, bundlesConstants } from '../_constants';
 import { dataexchangeService } from '../_services';
 import { alertActions } from './';
 import { history } from '../_helpers';
 
-export const customerActions = {
+export const bundlesActions = {
     load,
     add,
     edit,
     remove,
-    clearCustomerState,
-    loadDataCustomer,
+    clear,
+    loadData,
 };
 
-function add(customer) {
+function add(bundle) {
 
     return dispatch => {
-        dataexchangeService.add(customer, 'Customers/InsertCustomer.php', 'Customers/EditFileName.php')
+        dataexchangeService.add(bundle, 'Bundles/InsertBundle.php', 'Bundles/EditFileName.php')
             .then(
                 customer => {
                     dispatch(request(customer));
                     dispatch(alertActions.success("Succes add"));
-                    history.push('/customers');
+                    history.push('/bundles');
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -29,22 +29,22 @@ function add(customer) {
             );
     };
 
-    function request(customer) { return { type: customerConstants.ADD_CUSTOMER, customer } }
+    function request(bundle) { return { type: bundlesConstants.ADD_BUNDLE, bundle } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function clearCustomerState() {
-    return { type: customerConstants.CLEAR_CUSTOMER, message: [] }
+function clear() {
+    return { type: bundlesConstants.CLEAR_BUNDLES, message: [] }
 }
 
 function load(user) {
     return dispatch => {
-        dataexchangeService.load(user, 'Customers/LoadCustomers.php')
+        dataexchangeService.load(user, 'Bundles/LoadBundles.php')
             .then(
-                customers => {
-                    dispatch(request(customers));
+                bundles => {
+                    dispatch(request(bundles));
                     //dispatch(alertActions.success('Registration successful'));
 
                 },
@@ -56,9 +56,8 @@ function load(user) {
 
     };
 
-    function request(customers) { return { type: customerConstants.LOAD_REQUEST_CUSTOMERS, customers } }
-    function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function request(bundles) { return { type: bundlesConstants.LOAD_BUNDLES, bundles } }
+    function failure(error) { return { type: bundlesConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
@@ -111,7 +110,7 @@ function edit(customer) {
 }
 
 
-function loadDataCustomer(companyToken) {
+function loadData(companyToken) {
 
     return dispatch => {
         // включаем режим загрузки

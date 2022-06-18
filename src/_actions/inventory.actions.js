@@ -1,5 +1,5 @@
 import { supportConstants, inventoryConstants } from '../_constants';
-import { inventoryService } from '../_services';
+import { dataexchangeService } from '../_services';
 import { alertActions } from './';
 import { supportActions } from './support.actions';
 
@@ -18,7 +18,7 @@ export const inventoryActions = {
 function add(inventory) {
 
     return dispatch => {
-        inventoryService.add(inventory)
+        dataexchangeService.add(inventory, 'Inventory/InsertInventory.php', 'Inventory/EditFileName.php')
             .then(
                 inventory => {
                     dispatch(request(inventory));
@@ -44,12 +44,14 @@ function add(inventory) {
 
 
 function load(companyToken) {
+
     return dispatch => {
-        inventoryService.load(companyToken)
+        dispatch(loading(true));
+        dataexchangeService.load(companyToken, 'Inventory/LoadInventory.php')
             .then(
                 inventory => {
                     dispatch(request(inventory));
-
+                    dispatch(loading(false));
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -61,7 +63,9 @@ function load(companyToken) {
     function request(inventory) { return { type: inventoryConstants.LOAD_REQUEST_INVENTORY, inventory } }
     function success(inventory) { return { type: inventoryConstants.INSERT_SUCCESS_CUSTOMER, inventory } }
     function failure(error) { return { type: inventoryConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
+
 }
 
 function loadDataInventory(companyToken) {
@@ -69,7 +73,7 @@ function loadDataInventory(companyToken) {
     return dispatch => {
         // включаем режим загрузки
         dispatch(loading(true));
-        inventoryService.loadDataInventory(companyToken)
+        dataexchangeService.loadData(companyToken, 'Inventory/LoadDataInventory.php')
             .then(
                 inventory => {
                     dispatch(request(inventory));
@@ -97,7 +101,7 @@ function remove(inventory) {
 
     return dispatch => {
 
-        inventoryService.remove(inventory)
+        dataexchangeService.remove(inventory, 'Inventory/RemoveInventory.php')
             .then(
                 inventory => {
                     dispatch(request(inventory));
@@ -120,7 +124,7 @@ function remove(inventory) {
 function edit(inventory) {
 
     return dispatch => {
-        inventoryService.edit(inventory)
+        dataexchangeService.edit(inventory, 'Inventory/EditInventory.php', 'Inventory/EditFileName.php')
             .then(
                 inventory => {
                     dispatch(request(inventory));

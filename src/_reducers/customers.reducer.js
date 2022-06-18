@@ -18,6 +18,11 @@ export function customers(state = [], action) {
             };
         }
 
+        case customerConstants.REMOVE_CUSTOMER: {
+            return state.filter(item => item.chTokenCustomer !== action.customer.chTokenCustomer);
+        }
+
+
         case customerConstants.CLEAR_CUSTOMER: {
             return [];
         }

@@ -8,8 +8,11 @@ import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 
 import { CustomersPage } from '../Pages/CustomersPage';
+import { ConsumablesPage } from '../Pages/ConsumablesPage';
+import { ServicesPage } from '../Pages/ServicesPage';
 import { DashBoardPage } from '../Pages/DashBoardPage';
 import { InventoryPage } from '../Pages/InventoryPage';
+import { BundlesPage } from '../Pages/BundlesPage';
 import { BrowseSettingsPage } from '../Pages/SettingsPages';
 
 import { styled, useTheme } from '@mui/material/styles';
@@ -129,9 +132,9 @@ function HomePage(comp) {
       switch (alert.type) {
         case 'alert-success': {
           toast.success(alert.message, {
-            position: "top-right",
+            position: "bottom-right",
             autoClose: 2000,
-            hideProgressBar: true,
+            hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
@@ -140,9 +143,9 @@ function HomePage(comp) {
         } break;
         case 'alert-danger': {
           toast.error(alert.message, {
-            position: "top-right",
+            position: "bottom-right",
             autoClose: 2000,
-            hideProgressBar: true,
+            hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
@@ -213,11 +216,11 @@ function HomePage(comp) {
           </ListItemIcon>
           <ListItemText primary="Bundles" />
         </ListItem>
-        <ListItem button key="Consumable" component={Link} to="/consumable">
+        <ListItem button key="Consumables" component={Link} to="/consumables">
           <ListItemIcon>
             <InventoryIcon />
           </ListItemIcon>
-          <ListItemText primary="Consumable" />
+          <ListItemText primary="Consumables" />
         </ListItem>
         <ListItem button key="Services" component={Link} to="/services">
           <ListItemIcon>
@@ -249,8 +252,11 @@ function HomePage(comp) {
         <DrawerHeader />
         <Switch>
           <Route path="/customers" component={CustomersPage} />
+          <Route path="/consumables" component={ConsumablesPage} />
+          <Route path="/services" component={ServicesPage} />
           <Route path="/dashboard" component={DashBoardPage} />
           <Route path="/inventory" component={InventoryPage} />
+          <Route path="/bundles" component={BundlesPage} />
           <Route path="/settings" component={BrowseSettingsPage} />
         </Switch>
       </Box>
