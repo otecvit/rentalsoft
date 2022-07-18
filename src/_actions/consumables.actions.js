@@ -47,12 +47,13 @@ function add(consumable) {
 function load(companyToken) {
 
     return dispatch => {
+        dispatch(loading(true));
         dataexchangeService.load(companyToken, 'Consumables/LoadConsumables.php')
             .then(
                 consumables => {
 
                     dispatch(request(consumables));
-
+                    dispatch(loading(false));
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -64,6 +65,7 @@ function load(companyToken) {
     function request(consumables) { return { type: consumablesConstants.LOAD_REQUEST_CONSUMABLES, consumables } }
     function success(consumables) { return { type: consumablesConstants.INSERT_SUCCESS_CUSTOMER, consumables } }
     function failure(error) { return { type: consumablesConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 
 }

@@ -20,7 +20,8 @@ export function bundles(state = [], action) {
         // }
 
         case bundlesConstants.REMOVE_BUNDLE: {
-            return state.filter(item => item.chTokenBundle !== action.bandle.chTokenBundle);
+            console.log("action.bundle.chTokenBundle =>", action.bundle.chTokenBundle)
+            return state.filter(item => item.chTokenBundle !== action.bundle.chTokenBundle);
         }
 
 

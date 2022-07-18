@@ -1,4 +1,4 @@
-import { supportConstants, bundlesConstants } from '../_constants';
+import { supportConstants, bundlesConstants, consumablesConstants } from '../_constants';
 import { dataexchangeService } from '../_services';
 import { alertActions } from './';
 import { history } from '../_helpers';
@@ -17,8 +17,8 @@ function add(bundle) {
     return dispatch => {
         dataexchangeService.add(bundle, 'Bundles/InsertBundle.php', 'Bundles/EditFileName.php')
             .then(
-                customer => {
-                    dispatch(request(customer));
+                bundle => {
+                    dispatch(request(bundle));
                     dispatch(alertActions.success("Succes add"));
                     history.push('/bundles');
                 },
@@ -46,7 +46,6 @@ function load(user) {
                 bundles => {
                     dispatch(request(bundles));
                     //dispatch(alertActions.success('Registration successful'));
-
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -61,12 +60,13 @@ function load(user) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function remove(customer) {
+function remove(bundle) {
+    console.log("--->>", bundle);
     return dispatch => {
-        dataexchangeService.remove(customer, 'Customers/RemoveCustomer.php')
+        dataexchangeService.remove(bundle, 'Bundles/RemoveBundle.php')
             .then(
-                customer => {
-                    dispatch(request(customer));
+                bundles => {
+                    dispatch(request(bundles));
                     dispatch(alertActions.success("Remove complete"));
                     //dispatch(success());
                 },
@@ -77,22 +77,22 @@ function remove(customer) {
             );
     };
 
-    function request(customer) { return { type: customerConstants.REMOVE_CUSTOMER, customer } }
-    function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function request(bundle) { return { type: bundlesConstants.REMOVE_BUNDLE, bundle } }
+    function success(customer) { return { type: bundlesConstants.INSERT_SUCCESS_CUSTOMER, customer } }
+    function failure(error) { console.log(error) }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
 
-function edit(customer) {
+function edit(bundle) {
 
     return dispatch => {
-        dataexchangeService.edit(customer, 'Customers/EditCustomer.php', 'Customers/EditFileName.php')
+        dataexchangeService.edit(bundle, 'Bundles/EditBundle.php', 'Bundles/EditFileName.php')
             .then(
-                customer => {
-                    dispatch(request(customer));
+                bundle => {
+                    dispatch(request(bundle));
                     dispatch(alertActions.success("Succes edit"));
-                    history.push('/customers');
+                    history.push('/bundles');
                     //dispatch(request(inventory));
 
                 },
@@ -103,8 +103,8 @@ function edit(customer) {
             );
     };
 
-    function request(customer) { return { type: customerConstants.EDIT_CUSTOMER, customer } }
-    function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function request(bundle) { return { type: bundlesConstants.EDIT_BUNDLE, bundle } }
+    function failure(error) { return { type: bundlesConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 
 }
@@ -115,10 +115,10 @@ function loadData(companyToken) {
     return dispatch => {
         // включаем режим загрузки
         dispatch(loading(true));
-        dataexchangeService.loadData(companyToken, 'Customers/LoadDataCustomer.php')
+        dataexchangeService.loadData(companyToken, 'Bundles/LoadDataBundle.php')
             .then(
-                customers => {
-                    dispatch(request(customers));
+                bundles => {
+                    dispatch(request(bundles));
                     // включаем режим загрузки
                     dispatch(loading(false));
                 },
@@ -130,9 +130,9 @@ function loadData(companyToken) {
             );
 
     };
-    function request(customers) { return { type: customerConstants.LOAD_REQUEST_CUSTOMERS, customers } }
+    function request(bundles) { return { type: bundlesConstants.LOAD_BUNDLES, bundles } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function failure(error) { return { type: bundlesConstants.INSERT_FAILURE_CUSTOMER, error } }
     function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }

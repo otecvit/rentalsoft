@@ -49,9 +49,10 @@ import { CustomersTableCell } from './TableCellComponents/CustomersTableCell';
 import { InventoryTableCell } from './TableCellComponents/InventoryTableCell';
 import { ConsumablesTableCell } from './TableCellComponents/ConsumablesTableCell';
 import { ServicesTableCell } from './TableCellComponents/ServicesTableCell';
+import { BundlesTableCell } from './TableCellComponents/BundlesTableCell';
 
 import BoxChipVariants from '../StyledComponent/BoxChipVariants';
-import { inventoryActions, customerActions, consumablesActions, servicesActions } from '../../_actions';
+import { inventoryActions, customerActions, consumablesActions, servicesActions, bundlesActions } from '../../_actions';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -198,6 +199,9 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
             case 'services': {
                 setCurrent(row.chTokenService)
             } break;
+            case 'bundles': {
+                setCurrent(row.chTokenBundle)
+            } break;
         }
         setAnchorEl(event.currentTarget);
     };
@@ -300,6 +304,13 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
                     filesToRemove: data.filter(item => item.chTokenService === currentRow)[0].arrFilePath
                 }))
             } break;
+            case 'bundles': {
+                dispatch(bundlesActions.remove({
+                    chTokenBundle: currentRow,
+                    chTokenCompany: chTokenCompany,
+                    filesToRemove: data.filter(item => item.chTokenBundle === currentRow)[0].arrFilePath
+                }))
+            } break;
 
         }
         setOpenDeleteDialog(false);
@@ -347,6 +358,7 @@ export const DataGridComponent = ({ data, handleClear, chTokenCompany, type, hea
                                             {type === 'inventory' && <InventoryTableCell row={row} />}
                                             {type === 'consumables' && <ConsumablesTableCell row={row} />}
                                             {type === 'services' && <ServicesTableCell row={row} />}
+                                            {type === 'bundles' && <BundlesTableCell row={row} />}
 
                                             <TableCell align="left">
                                                 <IconButton

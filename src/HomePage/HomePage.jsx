@@ -8,6 +8,7 @@ import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 
 import { CustomersPage } from '../Pages/CustomersPage';
+import { OrdersPage } from '../Pages/OrdersPage';
 import { ConsumablesPage } from '../Pages/ConsumablesPage';
 import { ServicesPage } from '../Pages/ServicesPage';
 import { DashBoardPage } from '../Pages/DashBoardPage';
@@ -252,6 +253,7 @@ function HomePage(comp) {
         <DrawerHeader />
         <Switch>
           <Route path="/customers" component={CustomersPage} />
+          <Route path="/orders" component={OrdersPage} />
           <Route path="/consumables" component={ConsumablesPage} />
           <Route path="/services" component={ServicesPage} />
           <Route path="/dashboard" component={DashBoardPage} />

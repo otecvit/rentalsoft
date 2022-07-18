@@ -61,7 +61,7 @@ const tags = [
     { title: 'rrrrrrr', idTag: 1957 },
 ]
 
-const BundleComponent = ({ chTokenBundle = "", actions }) => {
+const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const {
         handleSubmit,
         control,
@@ -341,7 +341,7 @@ const BundleComponent = ({ chTokenBundle = "", actions }) => {
         <Container maxWidth="xl">
             <BoxStyledTitle>
                 {onSkeleton ?
-                    <HeaderComponent title={actions === "edit" ? `${getValues("chName")}` : "Create a new bundle"} breadcrumbs={breadcrumbs} />
+                    <HeaderComponent title={actions === "edit" ? `${getValues("chName")}` : "Create a new order"} breadcrumbs={breadcrumbs} />
                     : <Skeleton width="50%" />
                 }
             </BoxStyledTitle>
@@ -692,4 +692,4 @@ const BundleComponent = ({ chTokenBundle = "", actions }) => {
     );
 }
 
-export { BundleComponent };
+export { OrderComponent };

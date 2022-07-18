@@ -9,18 +9,13 @@ import {
 
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
+import SearchIcon from '@mui/icons-material/Search';
 
 import { useDispatch, useSelector } from 'react-redux';
 
-import { inventoryActions } from '../../_actions';
+import { inventoryActions } from '../../../_actions';
 
-function sleep(delay = 0) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, delay);
-    });
-}
-
-export const AutocompleteAsyncSearch = ({ fnAddToBundle }) => {
+export const AutocompleteSearchInventory = ({ labelTitle = "Search to add", fnAddToBundle, data }) => {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState([]);
     const [searchText, setSearchText] = React.useState('');
@@ -34,11 +29,16 @@ export const AutocompleteAsyncSearch = ({ fnAddToBundle }) => {
     const loading = open && options.length === 0;
 
     useEffect(() => {
-        if (!loading) {
-            return undefined;
+
+        if (!open) {
+            setOptions([]);
+            dispatch(inventoryActions.clearInventoryState());
         }
-        dispatch(inventoryActions.load({ chTokenCompany: user.chTokenCompany }));
-    }, [loading]);
+        else {
+            dispatch(inventoryActions.load({ chTokenCompany: user.chTokenCompany }));
+        }
+    }, [open])
+
 
     useEffect(() => {
         // статус загрузки
@@ -50,20 +50,12 @@ export const AutocompleteAsyncSearch = ({ fnAddToBundle }) => {
             setSceleton(false);
     }, [support.isLoading]);
 
-
-    useEffect(() => {
-        if (!open) {
-            setOptions([]);
-        }
-    }, [open]);
-
     const handleClickAddToBundle = (option) => {
         fnAddToBundle(option);
     }
 
     return (
         <Autocomplete
-            id="asynchronous-demo"
             fullWidth
             open={open}
             disableCloseOnSelect
@@ -75,24 +67,29 @@ export const AutocompleteAsyncSearch = ({ fnAddToBundle }) => {
                 setSearchText('');
             }}
             isOptionEqualToValue={(option, value) => {
-                return option.chTokenInventory === value.chTokenInventory
+                return option.chName === value.chName
             }}
             getOptionLabel={(option) => {
                 return option.chName
             }}
             options={options}
             inputValue={searchText}
-            loading={loading}
+            loading={support.isLoading}
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label="Search to add inventory"
+                    label={
+                        <>
+                            <SearchIcon sx={{ marginRight: 1 }} />
+                            {labelTitle}
+                        </>
+                    }
                     onChange={(event) => setSearchText(event.currentTarget.value)}
                     InputProps={{
                         ...params.InputProps,
                         endAdornment: (
                             <React.Fragment>
-                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                {support.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
                                 {params.InputProps.endAdornment}
                             </React.Fragment>
                         ),
@@ -121,55 +118,3 @@ export const AutocompleteAsyncSearch = ({ fnAddToBundle }) => {
         />
     );
 }
-
-const topFilms = [
-    { title: 'The Shawshank Redemption', year: 1994 },
-    { title: 'The Godfather', year: 1972 },
-    { title: 'The Godfather: Part II', year: 1974 },
-    { title: 'The Dark Knight', year: 2008 },
-    { title: '12 Angry Men', year: 1957 },
-    { title: "Schindler's List", year: 1993 },
-    { title: 'Pulp Fiction', year: 1994 },
-    {
-        title: 'The Lord of the Rings: The Return of the King',
-        year: 2003,
-    },
-    { title: 'The Good, the Bad and the Ugly', year: 1966 },
-    { title: 'Fight Club', year: 1999 },
-    {
-        title: 'The Lord of the Rings: The Fellowship of the Ring',
-        year: 2001,
-    },
-    {
-        title: 'Star Wars: Episode V - The Empire Strikes Back',
-        year: 1980,
-    },
-    { title: 'Forrest Gump', year: 1994 },
-    { title: 'Inception', year: 2010 },
-    {
-        title: 'The Lord of the Rings: The Two Towers',
-        year: 2002,
-    },
-    { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
-    { title: 'Goodfellas', year: 1990 },
-    { title: 'The Matrix', year: 1999 },
-    { title: 'Seven Samurai', year: 1954 },
-    {
-        title: 'Star Wars: Episode IV - A New Hope',
-        year: 1977,
-    },
-    { title: 'City of God', year: 2002 },
-    { title: 'Se7en', year: 1995 },
-    { title: 'The Silence of the Lambs', year: 1991 },
-    { title: "It's a Wonderful Life", year: 1946 },
-    { title: 'Life Is Beautiful', year: 1997 },
-    { title: 'The Usual Suspects', year: 1995 },
-    { title: 'Léon: The Professional', year: 1994 },
-    { title: 'Spirited Away', year: 2001 },
-    { title: 'Saving Private Ryan', year: 1998 },
-    { title: 'Once Upon a Time in the West', year: 1968 },
-    { title: 'American History X', year: 1998 },
-    { title: 'Interstellar', year: 2014 },
-];
-
-

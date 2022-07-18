@@ -93,7 +93,7 @@ const headCells = [
     },
 ];
 
-function BrowseBundlesPage() {
+function BrowseOrdersPage() {
     const history = useHistory();
 
     const { handleSubmit, control, reset, setValue } = useForm({
@@ -148,8 +148,8 @@ function BrowseBundlesPage() {
     }
 
 
-    const handleAddBundle = () => {
-        let path = `/bundles/new`;
+    const handleAddOrder = () => {
+        let path = `/orders/new`;
         history.push(path);
     }
 
@@ -181,11 +181,11 @@ function BrowseBundlesPage() {
                 <BoxStyledTitle>
                     <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 3, md: 12 }} justifyContent="center" alignItems="center">
                         <Grid item xs={12} sm={2} md={8} >
-                            <HeaderComponent title="Bundles" breadcrumbs={breadcrumbs} />
+                            <HeaderComponent title="Orders" breadcrumbs={breadcrumbs} />
                         </Grid>
                         <Grid item xs={12} sm={1} md={4} style={{ textAlign: 'right' }}>
-                            <Button variant="contained" themecolor="rentalBtnSmall" startIcon={<AddIcon />} onClick={handleAddBundle}>
-                                Add Bundle
+                            <Button variant="contained" themecolor="rentalBtnSmall" startIcon={<AddIcon />} onClick={handleAddOrder}>
+                                Add Order
                             </Button>
                         </Grid>
                     </Grid>
@@ -257,4 +257,4 @@ function BrowseBundlesPage() {
 
 }
 
-export { BrowseBundlesPage };
+export { BrowseOrdersPage };
