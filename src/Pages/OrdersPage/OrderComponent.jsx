@@ -12,6 +12,7 @@ import {
     Grid,
     Typography,
     MenuItem,
+    Icon,
     IconButton,
     InputAdornment,
     Button,
@@ -20,8 +21,11 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
+    Stack,
     TextField,
     Autocomplete,
+    Tabs,
+    Tab,
     CircularProgress
 } from '@mui/material';
 
@@ -39,6 +43,7 @@ import { DialogSelectCategory } from "../../_components/FormComponents/DialogSel
 
 import { FormInputNumber } from "../../_components/FormComponents/FormInputNumber";
 
+import { AutocompleteSearchCustomer } from '../../_components/FormComponents/AutocompleteSearch/AutocompleteSearchCustomer';
 import { AutocompleteSearchInventory } from '../../_components/FormComponents/AutocompleteSearch/AutocompleteSearchInventory';
 import { AutocompleteSearchServices } from '../../_components/FormComponents/AutocompleteSearch/AutocompleteSearchServices';
 import { AutocompleteSearchConsumables } from '../../_components/FormComponents/AutocompleteSearch/AutocompleteSearchConsumables';
@@ -115,8 +120,10 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const [arrCurrentFiles, setFiles] = useState(null); // state в котором хранятся текущие файлы, которые отображаются
     const [removeFiles, setRemoveFiles] = useState([])
     const [selectedCategory, setCategory] = useState("");
+    const [selectedCustomer, setCustomer] = useState("");
     const [open, setOpen] = React.useState(false);
     const [tagsInventory, setTag] = useState([]);
+    const [currentTab, setTab] = useState(0);
 
 
     const user = useSelector(state => state.authentication.user);
@@ -269,6 +276,13 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         });
     }
 
+    const handleAddCustomer = (customerSelected) => {
+        setCustomer(customerSelected);
+    }
+
+    const handleChangeTab = (event, newValue) => {
+        setTab(newValue);
+    }
 
     const handleSubmitBundle = (data) => {
 
@@ -345,24 +359,55 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     : <Skeleton width="50%" />
                 }
             </BoxStyledTitle>
+
+            <Paper variant="titleTabDatagridWhite">
+                <div style={{
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '0px',
+                }}>
+                    <Tabs value={currentTab} onChange={handleChangeTab}>
+                        <Tab disableTouchRipple label={`Details`} />
+                        <Tab disableTouchRipple label={`Payments`} />
+                        <Tab disableTouchRipple label={`Documents`} />
+                        <Tab disableTouchRipple label={`History`} />
+                    </Tabs>
+                    <Stack direction="row" justifyContent="end">
+                        <IconButton aria-label="delete">
+                            <Icon baseClassName="fas" className="fa-file-excel" fontSize="small" />
+                        </IconButton>
+                        <IconButton aria-label="delete">
+                            <Icon baseClassName="fas" className="fa-file-pdf" fontSize="small" />
+                        </IconButton>
+                        <IconButton aria-label="add an alarm">
+                            <Icon baseClassName="fas" className="fa-file-csv" fontSize="small" />
+                        </IconButton>
+                        <IconButton aria-label="add an alarm">
+                            <Icon baseClassName="fas" className="fa-file-import" fontSize="small" />
+                        </IconButton>
+                    </Stack>
+                </div>
+            </Paper>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={8}>
-                    <Paper elevation={0} variant="main">
-                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <FormInputText
-                                    name="chName"
-                                    control={control}
-                                    label="Bundle name"
-                                    rules={{
-                                        required: {
-                                            value: true,
-                                            message: "Bundle name is required."
-                                        }
-                                    }}
-                                />
+                    <Paper elevation={0} variant="mainMargin">
+                        <BoxClear>
+                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    {
+                                        selectedCustomer ? `${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}` :
+                                            <AutocompleteSearchCustomer
+                                                id="inv"
+                                                key="inv5566"
+                                                fnAddToOrder={handleAddCustomer}
+                                                labelTitle="Search customer"
+                                            />
+                                    }
+                                </Grid>
                             </Grid>
-                        </Grid>
+                        </BoxClear>
                     </Paper>
 
                     <Paper elevation={0} variant="mainMargin">
@@ -646,7 +691,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    <Paper elevation={0} variant="main">
+                    <Paper elevation={0} variant="mainMargin">
                         <FormInputText name="chCategoryName" control={control} label="Category" InputProps={{ readOnly: true, endAdornment: <SelectCategoryBtn /> }} />
                         {open && <DialogSelectCategory data={category} handleOk={handleSelectCategory} handleClose={handleClose} />}
                         <BoxStyled>

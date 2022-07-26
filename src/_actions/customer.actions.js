@@ -41,10 +41,12 @@ function clearCustomerState() {
 
 function load(user) {
     return dispatch => {
+        dispatch(loading(true));
         dataexchangeService.load(user, 'Customers/LoadCustomers.php')
             .then(
                 customers => {
                     dispatch(request(customers));
+                    dispatch(loading(false));
                     //dispatch(alertActions.success('Registration successful'));
 
                 },
@@ -59,6 +61,7 @@ function load(user) {
     function request(customers) { return { type: customerConstants.LOAD_REQUEST_CUSTOMERS, customers } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 

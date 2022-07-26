@@ -45,6 +45,14 @@ const customTheme = createTheme({
                     }
                 },
                 {
+                    props: { variant: 'titleTabDatagridWhite' },
+                    style: {
+                        backgroundColor: 'rgb(255, 255, 255)',
+                        boxShadow: 'none',
+
+                    }
+                },
+                {
                     props: { variant: 'mainNoneBorder' },
                     style: {
                         boxShadow: 'none',
