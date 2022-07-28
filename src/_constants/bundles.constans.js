@@ -1,0 +1,7 @@
+export const bundlesConstants = {
+    LOAD_BUNDLES: 'LOAD_BUNDLES',
+    ADD_BUNDLE: 'ADD_BUNDLE',
+    EDIT_BUNDLE: 'EDIT_BUNDLE',
+    REMOVE_BUNDLE: 'REMOVE_BUNDLE',
+    CLEAR_BUNDLES: 'CLEAR_BUNDLES'
+};

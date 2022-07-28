@@ -1,331 +1,263 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from "react-hook-form";
 
-import { customerActions } from '../../_actions';
+import { loadCSS } from 'fg-loadcss';
+
+import { inventoryActions } from '../../_actions';
+
+import {
+    Container,
+    Box,
+    Paper,
+    Grid,
+    Typography,
+    MenuItem,
+    IconButton,
+    RadioGroup,
+    Radio,
+    FormControlLabel,
+    InputAdornment,
+    Button,
+    Link,
+    Autocomplete,
+    TextField,
+    Switch,
+    Breadcrumbs,
+    ButtonGroup,
+    Icon,
+    Stack,
+    Tabs,
+    Tab
+} from '@mui/material';
 
 
 import { styled } from '@mui/material/styles';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import SearchIcon from '@mui/icons-material/Search';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import MenuItem from '@mui/material/MenuItem';
-import MenuList from '@mui/material/MenuList';
-import Popper from '@mui/material/Popper';
-import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
-import Chip from '@mui/material/Chip';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-import { DataGrid } from '@mui/x-data-grid';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import Link from '@mui/material/Link';
-import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
+import BoxStyled from '../../_components/StyledComponent/BoxStyled';
+import BoxStyledTextEditor from '../../_components/StyledComponent/BoxStyledTextEditor';
+import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
+import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponent';
+
+import BoxChipVariants from '../../_components/StyledComponent/BoxChipVariants';
 
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
+import { DataGridComponent } from "../../_components/FormComponents/DataGridComponent";
+
 
 function handleClickBreadcrumbs(event) {
     event.preventDefault();
     console.info('You clicked a breadcrumb.');
 }
 
-const HtmlTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#f5f5f9',
-      color: 'rgba(0, 0, 0, 0.87)',
-      maxWidth: 220,
-      fontSize: theme.typography.pxToRem(12),
-      border: '1px solid #dadde9',
-    },
-  }));
-
-const columns = [
-    { 
-      field: 'iNom', 
-      headerName: '#', 
-      width: 90,
-      renderCell: (params) => {
-        return `#${params.value}`;
-      }
+const headCells = [
+    {
+        id: 'id',
+        numeric: false,
+        label: '#',
+        align: 'left',
+        width: 30,
     },
     {
-      field: 'chName',
-      headerName: 'chName',
-      width: 150,
-      editable: true,
-      renderCell: (params) => {
-          return (
-        <HtmlTooltip
-        title={
-          <React.Fragment>
-            <Typography color="inherit">Tooltip with HTML</Typography>
-            <em>{"And here's"}</em> <b>{'some'}</b> <u>{'amazing content'}</u>.{' '}
-            {"It's very engaging. Right?"}
-          </React.Fragment>
-        }
-      >
-        <Button>{params.value}</Button>
-      </HtmlTooltip>)
-        }
+        id: 'chName',
+        numeric: false,
+        label: 'Name',
+        align: 'left',
     },
     {
-      field: 'chEmail',
-      headerName: 'Email',
-      width: 150,
-      editable: true,
+        id: 'chCountItem',
+        numeric: true,
+        label: 'Quantity',
+        align: 'left',
     },
     {
-        field: "action",
-        headerName: "Action",
-        sortable: false,
-        renderCell: (params) => {
-
-            return <Chip variant="outlined" label="primary" color="info" />
-          
-        }
-      },
-  ];
-
-  const rows = [];
+        id: 'rentprice',
+        numeric: true,
+        label: 'Rent Price',
+        align: 'left',
+    },
+    {
+        id: 'status',
+        numeric: true,
+        label: 'Status',
+        align: 'left',
+    },
+    {
+        id: 'actions',
+        numeric: true,
+        label: '',
+        align: 'left',
+        width: 5,
+    },
+];
 
 function BrowseInventoryPage() {
     const history = useHistory();
 
     const { handleSubmit, control, reset, setValue } = useForm({
-        defaultValues: { 
+        defaultValues: {
             search: "",
             article: "",
             identifier: "",
             category: "Uncategorized",
-        }
-      });
 
-    const customers = useSelector(state => state.customers);
+        }
+    });
+
+    const inventory = useSelector(state => state.inventory);
     const user = useSelector(state => state.authentication.user);
 
-    const anchorRef = React.useRef(null);
-    const [open, setOpen] = React.useState(false);
-    const [selectedIndex, setSelectedIndex] = React.useState(1);
+    const TitleDataGrid = styled('div')({
+        alignItems: 'center',
+        flexDirection: 'row',
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '0px 20px',
+
+    });
+
+    const [currentTab, setTab] = useState(0);
+
 
 
     const breadcrumbs = [
         <Link underline="hover" key="1" color="inherit" href="/" onClick={handleClickBreadcrumbs}>
-          MUI
+            MUI
         </Link>,
         <Link
-          underline="hover"
-          key="2"
-          color="inherit"
-          href="/getting-started/installation/"
-          onClick={handleClickBreadcrumbs}
+            underline="hover"
+            key="2"
+            color="inherit"
+            href="/getting-started/installation/"
+            onClick={handleClickBreadcrumbs}
         >
-          Core
+            Core
         </Link>,
-        <Typography key="3" color="text.primary">
-          Breadcrumb
-        </Typography>,
-      ];
+        <span key="4">
+            Breadcrumb
+        </span>
+        ,
+    ];
 
     const dispatch = useDispatch();
 
-    const handleAddCustomer = () => { 
-        let path = `/inventory/new`; 
+    const handleChangeTab = (event, newValue) => {
+        setTab(newValue);
+    }
+
+
+    const handleAddCustomer = () => {
+        let path = `/inventory/new`;
         history.push(path);
     }
 
-    const handleMenuItemClick = (event,) => {
-        let path = `/inventory/new_group`; 
-        history.push(path);
-        setOpen(false);
-    };
-
-    
     useEffect(() => {
-      // загружаем данные клиентов
-      
-      //dispatch(customerActions.load({ token: user.token }));  
+        // загружаем иконки fontawesome
+        const node = loadCSS(
+            'https://use.fontawesome.com/releases/v6.1.1/css/all.css',
+            // Inject before JSS
+            document.querySelector('#font-awesome-css') || document.head.firstChild,
+        );
+
+
+        dispatch(inventoryActions.load({ chTokenCompany: user.chTokenCompany }));
+
+        return () => {
+            node.parentNode.removeChild(node);
+        };
     }, []);
 
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
-    };
 
-    const handleClose = (event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target)) {
-        return;
-        }
-        setOpen(false);
-    };
+    const handleClearInventory = () => {
+        dispatch(inventoryActions.clearInventoryState());
+    }
 
-    
-    const handleClickSearch = data => console.log(data);
-    
 
     return (
-        <div>
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9', width: 'auto' }}>
-            <Grid container spacing={2}>
-                
-                <Grid item xs={6}>
-                    <Stack direction="row" alignItems="center" gap={2}>
-                        <Typography variant="h5">INVENTORY</Typography>
-                        <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button">
-                            <Button variant="contained" startIcon={<AddIcon />} sx={{textTransform: 'none'}}  size="small" onClick={handleAddCustomer}>
-                                New
-                            </Button>
-                            <Button
-                                size="small"
-                                aria-controls={open ? 'split-button-menu' : undefined}
-                                aria-expanded={open ? 'true' : undefined}
-                                aria-label="select merge strategy"
-                                aria-haspopup="menu"
-                                onClick={handleToggle}
-                            >
-                                <ArrowDropDownIcon />
-                            </Button>
-                        </ButtonGroup>
-                    </Stack>
-                    <Popper
-                        open={open}
-                        anchorEl={anchorRef.current}
-                        role={undefined}
-                        transition
-                        disablePortal
-                    >
-                        {({ TransitionProps, placement }) => (
-                        <Grow
-                            {...TransitionProps}
-                            style={{
-                            transformOrigin:
-                                placement === 'bottom' ? 'center top' : 'center bottom',
-                            }}
-                        >
-                            <Paper>
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList id="split-button-menu">
-                                    <MenuItem
-                                        onClick={(event) => handleMenuItemClick(event)}
-                                    >
-                                        New group inventory
-                                    </MenuItem>
-                                </MenuList>
-                            </ClickAwayListener>
-                            </Paper>
-                        </Grow>
-                        )}
-                    </Popper>
-                </Grid>
-                <Grid item xs={6}>
-                    <Stack direction="row" justifyContent="end">
-                        <Breadcrumbs
-                            separator={<NavigateNextIcon fontSize="small" />}
-                            aria-label="breadcrumb"
-                        >
-                            {breadcrumbs}
-                        </Breadcrumbs>
-                    </Stack>
-                </Grid>
-            </Grid> 
-        </Box>
-            <Paper
-                elevation={0}
-                sx={{
-                display: "grid",
-                gridRowGap: "20px",
-                padding: "20px",
-                margin: "20px 40px",         
-                }}
-            >
-                <Grid container spacing={2}>
-                    <Grid item xs={3}>
-                        <FormInputText name="search" control={control} label="Text search..." />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <FormInputText name="search" control={control} label="Text search..." />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <FormInputText name="search" control={control} label="Text search..." />
-                    </Grid>
-                    <Grid item xs={3} >
-                        <Button variant="contained" startIcon={<SearchIcon />} sx={{textTransform: 'none'}}  onClick={handleSubmit(handleClickSearch)}>
-                                Search
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Paper>
-            <Paper
-                elevation={0}
-                sx={{
-                display: "grid",
-                gridRowGap: "20px",
-                padding: "20px",
-                margin: "20px 40px",         
-                }}
-            >
-                <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9', width: 'auto' }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <Stack direction="row" spacing={2}>
-                                <Button>Current</Button>
-                                <Button>Archived</Button>
-                                <Button>Deleted</Button>
-                            </Stack>
+        <Box>
+            <Container maxWidth="xl">
+                <BoxStyledTitle>
+                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 3, md: 12 }} justifyContent="center" alignItems="center">
+                        <Grid item xs={12} sm={2} md={8} >
+                            <HeaderComponent title="Innventory" breadcrumbs={breadcrumbs} />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} sm={1} md={4} style={{ textAlign: 'right' }}>
+                            <Button variant="contained" themecolor="rentalBtnSmall" startIcon={<AddIcon />} onClick={handleAddCustomer}>
+                                Add Product
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </BoxStyledTitle>
+
+                <Paper elevation={0} variant="mainMarginNoPadding">
+                    <Paper variant="titleTabDatagrid">
+                        <div style={{
+                            alignItems: 'center',
+                            flexDirection: 'row',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            padding: '0px 20px',
+                        }}>
+                            <Tabs value={currentTab} onChange={handleChangeTab}>
+                                <Tab disableTouchRipple icon={<BoxChipVariants text="3" type="success" style={{ marginRight: '8px' }} />} iconPosition="start" label={`Current`} />
+                                <Tab disableTouchRipple icon={<BoxChipVariants text="12" type="quantity" style={{ marginRight: '8px' }} />} iconPosition="start" label="Archived" />
+                                <Tab disableTouchRipple icon={<BoxChipVariants text="3" type="redcolor" style={{ marginRight: '8px' }} />} iconPosition="start" label="Deleted" />
+                            </Tabs>
                             <Stack direction="row" justifyContent="end">
                                 <IconButton aria-label="delete">
-                                    <DeleteIcon />
+                                    <Icon baseClassName="fas" className="fa-file-excel" fontSize="small" />
                                 </IconButton>
-                                <IconButton aria-label="delete" disabled color="primary">
-                                    <DeleteIcon />
+                                <IconButton aria-label="delete">
+                                    <Icon baseClassName="fas" className="fa-file-pdf" fontSize="small" />
                                 </IconButton>
-                                <IconButton color="secondary" aria-label="add an alarm">
-                                    <AlarmIcon />
+                                <IconButton aria-label="add an alarm">
+                                    <Icon baseClassName="fas" className="fa-file-csv" fontSize="small" />
                                 </IconButton>
-                                <IconButton color="primary" aria-label="add to shopping cart">
-                                    <AddShoppingCartIcon />
+                                <IconButton aria-label="add an alarm">
+                                    <Icon baseClassName="fas" className="fa-file-import" fontSize="small" />
                                 </IconButton>
                             </Stack>
+                        </div>
+                    </Paper>
+                    <Paper elevation={0} variant="mainNoneBorder">
+                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 24 }}>
+                            <Grid item xs={12} sm={6} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={5} md={5}>
+                                <FormInputText name="" control={control} label="Option name" defaultValue="" />
+                            </Grid>
+                            <Grid item xs={12} sm={1} md={4} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                <Button variant="contained" themecolor="rentalThemeSubmit" startIcon={<SearchIcon />} size="large">
+                                    Search
+                                </Button>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </Box>
-                <Stack direction="row" spacing={1}>
-                    <Button variant="outlined" size="small">All</Button>
-                    <Button variant="outlined" size="small">A</Button>
-                    <Button variant="outlined" size="small">B</Button>
-                    <Button variant="outlined" size="small">C</Button>
-                    <Button variant="outlined" size="small">D</Button>
-                    <Button variant="outlined" size="small">E</Button>
-                    <Button variant="outlined" size="small">F</Button>
-                </Stack>
-                <div style={{ display: 'flex', height: '500px' }}>
-                    <div style={{ flexGrow: 1 }}>
-                        <DataGrid
-                            rows={rows}
-                            columns={columns}
-                            pageSize={50}
-                            rowsPerPageOptions={[50]}
-                            checkboxSelection
-                            disableSelectionOnClick
-                        />
-                    </div>
-                </div>
-            </Paper>
-        </div>
+                    </Paper>
+                    <DataGridComponent
+                        data={inventory}
+                        handleClear={handleClearInventory}
+                        type="inventory"
+                        headCells={headCells}
+                        chTokenCompany={user.chTokenCompany}
+                    />
+                </Paper>
+            </Container>
+        </Box>
+
     );
 
 }

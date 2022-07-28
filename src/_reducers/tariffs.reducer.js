@@ -4,9 +4,9 @@ export function tariffs(state = [], action) {
     switch (action.type) {
         case tariffsConstants.LOAD_REQUEST_TARIFFS: {
             // парсим результат, arrTariffDetail - текстовая интерпритация массива, поэтому JSON.parse
-            return action.tariffs.map( item => {
+            return action.tariffs.map(item => {
                 return {
-                    ...item, 
+                    ...item,
                     arrTariffDetail: JSON.parse(item.arrTariffDetail)
                 };
             });
@@ -15,8 +15,8 @@ export function tariffs(state = [], action) {
 
         case tariffsConstants.ADD_TARIFF: {
             return [
-               ...state,
-               action.tariff
+                ...state,
+                action.tariff
             ];
         }
 

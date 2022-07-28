@@ -13,6 +13,34 @@ module.exports = {
                 test: /\.js$|jsx?$/,
                 loader: 'babel-loader'
             },
+            {
+                test: /\.(png|jp(e*)g|svg|gif)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'images/[hash]-[name].[ext]',
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.(sass|less|css)$/,
+                loaders: ['style-loader', 'css-loader', 'less-loader']
+            },
+            {
+                test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+                use: [
+                    {
+                        loader: "file-loader",
+                        options: {
+                            name: "[name].[ext]",
+                            outputPath: "fonts/",
+                        },
+                    },
+                ],
+            },
+
         ]
     },
     output: {

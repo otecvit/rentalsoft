@@ -2,25 +2,25 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 
-export const FormInputText = ({ name, control, label, InputProps }) => {
+export const FormInputText = ({ name, control, label, InputProps, fullWidth = true, rules = {} }) => {
   return (
     <Controller
       name={name}
       control={control}
+      rules={rules}
       render={({
         field: { onChange, value },
         fieldState: { error },
         formState,
+
       }) => (
         <TextField
           helperText={error ? error.message : null}
-          size="small"
           error={!!error}
           onChange={onChange}
           value={value}
-          fullWidth
+          fullWidth={fullWidth}
           label={label}
-          variant="outlined"
           InputProps={InputProps}
         />
       )}

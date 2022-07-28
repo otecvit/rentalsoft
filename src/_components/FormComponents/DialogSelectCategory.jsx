@@ -17,15 +17,21 @@ import TreeItem from '@mui/lab/TreeItem';
 export const DialogSelectCategory = ({ data, handleOk, handleClose }) => {
 
     const [open, setOpen] = useState(true);
-    const [currentCategory, setCategory] = useState('Uncategorized');
+    const [currentCategory, setCategory] = useState('');
 
     const renderTree = (nodes) => (
-        <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
-          {Array.isArray(nodes.children)
-            ? nodes.children.map((node) => renderTree(node))
-            : null}
-        </TreeItem>
+
+        Array.isArray(nodes)
+            ? nodes.map((node) => (
+                <TreeItem key={node.id} nodeId={node.id} label={node.name}>
+                    {Array.isArray(node.children)
+                        ? renderTree(node.children)
+                        : null}
+                </TreeItem>
+            ))
+            : null
     );
+
 
     const handleChangeTree = (event, nodes) => {
         setCategory(nodes);
@@ -42,27 +48,27 @@ export const DialogSelectCategory = ({ data, handleOk, handleClose }) => {
         setOpen(false);
         handleOk(currentCategory); // функция callback родителя
     }
-   
+
     return (
         <Dialog disableEscapeKeyDown open={open} onClose={handleCloseChild}>
             <DialogTitle>Categories</DialogTitle>
             <DialogContent>
-            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                <FormControl sx={{ m: 1, minWidth: 350 }}>
-                <TreeView
-                    defaultCollapseIcon={<ExpandMoreIcon />}
-                    defaultExpandIcon={<ChevronRightIcon />}
-                    onNodeSelect={handleChangeTree}
-                    sx={{ height: 180, flexGrow: 1, maxWidth: 400, minWidth: 250, overflowY: 'auto' }}
-                    >
-                    {renderTree(data)}
-                </TreeView>
-                </FormControl>
-            </Box>
+                <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                    <FormControl sx={{ m: 1, minWidth: 350 }}>
+                        <TreeView
+                            defaultCollapseIcon={<ExpandMoreIcon />}
+                            defaultExpandIcon={<ChevronRightIcon />}
+                            onNodeSelect={handleChangeTree}
+                            sx={{ height: 180, flexGrow: 1, maxWidth: 400, minWidth: 250, overflowY: 'auto' }}
+                        >
+                            {renderTree(data)}
+                        </TreeView>
+                    </FormControl>
+                </Box>
             </DialogContent>
             <DialogActions>
-            <Button onClick={handleCloseChild}>Cancel</Button>
-            <Button onClick={handleOkChild}>Ok</Button>
+                <Button onClick={handleCloseChild}>Cancel</Button>
+                <Button onClick={handleOkChild}>Ok</Button>
             </DialogActions>
         </Dialog>
     );

@@ -1,6 +1,8 @@
-import { tariffsConstants } from '../_constants';
+import { supportConstants, tariffsConstants } from '../_constants';
 import { tariffsService } from '../_services';
 import { alertActions } from './';
+import { supportActions } from './support.actions';
+
 import { history } from '../_helpers';
 
 export const tariffsActions = {
@@ -15,7 +17,8 @@ function add(tariff) {
     return dispatch => {
         tariffsService.add(tariff)
             .then(
-                tariff => { 
+                tariff => {
+                    dispatch(lastTariffId(tariff.id));
                     dispatch(request(tariff));
                     //dispatch(success());
                 },
@@ -27,6 +30,7 @@ function add(tariff) {
     };
 
     function request(tariff) { return { type: tariffsConstants.ADD_TARIFF, tariff } }
+    function lastTariffId(tariffid) { return { type: supportConstants.LAST_TARIFF_INSERT, tariffid } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
@@ -36,16 +40,16 @@ function load(tariffs) {
     return dispatch => {
         tariffsService.load(tariffs)
             .then(
-                tariffs => { 
+                tariffs => {
                     dispatch(request(tariffs));
-                    
+
                 },
                 error => {
                     dispatch(failure(error.toString()));
                     dispatch(alertActions.error(error.toString()));
                 }
             );
-        
+
     };
     function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARIFFS, tariffs } }
     function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
@@ -81,7 +85,7 @@ function edit(tariff) {
     return dispatch => {
         tariffsService.edit(tariff)
             .then(
-                tariff => { 
+                tariff => {
                     dispatch(request(tariff));
                     //dispatch(success());
                 },

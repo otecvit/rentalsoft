@@ -1,14 +1,19 @@
 import React, { useEffect } from 'react';
 import { Link, Route, Switch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
 
 import { userActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 
 import { CustomersPage } from '../Pages/CustomersPage';
+import { OrdersPage } from '../Pages/OrdersPage';
+import { ConsumablesPage } from '../Pages/ConsumablesPage';
+import { ServicesPage } from '../Pages/ServicesPage';
 import { DashBoardPage } from '../Pages/DashBoardPage';
 import { InventoryPage } from '../Pages/InventoryPage';
+import { BundlesPage } from '../Pages/BundlesPage';
 import { BrowseSettingsPage } from '../Pages/SettingsPages';
 
 import { styled, useTheme } from '@mui/material/styles';
@@ -30,11 +35,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import PeopleIcon from '@mui/icons-material/People'; 
+import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 const drawerWidth = 240;
 
@@ -106,23 +113,54 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 function HomePage(comp) {
 
-   
-    const user = useSelector(state => state.authentication.user);
 
-    const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
-  
-    const handleDrawerOpen = () => {
-      setOpen(true);
-    };
-  
-    const handleDrawerClose = () => {
-      setOpen(false);
-    };
+  const user = useSelector(state => state.authentication.user);
+  const alert = useSelector(state => state.alert);
 
-    return (
-      <Box sx={{ display: 'flex' }}>
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    if (!!alert.message) {
+      switch (alert.type) {
+        case 'alert-success': {
+          toast.success(alert.message, {
+            position: "bottom-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } break;
+        case 'alert-danger': {
+          toast.error(alert.message, {
+            position: "bottom-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } break;
+      }
+    }
+  }, [alert]);
+
+  return (
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      <ToastContainer />
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
@@ -155,6 +193,12 @@ function HomePage(comp) {
           </ListItemIcon>
           <ListItemText primary="Dashboard" />
         </ListItem>
+        <ListItem button key="Orders" component={Link} to="/orders">
+          <ListItemIcon>
+            <PeopleIcon />
+          </ListItemIcon>
+          <ListItemText primary="Orders" />
+        </ListItem>
         <ListItem button key="Customers" component={Link} to="/customers">
           <ListItemIcon>
             <PeopleIcon />
@@ -167,6 +211,36 @@ function HomePage(comp) {
           </ListItemIcon>
           <ListItemText primary="Inventory" />
         </ListItem>
+        <ListItem button key="Bundles" component={Link} to="/bundles">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Bundles" />
+        </ListItem>
+        <ListItem button key="Consumables" component={Link} to="/consumables">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Consumables" />
+        </ListItem>
+        <ListItem button key="Services" component={Link} to="/services">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Services" />
+        </ListItem>
+        <ListItem button key="Reports" component={Link} to="/reports">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Reports" />
+        </ListItem>
+        <ListItem button key="User managment" component={Link} to="/users">
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="User managment" />
+        </ListItem>
         <ListItem button key="Settings" component={Link} to="/settings">
           <ListItemIcon>
             <SettingsIcon />
@@ -175,20 +249,24 @@ function HomePage(comp) {
         </ListItem>
         <Divider />
       </Drawer>
-      <Box sx={{ flexGrow: 1, backgroundColor: '#f0f3f4' }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: '#ffffff', padding: '30px 16px' }}>
         <DrawerHeader />
-          <Switch>
-            <Route path="/customers" component={CustomersPage} />
-            <Route path="/dashboard" component={DashBoardPage} />
-            <Route path="/inventory" component={InventoryPage} />
-            <Route path="/settings" component={BrowseSettingsPage} />
-          </Switch>
+        <Switch>
+          <Route path="/customers" component={CustomersPage} />
+          <Route path="/orders" component={OrdersPage} />
+          <Route path="/consumables" component={ConsumablesPage} />
+          <Route path="/services" component={ServicesPage} />
+          <Route path="/dashboard" component={DashBoardPage} />
+          <Route path="/inventory" component={InventoryPage} />
+          <Route path="/bundles" component={BundlesPage} />
+          <Route path="/settings" component={BrowseSettingsPage} />
+        </Switch>
       </Box>
     </Box>
 
 
-      );
-   
+  );
+
 }
 
 export { HomePage };
