@@ -76,46 +76,6 @@ const columns = [
 
 export const PricingTemplateBrowse = () => {
 
-<<<<<<< HEAD
-    const [selectedTariff, setSelectedTariff] = useState("");
-    const [openDialog, setOpenDialog] = useState(false);
-    const [openConfirm, setOpenConfirm] = useState(false);
-    const user = useSelector(state => state.authentication.user);
-    const tariffs = useSelector(state => state.tariffs);
-    const dispatch = useDispatch();
-
-    const { handleSubmit, control, reset, setValue } = useForm(
-      {
-        defaultValues: { 
-            id: "",
-            name: "",
-            tariffDetail: [{label: "", duration: "", period: "1", price: ""}],
-            periodExtra: "1" ,
-            priceExtra:  "",
-        }
-      }
-    );
-
-    const { fields, append, remove, replace } = useFieldArray({
-      control, 
-      name: "tariffDetail", 
-    });
-    
-    useEffect(() => {
-      // загружаем тарифы
-      dispatch(tariffsActions.load({ companyToken: user.companyToken }));  
-    }, []);
-
-    
-    const onSubmit = data => {
-      // закрываем диалог
-      setOpenDialog(false);
-     
-      if (!!data.id) 
-          dispatch(tariffsActions.edit({...data, companyToken: user.companyToken})); // редактируем наш тариф
-      else 
-          dispatch(tariffsActions.add({...data, companyToken: user.companyToken})); // добавляем наш тариф
-=======
   const [selectedTariff, setSelectedTariff] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -132,7 +92,6 @@ export const PricingTemplateBrowse = () => {
         periodExtra: "1",
         priceExtra: "",
       }
->>>>>>> 52bc90063c7537e16bafe9bb7b02d35de6e63461
     }
   );
 
@@ -143,75 +102,18 @@ export const PricingTemplateBrowse = () => {
 
   useEffect(() => {
     // загружаем тарифы
-    dispatch(tariffsActions.load({ chTokenCompany: user.chTokenCompany }));
+    dispatch(tariffsActions.load({ companyToken: user.companyToken }));
   }, []);
 
 
-<<<<<<< HEAD
-    // удаляем тариф
-    const onSubmitConfirm = () => {
-        // закрываем диалог
-        setOpenConfirm(false);
-        // удаляем тариф наш тариф
-        dispatch(tariffsActions.remove({
-          id: selectedTariff, 
-          companyToken: user.companyToken
-        }));
-        // очищаем текущий тариф
-        setSelectedTariff("");
-    }
-
-    
-    const  currentlySelected = (params) => {
-        const value = params.colDef.field;
-        if (!(value === "edit" || value === "delete")) {
-        return;
-        }
-
-        reset({ 
-          id: "",
-          name: "",
-          tariffDetail: [{label: "", duration: "", period: "1", price: ""}],
-          periodExtra: "1" ,
-          priceExtra:  "",
-        });
-
-        // определяем текущий тариф
-        const currentTariff = tariffs.find( (item) => params.id === item.id );
-        
-        if (value === "edit") {
-          // заменяем значение в react-hook-form
-          setValue("name", currentTariff.name);
-          setValue("id", currentTariff.id);
-          replace(currentTariff.arrTariffDetail);
-          setValue("periodExtra", currentTariff.periodExtra);
-          setValue("priceExtra", currentTariff.priceExtra);
-          ////////////////////////////////////////
-          // открываем диалог
-          setOpenDialog(true);
-        } else {
-          setSelectedTariff(currentTariff.id);
-          setOpenConfirm(true);
-        }
-    }
-
-    const handleAddTariff = () => {
-      reset({ 
-        id: "",
-        name: "",
-        tariffDetail: [{label: "", duration: "", period: "1", price: ""}],
-        periodExtra: "1" ,
-        priceExtra:  "",
-      });
-=======
   const onSubmit = data => {
     // закрываем диалог
     setOpenDialog(false);
 
     if (!!data.id)
-      dispatch(tariffsActions.edit({ ...data, chTokenCompany: user.chTokenCompany })); // редактируем наш тариф
+      dispatch(tariffsActions.edit({ ...data, companyToken: user.companyToken })); // редактируем наш тариф
     else
-      dispatch(tariffsActions.add({ ...data, chTokenCompany: user.chTokenCompany })); // добавляем наш тариф
+      dispatch(tariffsActions.add({ ...data, companyToken: user.companyToken })); // добавляем наш тариф
   }
 
   // удаляем тариф
@@ -221,7 +123,7 @@ export const PricingTemplateBrowse = () => {
     // удаляем тариф наш тариф
     dispatch(tariffsActions.remove({
       id: selectedTariff,
-      chTokenCompany: user.chTokenCompany
+      companyToken: user.companyToken
     }));
     // очищаем текущий тариф
     setSelectedTariff("");
@@ -254,7 +156,6 @@ export const PricingTemplateBrowse = () => {
       setValue("priceExtra", currentTariff.priceExtra);
       ////////////////////////////////////////
       // открываем диалог
->>>>>>> 52bc90063c7537e16bafe9bb7b02d35de6e63461
       setOpenDialog(true);
     } else {
       setSelectedTariff(currentTariff.id);
@@ -262,24 +163,6 @@ export const PricingTemplateBrowse = () => {
     }
   }
 
-<<<<<<< HEAD
-    const handleClose = () => {
-        setOpenDialog(false);
-    };
-
-    const handleCloseConfirm = () => {
-        setOpenConfirm(false);
-    }
-
-    const handleAddTariffDetail = () => {
-      append({
-        label: "",
-        duration: "",
-        period: "1", 
-        price: ""
-      })
-    }
-=======
   const handleAddTariff = () => {
     reset({
       id: "",
@@ -290,7 +173,6 @@ export const PricingTemplateBrowse = () => {
     });
     setOpenDialog(true);
   }
->>>>>>> 52bc90063c7537e16bafe9bb7b02d35de6e63461
 
   const handleClose = () => {
     setOpenDialog(false);
@@ -314,120 +196,6 @@ export const PricingTemplateBrowse = () => {
   }
 
 
-<<<<<<< HEAD
-    return (
-        <div style={{ height: 250, width: '100%' }}>
-            Template pricing structures
-            <Button onClick={handleAddTariff} color="primary">Add</Button>
-            <DataGrid
-                columns={columns}
-                rows={tariffs}
-                onCellClick={currentlySelected}
-                hideFooter
-                sx={{
-                    '&.MuiDataGrid-root': {
-                      border: 'none',
-                    },
-                  }}
-            />
-            <Dialog
-                open={openDialog}
-                onClose={handleClose}
-                aria-labelledby="form-dialog-title"
-            >
-                <DialogTitle id="form-dialog-title"> User </DialogTitle>
-                <DialogContent>
-                      <Stack direction="row" spacing={2} sx={{ paddingTop: "10px"}}>
-                        <FormInputText label="Template name" name="name" control={control} variant="outlined"/>    
-                      </Stack>
-                      {
-                      fields.map((item, index) => {
-                        return (
-                            <Stack direction="row" spacing={2} key={index} sx={{ paddingTop: "20px"}}>
-                              <FormInputText name={`tariffDetail[${index}].label`} control={control} label="Label" value={item.label}/>
-                              <FormInputText name={`tariffDetail[${index}].duration`} control={control} label="Duration" value={item.duration} />
-                              <Box>
-                                <FormInputSelect
-                                  id={`period${index}`}
-                                  name={`tariffDetail[${index}].period`}
-                                  control={control}
-                                  defaultValue={item.period}
-                                  variant="outlined"
-                                  margin="normal"
-                                  label="Period"
-                                  labelId="rental-period-id"
-                                  size="small"
-                                >
-                                    <MenuItem value="1">Hours</MenuItem>
-                                    <MenuItem value="2">Days</MenuItem>
-                                    <MenuItem value="3">Weeks</MenuItem>
-                                    <MenuItem value="4">Months</MenuItem>
-                                </FormInputSelect>
-                              </Box>
-                              <FormInputText name={`tariffDetail[${index}].price`} control={control} label="Price" value={item.price}/>
-                              <IconButton aria-label="delete" onClick={() => handleDelTariffDetail(index)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Stack>)
-                          })
-                      }
-                      <Button onClick={handleAddTariffDetail}>Add row</Button>
-                      <Box sx={{ minWidth: '90px' }}>
-                        <Typography variant="p" component="div">Each extra</Typography>
-                      </Box>
-                      <Stack direction="row" spacing={2} sx={{ paddingTop: "20px"}}>
-                        <Box>
-                          <FormInputSelect
-                            id={`periodEachExtra`}
-                            name={`periodExtra`}
-                            control={control}
-                            variant="outlined"
-                            margin="normal"
-                            label="Period"
-                            labelId="rental-each-extra"
-                            size="small"
-                          >
-                              <MenuItem value="1">Hours</MenuItem>
-                              <MenuItem value="2">Days</MenuItem>
-                              <MenuItem value="3">Weeks</MenuItem>
-                              <MenuItem value="4">Months</MenuItem>
-                          </FormInputSelect>
-                        </Box>
-                        <FormInputText name="priceExtra" control={control} label="Price"/>
-                      </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleSubmit(onSubmit)} color="primary">
-                        Confirm
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog
-                open={openConfirm}
-                onClose={handleCloseConfirm}
-                aria-labelledby="form-dialog-title"
-            >
-                <DialogTitle id="form-dialog-title"> Remove </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Remove tariff?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseConfirm} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={onSubmitConfirm} color="primary">
-                        Confirm
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    );
-=======
   return (
     <div style={{ height: 250, width: '100%' }}>
       Template pricing structures
@@ -540,5 +308,4 @@ export const PricingTemplateBrowse = () => {
       </Dialog>
     </div>
   );
->>>>>>> 52bc90063c7537e16bafe9bb7b02d35de6e63461
 }

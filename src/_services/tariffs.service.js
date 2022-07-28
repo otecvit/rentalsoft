@@ -67,36 +67,6 @@ function edit(tariff) {
 
 }
 
-function remove(tariff) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tariff)
-    };
-    return fetch(`${config.apiUrl}/Tariffs/RemoveTariff.php`, requestOptions)
-        .then(handleResponse)
-        .then(tariff => {
-            return tariff[0].data;
-            }
-        );
-    
-}
-
-function edit(tariff) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tariff)
-    };
-    return fetch(`${config.apiUrl}/Tariffs/EditTariff.php`, requestOptions)
-        .then(handleResponse)
-        .then(tariff => {
-            return tariff[0].data;
-            }
-        );
-    
-}
-
 
 
 function handleResponse(response) {
