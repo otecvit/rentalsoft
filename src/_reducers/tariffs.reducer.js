@@ -12,12 +12,28 @@ export function tariffs(state = [], action) {
             });
         }
 
+
         case tariffsConstants.ADD_TARIFF: {
             return [
                ...state,
                action.tariff
             ];
         }
+
+        case tariffsConstants.EDIT_TARIFF: {
+            return state.map( (item) => {
+                if (item.id === action.tariff.id) 
+                    return action.tariff;
+                else
+                    return item;
+            });
+        }
+
+        case tariffsConstants.REMOVE_TARIFF: {
+            // удфляем тариф из state
+            return state.filter( item => item.id !== action.tariff.id);
+        }
+
         default:
             return state
     }
