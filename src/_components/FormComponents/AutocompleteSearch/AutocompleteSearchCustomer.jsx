@@ -57,6 +57,7 @@ export const AutocompleteSearchCustomer = ({ labelTitle = "Search to add", fnAdd
     return (
         <Autocomplete
             fullWidth
+            autoHighlight
             open={open}
             onOpen={() => {
                 setOpen(true);
@@ -64,6 +65,11 @@ export const AutocompleteSearchCustomer = ({ labelTitle = "Search to add", fnAdd
             onClose={() => {
                 setOpen(false);
                 setSearchText('');
+            }}
+            onChange={(event, newValue) => {
+                handleClickAddToOrder(newValue);
+                //setValue(newValue);
+                //console.log(newValue);
             }}
             isOptionEqualToValue={(option, value) => {
                 return option.chFirstName + option.chLastName === value.chFirstName + value.chLastName
@@ -84,6 +90,13 @@ export const AutocompleteSearchCustomer = ({ labelTitle = "Search to add", fnAdd
                         </>
                     }
                     onChange={(event) => setSearchText(event.currentTarget.value)}
+                    // onKeyDown={e => {
+                    //     //console.log(e.code);
+                    //     if (e.code === 'Enter' && e.target.value) {
+                    //         //setAutoCompleteValue(autoCompleteValue.concat(e.target.value));
+                    //         console.log(e.target.value);
+                    //     }
+                    // }}
                     InputProps={{
                         ...params.InputProps,
                         endAdornment: (
@@ -96,14 +109,16 @@ export const AutocompleteSearchCustomer = ({ labelTitle = "Search to add", fnAdd
                 />
             )}
             renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                    <Box onClick={() => handleClickAddToOrder(option)}
+                <li {...props} >
+                    <Box
+                        // onClick={() => handleClickAddToOrder(option)}
                         sx={{
                             flexGrow: 1,
                             '& span': {
                                 color: '#586069',
                             },
                         }}
+
                     >
                         {option.chFirstName} {option.chLastName}
                     </Box>

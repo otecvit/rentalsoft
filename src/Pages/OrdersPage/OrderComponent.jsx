@@ -397,7 +397,17 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                             <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
                                 <Grid item xs={12} sm={12} md={12}>
                                     {
-                                        selectedCustomer ? `${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}` :
+                                        selectedCustomer ?
+                                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                                <Grid item xs={12} sm={6} md={11}>
+                                                    {`${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}`}
+                                                </Grid>
+                                                <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                    <IconButton aria-label="del" onClick={() => { }}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </Grid>
+                                            </Grid> :
                                             <AutocompleteSearchCustomer
                                                 id="inv"
                                                 key="inv5566"
