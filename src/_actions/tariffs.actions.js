@@ -8,6 +8,7 @@ import { history } from '../_helpers';
 export const tariffsActions = {
     add,
     load,
+    loadOneTariff,
     remove,
     edit
 };
@@ -57,13 +58,36 @@ function load(tariffs) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
+function loadOneTariff(tariffs) {
+    return dispatch => {
+        tariffsService.loadOneTariff(tariffs)
+            .then(
+                tariffs => {
+                    dispatch(request(tariffs));
+
+                },
+                error => {
+                    dispatch(failure(error.toString()));
+                    dispatch(alertActions.error(error.toString()));
+                }
+            );
+
+    };
+    function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARIFFS, tariffs } }
+    function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
+    function failure(error) { return { type: categoryConstants.INSERT_FAILURE_CUSTOMER, error } }
+    //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
+}
+
+
+
 function remove(tariff) {
 
     return dispatch => {
 
         tariffsService.remove(tariff)
             .then(
-                tariff => { 
+                tariff => {
                     dispatch(request(tariff));
                     //dispatch(success());
                 },

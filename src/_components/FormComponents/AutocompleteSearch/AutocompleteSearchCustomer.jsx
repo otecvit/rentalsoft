@@ -50,7 +50,6 @@ export const AutocompleteSearchCustomer = ({ labelTitle = "Search to add", fnAdd
     }, [support.isLoading]);
 
     const handleClickAddToOrder = (option) => {
-        console.log(option);
         fnAddToOrder(option);
     }
 
@@ -68,8 +67,6 @@ export const AutocompleteSearchCustomer = ({ labelTitle = "Search to add", fnAdd
             }}
             onChange={(event, newValue) => {
                 handleClickAddToOrder(newValue);
-                //setValue(newValue);
-                //console.log(newValue);
             }}
             isOptionEqualToValue={(option, value) => {
                 return option.chFirstName + option.chLastName === value.chFirstName + value.chLastName
