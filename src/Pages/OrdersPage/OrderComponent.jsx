@@ -5,6 +5,8 @@ import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
 import { styled } from '@mui/system';
 
+import moment from 'moment';
+
 
 import {
     Container,
@@ -178,6 +180,14 @@ function addMonths(numOfMonths, date = new Date()) {
     return date;
 }
 
+function monthDiff(d1, d2) {
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth() + 1;
+    months += d2.getMonth();
+    return months <= 0 ? 0 : months;
+}
+
 const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const {
         handleSubmit,
@@ -324,11 +334,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     // меняем переиод при изменении даты или времени
     useEffect(() => {
-        console.log("dPickup", dPickup);
-        console.log("tPickup", tPickup);
-
-        console.log("dReturn", dReturn);
-        console.log("tReturn", tReturn);
+        fnCalculateDuration(dPickup, dReturn, tPickup, tReturn);
     }, [dPickup, dReturn, tPickup, tReturn]);
 
 
@@ -395,6 +401,75 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         setFiles(allFiles);
         setRemoveFiles(prev => [...prev, preview]);
     }
+
+    const fnCalculateDuration = (dPickup, dReturn, tPickup, tReturn) => {
+        // console.log(dReturn - dPickup);
+        const arrDuration = [
+            {
+                months: "",
+                weeks: "",
+                days: "",
+                hours: ""
+            }
+        ];
+        // monthDiff()
+
+        var a = moment([
+            new Date(getDateTime(dPickup)).getUTCFullYear(),
+            new Date(getDateTime(dPickup)).getUTCMonth(),
+            new Date(getDateTime(dPickup)).getUTCDate()
+        ]);
+        var b = moment([
+            new Date(getDateTime(dReturn)).getUTCFullYear(),
+            new Date(getDateTime(dReturn)).getUTCMonth(),
+            new Date(getDateTime(dReturn)).getUTCDate()
+        ]);
+
+        // console.log("diff months", b.diff(a, 'months'));
+        // console.log("diff weeks", b.diff(a, 'weeks'));
+        // console.log("diff days", b.diff(a, 'days'));
+        // console.log("diff hours", b.diff(a, 'hours'));
+
+        var iMonth = b.diff(a, 'months');
+        if (iMonth > 0) { // между датами больше месяца
+            // прибавляем к начальной дате месяцы
+            var newDatePickup = addMonths(iMonth, new Date(getDateTime(dPickup)));
+            console.log("months", iMonth);
+
+            // считаем недели
+            a = moment([
+                new Date(getDateTime(newDatePickup)).getUTCFullYear(),
+                new Date(getDateTime(newDatePickup)).getUTCMonth(),
+                new Date(getDateTime(newDatePickup)).getUTCDate()
+            ]);
+            var iWeeks = b.diff(a, 'weeks');
+
+            if (iWeeks > 0) { // между датами больше недели
+                newDatePickup = addDays(iWeeks * 7, new Date(getDateTime(newDatePickup)));
+                console.log("weeks", iWeeks);
+
+                // считаем дни
+                a = moment([
+                    new Date(getDateTime(newDatePickup)).getUTCFullYear(),
+                    new Date(getDateTime(newDatePickup)).getUTCMonth(),
+                    new Date(getDateTime(newDatePickup)).getUTCDate()
+                ]);
+
+                var iDays = b.diff(a, 'days');
+
+                if (iDays > 0) { // между датами больше одного дня
+                    newDatePickup = addDays(iDays, new Date(getDateTime(newDatePickup)));
+                    console.log("days", iDays);
+                }
+            }
+        }
+
+        // console.log("dPickup", new Date(getDateTime(dPickup)).getUTCFullYear());
+        // console.log("tPickup", tPickup);
+
+        // console.log("dReturn", new Date(getDateTime(dReturn)).getUTCFullYear());
+        // console.log("tReturn", tReturn);
+    };
 
     /// ищем значение категории по id
     const findById = (array, id) => {
