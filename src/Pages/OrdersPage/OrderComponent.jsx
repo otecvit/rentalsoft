@@ -5,7 +5,7 @@ import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
 import { styled } from '@mui/system';
 
-import moment from 'moment';
+import moment, { months } from 'moment';
 
 
 import {
@@ -78,30 +78,30 @@ const tags = [
 ]
 
 const arrTime = [
-    { title: '12:00 AM', value: '12:00 AM' }, { title: '12:15 AM', value: '12:15 AM' }, { title: '12:30 AM', value: '12:30 AM' }, { title: '12:45 AM', value: '12:45 AM' },
-    { title: '01:00 AM', value: '01:00 AM' }, { title: '01:15 AM', value: '01:15 AM' }, { title: '01:30 AM', value: '01:30 AM' }, { title: '01:45 AM', value: '01:45 AM' },
-    { title: '02:00 AM', value: '02:00 AM' }, { title: '02:15 AM', value: '02:15 AM' }, { title: '02:30 AM', value: '02:30 AM' }, { title: '02:45 AM', value: '02:45 AM' },
-    { title: '03:00 AM', value: '03:00 AM' }, { title: '03:15 AM', value: '03:15 AM' }, { title: '03:30 AM', value: '03:30 AM' }, { title: '03:45 AM', value: '03:45 AM' },
-    { title: '04:00 AM', value: '04:00 AM' }, { title: '04:15 AM', value: '04:15 AM' }, { title: '04:30 AM', value: '04:30 AM' }, { title: '04:45 AM', value: '04:45 AM' },
-    { title: '05:00 AM', value: '05:00 AM' }, { title: '05:15 AM', value: '05:15 AM' }, { title: '05:30 AM', value: '05:30 AM' }, { title: '05:45 AM', value: '05:45 AM' },
-    { title: '06:00 AM', value: '06:00 AM' }, { title: '06:15 AM', value: '06:15 AM' }, { title: '06:30 AM', value: '06:30 AM' }, { title: '06:45 AM', value: '06:45 AM' },
-    { title: '07:00 AM', value: '07:00 AM' }, { title: '07:15 AM', value: '07:15 AM' }, { title: '07:30 AM', value: '07:30 AM' }, { title: '07:45 AM', value: '07:45 AM' },
-    { title: '08:00 AM', value: '08:00 AM' }, { title: '08:15 AM', value: '08:15 AM' }, { title: '08:30 AM', value: '08:30 AM' }, { title: '08:45 AM', value: '08:45 AM' },
-    { title: '09:00 AM', value: '09:00 AM' }, { title: '09:15 AM', value: '09:15 AM' }, { title: '09:30 AM', value: '09:30 AM' }, { title: '09:45 AM', value: '09:45 AM' },
-    { title: '10:00 AM', value: '10:00 AM' }, { title: '10:15 AM', value: '10:15 AM' }, { title: '10:30 AM', value: '10:30 AM' }, { title: '10:45 AM', value: '10:45 AM' },
-    { title: '11:00 AM', value: '11:00 AM' }, { title: '11:15 AM', value: '11:15 AM' }, { title: '11:30 AM', value: '11:30 AM' }, { title: '11:45 AM', value: '11:45 AM' },
-    { title: '12:00 PM', value: '12:00 PM' }, { title: '12:15 PM', value: '12:15 PM' }, { title: '12:30 PM', value: '12:30 PM' }, { title: '12:45 PM', value: '12:45 PM' },
-    { title: '01:00 PM', value: '01:00 PM' }, { title: '01:15 PM', value: '01:15 PM' }, { title: '01:30 PM', value: '01:30 PM' }, { title: '01:45 PM', value: '01:45 PM' },
-    { title: '02:00 PM', value: '02:00 PM' }, { title: '02:15 PM', value: '02:15 PM' }, { title: '02:30 PM', value: '02:30 PM' }, { title: '02:45 PM', value: '02:45 PM' },
-    { title: '03:00 PM', value: '03:00 PM' }, { title: '03:15 PM', value: '03:15 PM' }, { title: '03:30 PM', value: '03:30 PM' }, { title: '03:45 PM', value: '03:45 PM' },
-    { title: '04:00 PM', value: '04:00 PM' }, { title: '04:15 PM', value: '04:15 PM' }, { title: '04:30 PM', value: '04:30 PM' }, { title: '04:45 PM', value: '04:45 PM' },
-    { title: '05:00 PM', value: '05:00 PM' }, { title: '05:15 PM', value: '05:15 PM' }, { title: '05:30 PM', value: '05:30 PM' }, { title: '05:45 PM', value: '05:45 PM' },
-    { title: '06:00 PM', value: '06:00 PM' }, { title: '06:15 PM', value: '06:15 PM' }, { title: '06:30 PM', value: '06:30 PM' }, { title: '06:45 PM', value: '06:45 PM' },
-    { title: '07:00 PM', value: '07:00 PM' }, { title: '07:15 PM', value: '07:15 PM' }, { title: '07:30 PM', value: '07:30 PM' }, { title: '07:45 PM', value: '07:45 PM' },
-    { title: '08:00 PM', value: '08:00 PM' }, { title: '08:15 PM', value: '08:15 PM' }, { title: '08:30 PM', value: '08:30 PM' }, { title: '08:45 PM', value: '08:45 PM' },
-    { title: '09:00 PM', value: '09:00 PM' }, { title: '09:15 PM', value: '09:15 PM' }, { title: '09:30 PM', value: '09:30 PM' }, { title: '09:45 PM', value: '09:45 PM' },
-    { title: '10:00 PM', value: '10:00 PM' }, { title: '10:15 PM', value: '10:15 PM' }, { title: '10:30 PM', value: '10:30 PM' }, { title: '10:45 PM', value: '10:45 PM' },
-    { title: '11:00 PM', value: '11:00 PM' }, { title: '11:15 PM', value: '11:15 PM' }, { title: '11:30 PM', value: '11:30 PM' }, { title: '11:45 PM', value: '11:45 PM' },
+    { title: '00:00', value: '00:00' }, { title: '00:15', value: '00:15' }, { title: '00:30', value: '00:30' }, { title: '00:45', value: '00:45' },
+    { title: '01:00', value: '01:00' }, { title: '01:15', value: '01:15' }, { title: '01:30', value: '01:30' }, { title: '01:45', value: '01:45' },
+    { title: '02:00', value: '02:00' }, { title: '02:15', value: '02:15' }, { title: '02:30', value: '02:30' }, { title: '02:45', value: '02:45' },
+    { title: '03:00', value: '03:00' }, { title: '03:15', value: '03:15' }, { title: '03:30', value: '03:30' }, { title: '03:45', value: '03:45' },
+    { title: '04:00', value: '04:00' }, { title: '04:15', value: '04:15' }, { title: '04:30', value: '04:30' }, { title: '04:45', value: '04:45' },
+    { title: '05:00', value: '05:00' }, { title: '05:15', value: '05:15' }, { title: '05:30', value: '05:30' }, { title: '05:45', value: '05:45' },
+    { title: '06:00', value: '06:00' }, { title: '06:15', value: '06:15' }, { title: '06:30', value: '06:30' }, { title: '06:45', value: '06:45' },
+    { title: '07:00', value: '07:00' }, { title: '07:15', value: '07:15' }, { title: '07:30', value: '07:30' }, { title: '07:45', value: '07:45' },
+    { title: '08:00', value: '08:00' }, { title: '08:15', value: '08:15' }, { title: '08:30', value: '08:30' }, { title: '08:45', value: '08:45' },
+    { title: '09:00', value: '09:00' }, { title: '09:15', value: '09:15' }, { title: '09:30', value: '09:30' }, { title: '09:45', value: '09:45' },
+    { title: '10:00', value: '10:00' }, { title: '10:15', value: '10:15' }, { title: '10:30', value: '10:30' }, { title: '10:45', value: '10:45' },
+    { title: '11:00', value: '11:00' }, { title: '11:15', value: '11:15' }, { title: '11:30', value: '11:30' }, { title: '11:45', value: '11:45' },
+    { title: '12:00', value: '12:00' }, { title: '12:15', value: '12:15' }, { title: '12:30', value: '12:30' }, { title: '12:45', value: '12:45' },
+    { title: '13:00', value: '13:00' }, { title: '13:15', value: '13:15' }, { title: '13:30', value: '13:30' }, { title: '13:45', value: '13:45' },
+    { title: '14:00', value: '14:00' }, { title: '14:15', value: '14:15' }, { title: '14:30', value: '14:30' }, { title: '14:45', value: '14:45' },
+    { title: '15:00', value: '15:00' }, { title: '15:15', value: '15:15' }, { title: '15:30', value: '15:30' }, { title: '15:45', value: '15:45' },
+    { title: '16:00', value: '16:00' }, { title: '16:15', value: '16:15' }, { title: '16:30', value: '16:30' }, { title: '16:45', value: '16:45' },
+    { title: '17:00', value: '17:00' }, { title: '17:15', value: '17:15' }, { title: '17:30', value: '17:30' }, { title: '17:45', value: '17:45' },
+    { title: '18:00', value: '18:00' }, { title: '18:15', value: '18:15' }, { title: '18:30', value: '18:30' }, { title: '18:45', value: '18:45' },
+    { title: '19:00', value: '19:00' }, { title: '19:15', value: '19:15' }, { title: '19:30', value: '19:30' }, { title: '19:45', value: '19:45' },
+    { title: '20:00', value: '20:00' }, { title: '20:15', value: '20:15' }, { title: '20:30', value: '20:30' }, { title: '20:45', value: '20:45' },
+    { title: '21:00', value: '21:00' }, { title: '21:15', value: '21:15' }, { title: '21:30', value: '21:30' }, { title: '21:45', value: '21:45' },
+    { title: '22:00', value: '22:00' }, { title: '22:15', value: '22:15' }, { title: '22:30', value: '22:30' }, { title: '22:45', value: '22:45' },
+    { title: '23:00', value: '23:00' }, { title: '23:15', value: '23:15' }, { title: '23:30', value: '23:30' }, { title: '23:45', value: '23:45' },
 
 ]
 
@@ -135,35 +135,58 @@ function stringAvatar(name) {
     };
 }
 
-function getDateTime(dDateTime) {
+function getDateTime(dDateTime, type, addMin) {
 
-    var now = new Date();
-    if (dDateTime) now = new Date(dDateTime);
+    var start = moment();
+    if (dDateTime) start = moment(dDateTime);
 
-    var year = now.getFullYear();
-    var month = now.getMonth() + 1;
-    var day = now.getDate();
-    var hour = now.getHours();
-    var minute = now.getMinutes();
-    var second = now.getSeconds();
-    if (month.toString().length == 1) {
-        month = '0' + month;
-    }
-    if (day.toString().length == 1) {
-        day = '0' + day;
-    }
-    if (hour.toString().length == 1) {
-        hour = '0' + hour;
-    }
-    if (minute.toString().length == 1) {
-        minute = '0' + minute;
-    }
-    if (second.toString().length == 1) {
-        second = '0' + second;
-    }
-    var dateTime = year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
-    return dateTime;
+    const remainder = 15 - start.minute() % 15 + addMin;
+    const dateReturn = moment(start).add(remainder, "minutes").format("YYYY-MM-DD");
+    const timeReturn = moment(start).add(remainder, "minutes").format("HH:mm");
+
+    if (type === 1) return dateReturn + 'T' + timeReturn;
+    else return timeReturn
+
+
+    // var now = new Date();
+    // if (dDateTime) now = new Date(dDateTime);
+
+    // var year = now.getFullYear();
+    // var month = now.getMonth() + 1;
+    // var day = now.getDate();
+    // var hour = now.getHours();
+    // var minute = now.getMinutes();
+    // if (month.toString().length == 1) {
+    //     month = '0' + month;
+    // }
+    // if (day.toString().length == 1) {
+    //     day = '0' + day;
+    // }
+    // if (hour.toString().length == 1) {
+    //     hour = '0' + hour;
+    // }
+    // if (minute.toString().length == 1) {
+    //     minute = '0' + minute;
+    // }
+
+    // var dateTime = year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
+    // return dateTime;
 }
+
+
+function getTimeForSelect(dDateTime) {
+
+    const start = moment();
+    const remainder = 15 - start.minute() % 15;
+    const dateReturn = moment(start).add("minutes", remainder).format("YYYY-MM-DD");
+    const timeReturn = moment(start).add("minutes", remainder).format("HH:mm a");
+
+
+    //console.log("---", dateReturn + 'T' + timeReturn);
+
+    return "";
+}
+
 
 function addHours(numOfHours, date = new Date()) {
     date.setTime(date.getTime() + numOfHours * 60 * 60 * 1000);
@@ -200,10 +223,10 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     } = useForm({
         defaultValues: {
             chName: "",
-            dPickup: getDateTime(""),
-            tPickup: "",
-            dReturn: getDateTime(""),
-            tReturn: "",
+            dPickup: getDateTime("", 1, 0),
+            tPickup: getDateTime("", 2, 0),
+            dReturn: getDateTime("", 1, 60),
+            tReturn: getDateTime("", 2, 60),
             arrInventory: [],
             arrItem: [],
             arrServices: [],
@@ -233,7 +256,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const [arrPrice, setPrice] = useState([]);
 
     const [currentTab, setTab] = useState(0);
-    const [currentDuration, setDuration] = useState([{ hours: 0, days: 0, weeks: 0, months: 0 }]);
+    const [currentDuration, setDuration] = useState([]);
 
     const user = useSelector(state => state.authentication.user);
     const support = useSelector(state => state.support);
@@ -334,8 +357,21 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     // меняем переиод при изменении даты или времени
     useEffect(() => {
-        fnCalculateDuration(dPickup, dReturn, tPickup, tReturn);
-    }, [dPickup, dReturn, tPickup, tReturn]);
+        setDuration([
+            { ...fnCalculatePeriod("months") },
+            { ...fnCalculatePeriod("weeks") },
+            { ...fnCalculatePeriod("days") },
+            { ...fnCalculatePeriod("hours") },
+        ])
+    }, [dPickup, dReturn]);
+
+    useEffect(() => {
+        setValue("dPickup", moment(dPickup).format("YYYY-MM-DD") + "T" + tPickup)
+    }, [tPickup]);
+
+    useEffect(() => {
+        setValue("dReturn", moment(dReturn).format("YYYY-MM-DD") + "T" + tReturn)
+    }, [tReturn]);
 
 
     /// отслеживаем изменения в таблице продуктов и всё пересчитываем
@@ -402,74 +438,73 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         setRemoveFiles(prev => [...prev, preview]);
     }
 
-    const fnCalculateDuration = (dPickup, dReturn, tPickup, tReturn) => {
-        // console.log(dReturn - dPickup);
-        const arrDuration = [
-            {
-                months: "",
-                weeks: "",
-                days: "",
-                hours: ""
-            }
-        ];
-        // monthDiff()
+    const fnCalculatePeriod = (type) => {
 
-        var a = moment([
-            new Date(getDateTime(dPickup)).getUTCFullYear(),
-            new Date(getDateTime(dPickup)).getUTCMonth(),
-            new Date(getDateTime(dPickup)).getUTCDate()
-        ]);
-        var b = moment([
-            new Date(getDateTime(dReturn)).getUTCFullYear(),
-            new Date(getDateTime(dReturn)).getUTCMonth(),
-            new Date(getDateTime(dReturn)).getUTCDate()
-        ]);
+        var a = moment(dPickup);
+        var b = moment(dReturn);
 
-        // console.log("diff months", b.diff(a, 'months'));
-        // console.log("diff weeks", b.diff(a, 'weeks'));
-        // console.log("diff days", b.diff(a, 'days'));
-        // console.log("diff hours", b.diff(a, 'hours'));
-
-        var iMonth = b.diff(a, 'months');
-        if (iMonth > 0) { // между датами больше месяца
-            // прибавляем к начальной дате месяцы
-            var newDatePickup = addMonths(iMonth, new Date(getDateTime(dPickup)));
-            console.log("months", iMonth);
-
-            // считаем недели
-            a = moment([
-                new Date(getDateTime(newDatePickup)).getUTCFullYear(),
-                new Date(getDateTime(newDatePickup)).getUTCMonth(),
-                new Date(getDateTime(newDatePickup)).getUTCDate()
-            ]);
-            var iWeeks = b.diff(a, 'weeks');
-
-            if (iWeeks > 0) { // между датами больше недели
-                newDatePickup = addDays(iWeeks * 7, new Date(getDateTime(newDatePickup)));
-                console.log("weeks", iWeeks);
-
-                // считаем дни
-                a = moment([
-                    new Date(getDateTime(newDatePickup)).getUTCFullYear(),
-                    new Date(getDateTime(newDatePickup)).getUTCMonth(),
-                    new Date(getDateTime(newDatePickup)).getUTCDate()
-                ]);
-
-                var iDays = b.diff(a, 'days');
-
-                if (iDays > 0) { // между датами больше одного дня
-                    newDatePickup = addDays(iDays, new Date(getDateTime(newDatePickup)));
-                    console.log("days", iDays);
-                }
+        var iMonth = 0;
+        if (type === "months" && type !== "weeks" && type !== "days" && type !== "hours") {
+            iMonth = b.diff(a, 'months');
+            if (iMonth > 0) { // между датами больше месяца
+                // прибавляем к начальной дате месяцы
+                a = moment(a).add(iMonth, "M");
             }
         }
 
-        // console.log("dPickup", new Date(getDateTime(dPickup)).getUTCFullYear());
-        // console.log("tPickup", tPickup);
+        var iWeeks = 0;
+        if ((type === "weeks" && type !== "days" && type !== "hours") || type === "months") {
+            iWeeks = b.diff(a, 'weeks');
+            if (iWeeks > 0) { // между датами больше недели
+                a = moment(a).add(iWeeks, "w");
+            }
+        }
 
-        // console.log("dReturn", new Date(getDateTime(dReturn)).getUTCFullYear());
-        // console.log("tReturn", tReturn);
-    };
+        var iDays = 0;
+        if ((type === "days" && type !== "hours") || type === "months" || type === "weeks") {
+            iDays = b.diff(a, 'days');
+            if (iDays > 0) { // между датами больше одного дня
+                a = moment(a).add(iDays, "d");
+            }
+        }
+
+        var iHours = b.diff(a, 'hours', true);
+
+        return {
+            months: iMonth,
+            weeks: iWeeks,
+            days: iDays,
+            hours: iHours
+        }
+    }
+
+    const fnCalculateDurationItem = (item) => {
+        console.log(item.chTariff.arrTariffDetail);
+
+        let rentalType = 0; // тип аренды (помесячная, еженедельная, ежедневная, почасовая)
+        const periodMonths = "4";
+        const periodWeeks = "3";
+        const periodDays = "2";
+
+
+        if (typeof item.chTariff.arrTariffDetail.find(elem => elem.period === periodMonths) === 'undefined') {
+            if (typeof item.chTariff.arrTariffDetail.find(elem => elem.period === periodWeeks) === 'undefined') {
+                if (typeof item.chTariff.arrTariffDetail.find(elem => elem.period === periodDays) === 'undefined') {
+                    rentalType = "hours"
+                    return `${currentDuration[3].hours} hours`
+                } else {
+                    // days
+                    return `${currentDuration[2].days} days ${currentDuration[2].hours} hours`
+                }
+            } else {
+                // weeks
+                return `${currentDuration[1].weeks} weeks ${currentDuration[1].days} days ${currentDuration[1].hours} hours`
+            }
+        } else {
+            // months
+            return `${currentDuration[0].months} months ${currentDuration[0].weeks} weeks ${currentDuration[0].days} days ${currentDuration[0].hours} hours`
+        }
+    }
 
     /// ищем значение категории по id
     const findById = (array, id) => {
@@ -505,6 +540,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             // inventory
             case "1": {
 
+
+
                 arrItemAppend({
                     chToken: itemSelected.chToken,
                     iType: itemSelected.iType,
@@ -512,7 +549,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chTariff,
-                    chDuration: "",
+                    chDuration: fnCalculateDurationItem(itemSelected),
                 });
 
                 setPrice(oldPrice => [
@@ -614,22 +651,23 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const handleAddDuration = (duration) => {
         switch (duration) {
             case "1 hour": {
-                setValue("dReturn", getDateTime(addHours(1, new Date(getValues("dReturn")))))
+                setValue("tReturn", moment(getValues("dReturn")).add(1, "h").format("HH:mm"));
+                setValue("dReturn", moment(getValues("dReturn")).add(1, "h"))
             } break;
             case "1 day": {
-                setValue("dReturn", getDateTime(addDays(1, new Date(getValues("dReturn")))))
+                setValue("dReturn", moment(getValues("dReturn")).add(1, "d"))
             } break;
             case "1 week": {
-                setValue("dReturn", getDateTime(addDays(7, new Date(getValues("dReturn")))))
+                setValue("dReturn", moment(getValues("dReturn")).add(1, "w"))
             } break;
             case "2 weeks": {
-                setValue("dReturn", getDateTime(addDays(14, new Date(getValues("dReturn")))))
+                setValue("dReturn", moment(getValues("dReturn")).add(2, "w"))
             } break;
             case "1 month": {
-                setValue("dReturn", getDateTime(addMonths(1, new Date(getValues("dReturn")))))
+                setValue("dReturn", moment(getValues("dReturn")).add(1, "M"))
             } break;
             case "2 months": {
-                setValue("dReturn", getDateTime(addMonths(2, new Date(getValues("dReturn")))))
+                setValue("dReturn", moment(getValues("dReturn")).add(2, "M"))
             } break;
         }
         setAnchorEl(null);
@@ -700,9 +738,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             }));
         }
     }
-
-
-    //console.log(arrPrice);
 
     return (
 
