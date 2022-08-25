@@ -241,6 +241,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         fields: arrItemFields,
         append: arrItemAppend,
         remove: arrItemRemove,
+        update: arrItemUpdate,
     } = useFieldArray({
         control,
         name: "arrItem",
@@ -357,12 +358,14 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     // меняем переиод при изменении даты или времени
     useEffect(() => {
+
         setDuration([
             { ...fnCalculatePeriod("months") },
             { ...fnCalculatePeriod("weeks") },
             { ...fnCalculatePeriod("days") },
             { ...fnCalculatePeriod("hours") },
-        ])
+        ]);
+
     }, [dPickup, dReturn]);
 
     useEffect(() => {
@@ -376,10 +379,19 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     /// отслеживаем изменения в таблице продуктов и всё пересчитываем
     useEffect(() => {
-        //console.log(arrItem);
+
+
         arrItem.map((item, index) => {
             if (item.iType === "1") {
-
+                console.log("item", item);
+                // const value = Number(item.chQuantity) * Number(item.chAppliedRate) * Number(item.chDuration !== "" ? item.chDuration : 1) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                const value = fnCalculateMultiplier(item) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                // пересчитываем цены
+                setPrice(state => {
+                    return state.map(x => {
+                        return x.chToken === item.chToken ? { ...x, chPrice: value } : x
+                    })
+                });
             }
             else {
                 const value = Number(item.chQuantity) * Number(item.chAppliedRate) * Number(item.chDuration !== "" ? item.chDuration : 1) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
@@ -409,6 +421,25 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         }
     }, [support.isLoading]);
 
+
+    const fnCalculateMultiplier = (item) => {
+        console.log(item.iTypeDuration);
+        switch (item.iTypeDuration) {
+            case 'days': {
+                console.log(currentDuration[2].days);
+                return currentDuration[2].days;
+            } break;
+            default:
+                return 1;
+        }
+    }
+
+    // return {
+    //     months: iMonth,
+    //     weeks: iWeeks,
+    //     days: iDays,
+    //     hours: iHours
+    // }
 
     const initialValueEdit = () => {
         setValue("chName", bundles[0].chName);
@@ -479,30 +510,26 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     }
 
     const fnCalculateDurationItem = (item) => {
-        console.log(item.chTariff.arrTariffDetail);
 
-        let rentalType = 0; // тип аренды (помесячная, еженедельная, ежедневная, почасовая)
         const periodMonths = "4";
         const periodWeeks = "3";
         const periodDays = "2";
 
-
-        if (typeof item.chTariff.arrTariffDetail.find(elem => elem.period === periodMonths) === 'undefined') {
-            if (typeof item.chTariff.arrTariffDetail.find(elem => elem.period === periodWeeks) === 'undefined') {
-                if (typeof item.chTariff.arrTariffDetail.find(elem => elem.period === periodDays) === 'undefined') {
-                    rentalType = "hours"
-                    return `${currentDuration[3].hours} hours`
+        if (typeof item.arrTariffDetail.find(elem => elem.period === periodMonths) === 'undefined') {
+            if (typeof item.arrTariffDetail.find(elem => elem.period === periodWeeks) === 'undefined') {
+                if (typeof item.arrTariffDetail.find(elem => elem.period === periodDays) === 'undefined') {
+                    return 'hours';
                 } else {
                     // days
-                    return `${currentDuration[2].days} days ${currentDuration[2].hours} hours`
+                    return 'days';
                 }
             } else {
                 // weeks
-                return `${currentDuration[1].weeks} weeks ${currentDuration[1].days} days ${currentDuration[1].hours} hours`
+                return 'weeks';
             }
         } else {
             // months
-            return `${currentDuration[0].months} months ${currentDuration[0].weeks} weeks ${currentDuration[0].days} days ${currentDuration[0].hours} hours`
+            return 'months';
         }
     }
 
@@ -539,9 +566,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         switch (itemSelected.iType) {
             // inventory
             case "1": {
-
-
-
                 arrItemAppend({
                     chToken: itemSelected.chToken,
                     iType: itemSelected.iType,
@@ -549,7 +573,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chTariff,
-                    chDuration: fnCalculateDurationItem(itemSelected),
+                    iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
                 setPrice(oldPrice => [
@@ -559,15 +583,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                         chPrice: "0"
                     }
                 ]);
-
-                // setPrice(oldPrice => [
-                //     ...oldPrice,
-                //     {
-                //         chToken: itemSelected.chToken,
-                //         chPrice: itemSelected.chSellPrice
-                //     }
-                // ]);
-
             } break;
 
 
@@ -580,7 +595,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chSellPrice,
-                    chDuration: "",
+                    iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
                 setPrice(oldPrice => [
@@ -601,8 +616,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chSellPrice,
-                    chDuration: "",
-
+                    iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
                 setPrice(oldPrice => [
@@ -623,8 +637,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: "0",
-                    chDuration: "0",
-
+                    iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
                 setPrice(oldPrice => [
@@ -736,6 +749,25 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 filesToLeave: null,
                 chTokenCompany: user.chTokenCompany,
             }));
+        }
+    }
+
+    const fnPrintDuration = (type) => {
+        switch (type) {
+            case 'months': {
+                return `${currentDuration[0].months} months ${currentDuration[0].weeks} weeks ${currentDuration[0].days} days ${currentDuration[0].hours} hours`
+            } break;
+            case 'weeks': {
+                return `${currentDuration[1].weeks} weeks ${currentDuration[1].days} days ${currentDuration[1].hours} hours`
+            } break;
+            case 'days': {
+                return `${currentDuration[2].days} days ${currentDuration[2].hours} hours`
+            } break;
+            case 'hours': {
+                return `${currentDuration[3].hours} hours`
+            } break;
+            default:
+                return ""
         }
     }
 
@@ -1011,7 +1043,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                                 <TableLabel>{item.chName}</TableLabel>
                                             </Grid>
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>{item.chDuration}</TableLabel>
+                                                <TableLabel>{fnPrintDuration(item.iTypeDuration)}</TableLabel>
                                             </Grid>
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                                 <TableLabel>
