@@ -427,7 +427,42 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         switch (item.iTypeDuration) {
             case 'days': {
                 console.log(currentDuration[2].days);
-                return currentDuration[2].days;
+
+                /// ищем точное значение в тарифе
+                //const currentTar = item.chAppliedRate.arrTariffDetail.find(x => x.duration === currentDuration[2].days.toString());
+                //console.log(item.chAppliedRate.arrTariffDetail);
+                ////////////////////////////////////////////////////////
+
+                const arrPeriod = item.chAppliedRate.arrTariffDetail.map(x => x.duration);
+                const minDuration = Math.min(...arrPeriod.filter(v => v >= currentDuration[2].days.toString()));
+                const maxDuration = Math.max(...arrPeriod.filter(v => v <= currentDuration[2].days.toString()));
+
+                if (minDuration === maxDuration) { // такой период есть в тарифе 
+                    // 
+                    //console.log(item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())]);
+                    // возвращаем стоимость
+                    return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())].price;
+                }
+                else {
+                    return 1;
+                }
+
+                //console.log(closestRight, closestLeft);
+
+
+
+                //console.log(currentTar);
+
+                // const arrPeriod = item.chAppliedRate.arrTariffDetail.map(x => x.duration);
+                // const closestRight = Math.min(...arrPeriod.filter(v => v > currentDuration[2].days));
+                // const closestLeft = Math.max(...arrPeriod.filter(v => v < currentDuration[2].days));
+
+                //const closestRight = Math.min(...item.chAppliedRate.arrTariffDetail.filter(v => v.duration > currentDuration[2].days));
+                //const closestLeft = Math.max(...item.chAppliedRate.arrTariffDetail.filter(v => v.duration < currentDuration[2].days));
+                //const newItem = item.chAppliedRate.arrTariffDetail.filter(x => x.period === '2');
+                //const max = newItem.reduce((prev, current) => (prev.duration > current.duration) ? prev : current)
+                //console.log(closestRight, closestLeft);
+
             } break;
             default:
                 return 1;
@@ -456,17 +491,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     const initialValueAdd = () => {
         setFiles([]);
-    }
-
-    const handleControlledDropzone = (allFiles) => {
-        // добавляем файлы
-        setFiles(prev => [...prev, ...allFiles]);
-    };
-
-    const handleDeleteFile = (allFiles, preview) => {
-        //console.log(preview);
-        setFiles(allFiles);
-        setRemoveFiles(prev => [...prev, preview]);
     }
 
     const fnCalculatePeriod = (type) => {
