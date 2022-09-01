@@ -437,6 +437,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 const minDuration = Math.min(...arrPeriod.filter(v => v >= currentDuration[2].days.toString()));
                 const maxDuration = Math.max(...arrPeriod.filter(v => v <= currentDuration[2].days.toString()));
 
+                console.log(minDuration, maxDuration);
+
                 if (minDuration === maxDuration) { // такой период есть в тарифе 
                     // 
                     //console.log(item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())]);
@@ -444,6 +446,16 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())].price;
                 }
                 else {
+                    if (Number.isFinite(minDuration)) { // текущий период меньше минимального в тарифе. 
+                        // выбираем минимальный
+                        return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())].price;
+                    }
+
+                    if (Number.isFinite(maxDuration)) { // текущий период больше максимального в тарифе. 
+                        // выбираем минимальный
+                        return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === maxDuration.toString())].price;
+                    }
+
                     return 1;
                 }
 
