@@ -30,8 +30,6 @@ function loadOneTariff(tariffs) {
         body: JSON.stringify(tariffs)
     };
 
-    console.log(tariffs);
-
     return fetch(`${config.apiUrl}/Tariffs/LoadOneTariff.php`, requestOptions)
         .then(handleResponse)
         .then(tariffs => {

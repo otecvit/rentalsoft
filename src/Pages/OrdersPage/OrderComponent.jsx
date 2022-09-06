@@ -425,56 +425,83 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const fnCalculateMultiplier = (item) => {
         console.log(item.iTypeDuration);
         switch (item.iTypeDuration) {
+            case 'hours': {
+                // находим в тарифе идентичный или ближайший минимальный период
+                const currPrice = item.chAppliedRate.arrTariffDetail
+                    .filter(a => a.period === "hours")
+                    .reduce((prev, curr) => {
+                        if (currentDuration[3].hours > prev.duration) {
+                            if (currentDuration[3].hours > curr.duration) {
+                                if (prev.duration < curr.duration) {
+                                    return curr;
+                                }
+                                else {
+                                    return prev;
+                                }
+                            }
+                            else {
+                                return curr;
+                            }
+                        }
+                        else {
+                            if (currentDuration[3].hours > curr.duration) {
+                                return prev
+                            }
+                            else {
+                                if (prev.duration < curr.duration) {
+                                    return prev;
+                                }
+                                else {
+                                    return curr;
+                                }
+                            }
+                        }
+                    }
+                    );
+
+                // возвращаем множитель
+                return Number(currPrice.duration) >= Number(currentDuration[3].hours) ? currPrice.price :
+                    Number(currPrice.price) + Number(item.chAppliedRate.arrExtraTariff[0].hour) *
+                    Number(Number(currentDuration[3].hours) - Number(currPrice.duration));
+            }
             case 'days': {
-                console.log(currentDuration[2].days);
 
-                /// ищем точное значение в тарифе
-                //const currentTar = item.chAppliedRate.arrTariffDetail.find(x => x.duration === currentDuration[2].days.toString());
-                //console.log(item.chAppliedRate.arrTariffDetail);
-                ////////////////////////////////////////////////////////
-
-                const arrPeriod = item.chAppliedRate.arrTariffDetail.map(x => x.duration);
-                const minDuration = Math.min(...arrPeriod.filter(v => v >= currentDuration[2].days.toString()));
-                const maxDuration = Math.max(...arrPeriod.filter(v => v <= currentDuration[2].days.toString()));
-
-                console.log(minDuration, maxDuration);
-
-                if (minDuration === maxDuration) { // такой период есть в тарифе 
-                    // 
-                    //console.log(item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())]);
-                    // возвращаем стоимость
-                    return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())].price;
-                }
-                else {
-                    if (Number.isFinite(minDuration)) { // текущий период меньше минимального в тарифе. 
-                        // выбираем минимальный
-                        return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === minDuration.toString())].price;
+                // находим в тарифе идентичный или ближайший минимальный период
+                const currPrice = item.chAppliedRate.arrTariffDetail
+                    .filter(a => a.period === "days")
+                    .reduce((prev, curr) => {
+                        if (currentDuration[2].days > prev.duration) {
+                            if (currentDuration[2].days > curr.duration) {
+                                if (prev.duration < curr.duration) {
+                                    return curr;
+                                }
+                                else {
+                                    return prev;
+                                }
+                            }
+                            else {
+                                return curr;
+                            }
+                        }
+                        else {
+                            if (currentDuration[2].days > curr.duration) {
+                                return prev
+                            }
+                            else {
+                                if (prev.duration < curr.duration) {
+                                    return prev;
+                                }
+                                else {
+                                    return curr;
+                                }
+                            }
+                        }
                     }
-
-                    if (Number.isFinite(maxDuration)) { // текущий период больше максимального в тарифе. 
-                        // выбираем минимальный
-                        return item.chAppliedRate.arrTariffDetail[arrPeriod.findIndex(x => x === maxDuration.toString())].price;
-                    }
-
-                    return 1;
-                }
-
-                //console.log(closestRight, closestLeft);
-
-
-
-                //console.log(currentTar);
-
-                // const arrPeriod = item.chAppliedRate.arrTariffDetail.map(x => x.duration);
-                // const closestRight = Math.min(...arrPeriod.filter(v => v > currentDuration[2].days));
-                // const closestLeft = Math.max(...arrPeriod.filter(v => v < currentDuration[2].days));
-
-                //const closestRight = Math.min(...item.chAppliedRate.arrTariffDetail.filter(v => v.duration > currentDuration[2].days));
-                //const closestLeft = Math.max(...item.chAppliedRate.arrTariffDetail.filter(v => v.duration < currentDuration[2].days));
-                //const newItem = item.chAppliedRate.arrTariffDetail.filter(x => x.period === '2');
-                //const max = newItem.reduce((prev, current) => (prev.duration > current.duration) ? prev : current)
-                //console.log(closestRight, closestLeft);
-
+                    );
+                // возвращаем множитель
+                return Number(currPrice.duration) >= Number(currentDuration[2].days) ? currPrice.price :
+                    Number(currPrice.price) + Number(item.chAppliedRate.arrExtraTariff[0].day) *
+                    Number(Number(currentDuration[2].days) - Number(currPrice.duration));
             } break;
             default:
                 return 1;
@@ -546,14 +573,9 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     }
 
     const fnCalculateDurationItem = (item) => {
-
-        const periodMonths = "4";
-        const periodWeeks = "3";
-        const periodDays = "2";
-
-        if (typeof item.arrTariffDetail.find(elem => elem.period === periodMonths) === 'undefined') {
-            if (typeof item.arrTariffDetail.find(elem => elem.period === periodWeeks) === 'undefined') {
-                if (typeof item.arrTariffDetail.find(elem => elem.period === periodDays) === 'undefined') {
+        if (typeof item.arrTariffDetail.find(elem => elem.period === 'months') === 'undefined') {
+            if (typeof item.arrTariffDetail.find(elem => elem.period === 'weeks') === 'undefined') {
+                if (typeof item.arrTariffDetail.find(elem => elem.period === 'days') === 'undefined') {
                     return 'hours';
                 } else {
                     // days
@@ -739,8 +761,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             // возвращаем массив файлов, которые надо оставить и не удалять
             const s = new Set(removeFiles);
             const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
-
-
 
             console.log({
                 ...data,

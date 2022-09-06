@@ -16,11 +16,14 @@ export const tariffsActions = {
 function add(tariff) {
 
     return dispatch => {
+
         tariffsService.add(tariff)
             .then(
                 tariff => {
+
                     dispatch(lastTariffId(tariff.id));
                     dispatch(request(tariff));
+                    dispatch(alertActions.success("Succes add"));
                     //dispatch(success());
                 },
                 error => {
@@ -39,11 +42,13 @@ function add(tariff) {
 
 function load(tariffs) {
     return dispatch => {
+
+        dispatch(loading(true));
         tariffsService.load(tariffs)
             .then(
                 tariffs => {
                     dispatch(request(tariffs));
-
+                    dispatch(loading(false));
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -54,7 +59,8 @@ function load(tariffs) {
     };
     function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARIFFS, tariffs } }
     function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: categoryConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function failure(error) { return { type: tariffsConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
@@ -111,7 +117,8 @@ function edit(tariff) {
             .then(
                 tariff => {
                     dispatch(request(tariff));
-                    //dispatch(success());
+                    dispatch(alertActions.success("Succes edit"));
+
                 },
                 error => {
                     dispatch(failure(error.toString()));

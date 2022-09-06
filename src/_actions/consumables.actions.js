@@ -22,11 +22,8 @@ function add(consumable) {
             .then(
                 consumable => {
                     dispatch(request(consumable));
-
                     dispatch(alertActions.success("Succes add"));
                     history.push('/consumables');
-
-
                 },
                 error => {
                     dispatch(failure(error.toString()));

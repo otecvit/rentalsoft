@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { useForm, useFieldArray, Controller, useWatch } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux';
 import { styled } from '@mui/system'
@@ -29,10 +29,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 
+
 import { tariffsActions } from '../../_actions';
 
 import { FormInputText } from '../FormComponents/FormInputText';
 import { FormInputSelect } from '../FormComponents/FormInputSelect';
+
+import BoxStyled from '../../_components/StyledComponent/BoxStyled';
 
 const DataGrid = styled(MuiDataGrid)(({ theme }) => ({
   "& .MuiDataGrid-columnHeaders": { display: "none" },
@@ -88,21 +91,35 @@ export const PricingTemplateBrowse = () => {
       defaultValues: {
         id: "",
         name: "",
-        tariffDetail: [{ label: "", duration: "", period: "1", price: "" }],
-        periodExtra: "1",
-        priceExtra: "",
+        arrTariffDetail: [{ label: "", duration: "", period: "hours", price: "" }],
+        arrExtraTariff: [{ hour: "", day: "", week: "1", month: "" }],
       }
     }
   );
 
-  const { fields, append, remove, replace } = useFieldArray({
+  const {
+    fields: arrTariffDetailFields,
+    append: arrTariffDetailAppend,
+    remove: arrTariffDetailRemove,
+    replace: arrTariffDetailReplace,
+  } = useFieldArray({
     control,
-    name: "tariffDetail",
+    name: "arrTariffDetail",
+  });
+
+  const {
+    fields: arrExtraTariffFields,
+    append: arrExtraTariffAppend,
+    remove: arrExtraTariffRemove,
+    replace: arrExtraTariffReplace,
+  } = useFieldArray({
+    control,
+    name: "arrExtraTariff",
   });
 
   useEffect(() => {
     // загружаем тарифы
-    dispatch(tariffsActions.load({ companyToken: user.companyToken }));
+    dispatch(tariffsActions.load({ chTokenCompany: user.chTokenCompany }));
   }, []);
 
 
@@ -111,9 +128,16 @@ export const PricingTemplateBrowse = () => {
     setOpenDialog(false);
 
     if (!!data.id)
-      dispatch(tariffsActions.edit({ ...data, companyToken: user.companyToken })); // редактируем наш тариф
-    else
-      dispatch(tariffsActions.add({ ...data, companyToken: user.companyToken })); // добавляем наш тариф
+      dispatch(tariffsActions.edit({
+        ...data,
+        chTokenCompany: user.chTokenCompany
+      })); // редактируем наш тариф
+    else {
+      dispatch(tariffsActions.add({
+        ...data,
+        chTokenCompany: user.chTokenCompany
+      })); // добавляем наш тариф
+    }
   }
 
   // удаляем тариф
@@ -139,9 +163,8 @@ export const PricingTemplateBrowse = () => {
     reset({
       id: "",
       name: "",
-      tariffDetail: [{ label: "", duration: "", period: "1", price: "" }],
-      periodExtra: "1",
-      priceExtra: "",
+      arrTariffDetail: [{ label: "", duration: "", period: "hours", price: "" }],
+      arrExtraTariff: [{ hour: "", day: "", week: "", month: "" }],
     });
 
     // определяем текущий тариф
@@ -151,9 +174,8 @@ export const PricingTemplateBrowse = () => {
       // заменяем значение в react-hook-form
       setValue("name", currentTariff.name);
       setValue("id", currentTariff.id);
-      replace(currentTariff.arrTariffDetail);
-      setValue("periodExtra", currentTariff.periodExtra);
-      setValue("priceExtra", currentTariff.priceExtra);
+      arrTariffDetailReplace(currentTariff.arrTariffDetail);
+      arrExtraTariffReplace(currentTariff.arrExtraTariff);
       ////////////////////////////////////////
       // открываем диалог
       setOpenDialog(true);
@@ -167,9 +189,8 @@ export const PricingTemplateBrowse = () => {
     reset({
       id: "",
       name: "",
-      tariffDetail: [{ label: "", duration: "", period: "1", price: "" }],
-      periodExtra: "1",
-      priceExtra: "",
+      arrTariffDetail: [{ label: "", duration: "", period: "hours", price: "" }],
+      arrExtraTariff: [{ hour: "", day: "", week: "", month: "" }],
     });
     setOpenDialog(true);
   }
@@ -183,16 +204,16 @@ export const PricingTemplateBrowse = () => {
   }
 
   const handleAddTariffDetail = () => {
-    append({
+    arrTariffDetailAppend({
       label: "",
       duration: "",
-      period: "1",
+      period: "hours",
       price: ""
     })
   }
 
   const handleDelTariffDetail = (index) => {
-    remove(index);
+    arrTariffDetailRemove(index);
   }
 
 
@@ -218,64 +239,87 @@ export const PricingTemplateBrowse = () => {
       >
         <DialogTitle id="form-dialog-title"> User </DialogTitle>
         <DialogContent>
-          <Stack direction="row" spacing={2} sx={{ paddingTop: "10px" }}>
+          <BoxStyled>
             <FormInputText label="Template name" name="name" control={control} variant="outlined" />
-          </Stack>
-          {
-            fields.map((item, index) => {
-              return (
-                <Stack direction="row" spacing={2} key={index} sx={{ paddingTop: "20px" }}>
-                  <FormInputText name={`tariffDetail[${index}].label`} control={control} label="Label" value={item.label} />
-                  <FormInputText name={`tariffDetail[${index}].duration`} control={control} label="Duration" value={item.duration} />
-                  <Box>
-                    <FormInputSelect
-                      id={`period${index}`}
-                      name={`tariffDetail[${index}].period`}
-                      control={control}
-                      defaultValue={item.period}
-                      variant="outlined"
-                      margin="normal"
-                      label="Period"
-                      labelId="rental-period-id"
-                      size="small"
-                    >
-                      <MenuItem value="1">Hours</MenuItem>
-                      <MenuItem value="2">Days</MenuItem>
-                      <MenuItem value="3">Weeks</MenuItem>
-                      <MenuItem value="4">Months</MenuItem>
-                    </FormInputSelect>
-                  </Box>
-                  <FormInputText name={`tariffDetail[${index}].price`} control={control} label="Price" value={item.price} />
-                  <IconButton aria-label="delete" onClick={() => handleDelTariffDetail(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>)
-            })
-          }
+          </BoxStyled>
+          <BoxStyled>
+            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 22, md: 22 }}>
+              {
+                arrTariffDetailFields.map((item, index) => {
+                  return (
+                    <Fragment key={item.id}>
+                      <Grid item xs={12} sm={5} md={5}>
+                        <FormInputText name={`arrTariffDetail[${index}].label`} control={control} label="Label" value={item.label} />
+                      </Grid>
+                      <Grid item xs={12} sm={5} md={5}>
+                        <FormInputText name={`arrTariffDetail[${index}].duration`} control={control} label="Duration" value={item.duration} />
+                      </Grid>
+                      <Grid item xs={12} sm={5} md={5}>
+                        <FormInputSelect
+                          id={`period${index}`}
+                          name={`arrTariffDetail[${index}].period`}
+                          control={control}
+                          defaultValue={item.period}
+                          variant="outlined"
+                          margin="normal"
+                          label="Period"
+                          labelId="rental-period-id"
+                        >
+                          <MenuItem value="hours">Hours</MenuItem>
+                          <MenuItem value="days">Days</MenuItem>
+                          <MenuItem value="weeks">Weeks</MenuItem>
+                          <MenuItem value="months">Months</MenuItem>
+                        </FormInputSelect>
+                      </Grid>
+                      <Grid item xs={12} sm={5} md={5}>
+                        <FormInputText name={`arrTariffDetail[${index}].price`} control={control} label="Price" value={item.price} />
+                      </Grid>
+                      <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                        <IconButton aria-label="delete" onClick={() => handleDelTariffDetail(index)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Grid>
+                    </Fragment>
+                  )
+                })
+              }
+            </Grid>
+          </BoxStyled>
           <Button onClick={handleAddTariffDetail}>Add row</Button>
           <Box sx={{ minWidth: '90px' }}>
             <Typography variant="p" component="div">Each extra</Typography>
           </Box>
-          <Stack direction="row" spacing={2} sx={{ paddingTop: "20px" }}>
-            <Box>
-              <FormInputSelect
-                id={`periodEachExtra`}
-                name={`periodExtra`}
+          <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 4, md: 4 }}>
+            <Grid item xs={12} sm={1} md={1}>
+              <FormInputText
+                name={`arrExtraTariff[0].hour`}
                 control={control}
-                variant="outlined"
-                margin="normal"
-                label="Period"
-                labelId="rental-each-extra"
-                size="small"
-              >
-                <MenuItem value="1">Hours</MenuItem>
-                <MenuItem value="2">Days</MenuItem>
-                <MenuItem value="3">Weeks</MenuItem>
-                <MenuItem value="4">Months</MenuItem>
-              </FormInputSelect>
-            </Box>
-            <FormInputText name="priceExtra" control={control} label="Price" />
-          </Stack>
+                label="Hour"
+              />
+            </Grid>
+            <Grid item xs={12} sm={1} md={1}>
+              <FormInputText
+                name={`arrExtraTariff[0].day`}
+                control={control}
+                label="Day"
+              />
+            </Grid>
+            <Grid item xs={12} sm={1} md={1}>
+              <FormInputText
+                name={`arrExtraTariff[0].week`}
+                control={control}
+                label="Week"
+              />
+            </Grid>
+            <Grid item xs={12} sm={1} md={1}>
+              <FormInputText
+                name={`arrExtraTariff[0].month`}
+                control={control}
+                label="Month"
+              />
+            </Grid>
+
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
@@ -306,6 +350,6 @@ export const PricingTemplateBrowse = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </div >
   );
 }
