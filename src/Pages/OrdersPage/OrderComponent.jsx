@@ -465,7 +465,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     Number(Number(currentDuration[3].hours) - Number(currPrice.duration));
             }
             case 'days': {
-
                 // находим в тарифе идентичный или ближайший минимальный период
                 const currPrice = item.chAppliedRate.arrTariffDetail
                     .filter(a => a.period === "days")
@@ -499,6 +498,9 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     }
                     );
                 // возвращаем множитель
+
+                console.log("currentDuration", currentDuration);
+
                 return Number(currPrice.duration) >= Number(currentDuration[2].days) ? currPrice.price :
                     Number(currPrice.price) + Number(item.chAppliedRate.arrExtraTariff[0].day) *
                     Number(Number(currentDuration[2].days) - Number(currPrice.duration));
