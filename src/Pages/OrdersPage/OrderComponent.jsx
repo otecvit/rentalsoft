@@ -423,99 +423,107 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
 
     const fnCalculateMultiplier = (item) => {
-        console.log(item.iTypeDuration);
         switch (item.iTypeDuration) {
             case 'hours': {
                 // находим в тарифе идентичный или ближайший минимальный период
-                const currPrice = item.chAppliedRate.arrTariffDetail
-                    .filter(a => a.period === "hours")
-                    .reduce((prev, curr) => {
-                        if (currentDuration[3].hours > prev.duration) {
-                            if (currentDuration[3].hours > curr.duration) {
-                                if (prev.duration < curr.duration) {
-                                    return curr;
-                                }
-                                else {
-                                    return prev;
-                                }
-                            }
-                            else {
-                                return curr;
-                            }
-                        }
-                        else {
-                            if (currentDuration[3].hours > curr.duration) {
-                                return prev
-                            }
-                            else {
-                                if (prev.duration < curr.duration) {
-                                    return prev;
-                                }
-                                else {
-                                    return curr;
-                                }
-                            }
-                        }
-                    }
-                    );
-
-                // возвращаем множитель
-                return Number(currPrice.duration) >= Number(currentDuration[3].hours) ? currPrice.price :
-                    Number(currPrice.price) + Number(item.chAppliedRate.arrExtraTariff[0].hour) *
-                    Number(Number(currentDuration[3].hours) - Number(currPrice.duration));
+                const currPrice = fnCalculateOptimalTariff("hours", item.chAppliedRate.arrTariffDetail, currentDuration[3].hours);
+                return Number(currPrice.price) + fnCalculateExtraTariff("h", currPrice, item.chAppliedRate.arrExtraTariff);
             }
             case 'days': {
                 // находим в тарифе идентичный или ближайший минимальный период
-                const currPrice = item.chAppliedRate.arrTariffDetail
-                    .filter(a => a.period === "days")
-                    .reduce((prev, curr) => {
-                        if (currentDuration[2].days > prev.duration) {
-                            if (currentDuration[2].days > curr.duration) {
-                                if (prev.duration < curr.duration) {
-                                    return curr;
-                                }
-                                else {
-                                    return prev;
-                                }
-                            }
-                            else {
-                                return curr;
-                            }
-                        }
-                        else {
-                            if (currentDuration[2].days > curr.duration) {
-                                return prev
-                            }
-                            else {
-                                if (prev.duration < curr.duration) {
-                                    return prev;
-                                }
-                                else {
-                                    return curr;
-                                }
-                            }
-                        }
-                    }
-                    );
-                // возвращаем множитель
-
-                console.log("currentDuration", currentDuration);
-
-                return Number(currPrice.duration) >= Number(currentDuration[2].days) ? currPrice.price :
-                    Number(currPrice.price) + Number(item.chAppliedRate.arrExtraTariff[0].day) *
-                    Number(Number(currentDuration[2].days) - Number(currPrice.duration));
-            } break;
+                const currentDurationDays = moment(dReturn).diff(moment(dPickup), 'd', true);
+                const currPrice = fnCalculateOptimalTariff("days", item.chAppliedRate.arrTariffDetail, currentDurationDays);
+                return Number(currPrice.price) + fnCalculateExtraTariff("d", currPrice, item.chAppliedRate.arrExtraTariff);
+            }
+            case 'weeks': {
+                // находим в тарифе идентичный или ближайший минимальный период
+                const currentDurationWeeks = moment(dReturn).diff(moment(dPickup), 'w', true);
+                const currPrice = fnCalculateOptimalTariff("w", item.chAppliedRate.arrTariffDetail, currentDurationWeeks);
+                return Number(currPrice.price) + fnCalculateExtraTariff("w", currPrice, item.chAppliedRate.arrExtraTariff);
+            }
+            case 'months': {
+                // находим в тарифе идентичный или ближайший минимальный период
+                const currentDurationMonths = moment(dReturn).diff(moment(dPickup), 'M', true);
+                const currPrice = fnCalculateOptimalTariff("M", item.chAppliedRate.arrTariffDetail, currentDurationMonths);
+                return Number(currPrice.price) + fnCalculateExtraTariff("M", currPrice, item.chAppliedRate.arrExtraTariff);
+            }
             default:
                 return 1;
         }
     }
 
-    // return {
-    //     months: iMonth,
-    //     weeks: iWeeks,
-    //     days: iDays,
-    //     hours: iHours
-    // }
+    // находим в тарифе идентичный или ближайший минимальный период
+    const fnCalculateOptimalTariff = (typePeriod, arrTariffDetail, currentDurationCount) => {
+        return arrTariffDetail
+            .filter(a => a.period === typePeriod)
+            .reduce((prev, curr) => {
+                if (currentDurationCount > prev.duration) {
+                    if (currentDurationCount > curr.duration) {
+                        if (prev.duration < curr.duration) {
+                            return curr;
+                        }
+                        else {
+                            return prev;
+                        }
+                    }
+                    else {
+                        return curr;
+                    }
+                }
+                else {
+                    if (currentDurationCount > curr.duration) {
+                        return prev
+                    }
+                    else {
+                        if (prev.duration < curr.duration) {
+                            return prev;
+                        }
+                        else {
+                            return curr;
+                        }
+                    }
+                }
+            }
+            );
+
+    }
+
+    // считаем тариф сверх
+    const fnCalculateExtraTariff = (typePeriod, currPrice, arrExtraTariff) => {
+
+        // получаем исходные данные
+        var a = moment(dPickup);
+        var b = moment(dReturn);
+
+        // прибавляем к начальной дате полученый период
+        a = a.add(Number(currPrice.duration), typePeriod);
+
+        // считаем стоимость для каждого типа тарифа, и будем находить минимальный для выгоды клиента 
+        const iExtraTariff = {
+            ...(Number(arrExtraTariff[0].hour) > 0) && Math.ceil(b.diff(a, 'h', true)) > 0 && { "hour": Math.ceil(b.diff(a, 'h', true)) * Number(arrExtraTariff[0].hour) }, // в часах
+            ...(Number(arrExtraTariff[0].day) > 0) && Math.ceil(b.diff(a, 'd', true)) > 0 && { "day": Math.ceil(b.diff(a, 'd', true)) * Number(arrExtraTariff[0].day) }, // в днях
+            ...(Number(arrExtraTariff[0].week) > 0) && Math.ceil(b.diff(a, 'w', true)) > 0 && { "week": Math.ceil(b.diff(a, 'w', true)) * Number(arrExtraTariff[0].week) }, // в неделях
+            ...(Number(arrExtraTariff[0].month) > 0) && Math.ceil(b.diff(a, 'M', true)) > 0 && { "month": Math.ceil(b.diff(a, 'M', true)) * Number(arrExtraTariff[0].month) }, // в месяцах
+        }
+
+        let iExtraFactor = 0;
+
+        if (iExtraTariff
+            && Object.keys(iExtraTariff).length === 0
+            && Object.getPrototypeOf(iExtraTariff) === Object.prototype) {
+            iExtraFactor = 0;
+        }
+        else {
+            // находим минимум
+            iExtraFactor = iExtraTariff[Object.keys(iExtraTariff).reduce((a, b) =>
+                iExtraTariff[a] < iExtraTariff[b] ? a : b
+            )];
+
+        };
+
+        return Number(iExtraFactor);
+    }
+
 
     const initialValueEdit = () => {
         setValue("chName", bundles[0].chName);
