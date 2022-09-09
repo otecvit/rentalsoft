@@ -64,10 +64,52 @@ export const AutocompleteSearchItem = ({ labelTitle = "Search to add", fnAddToOr
     useEffect(() => {
         //setOptions([...inventory, ...consumables, ...bundles, ...services]);
         //[...inventory, ...consumables, ...bundles, ...services].map(item => ({...item, }));
+        // ...item.arrInventory.map(a => {
+        //     console.log(a.chTokenInventory);
+        //     console.log(inventory.filter(el => el.chTokenInventory === a.chTokenInventory)[0]);
+        //     return {
+        //         ...a,
+        //         chTariff: inventory.filter(el => el.chTokenInventory === a.chTokenInventory)[0],
+        //         iType: "1"
+        //     }
+        // })
         setOptions([
             ...inventory.map(item => ({ ...item, chToken: item.chTokenInventory, chTariff: tariffs.find(x => x.id === item.chTariff), iType: "1" })),
             ...consumables.map(item => ({ ...item, chToken: item.chTokenConsumable, iType: "2" })),
-            ...bundles.map(item => ({ ...item, chToken: item.chTokenBundle, iType: "3" })),
+            ...bundles.map(item => ({
+                ...item,
+                chToken: item.chTokenBundle,
+                iType: "3",
+                arrBundleList: [
+                    ...item.arrInventory.map(a => {
+                        const currInventory = inventory.filter(el => el.chTokenInventory === a.chTokenInventory);
+                        if (currInventory.length > 0)
+                            return {
+                                ...currInventory[0],
+                                chTariff: tariffs.find(x => x.id === currInventory[0].chTariff),
+                                iType: "1"
+                            }
+                    }),
+                    ...item.arrConsumables.map(a => {
+                        const currConsumable = consumables.filter(el => el.chTokenConsumable === a.chTokenConsumable);
+                        if (currConsumable.length > 0)
+                            return {
+                                ...currConsumable[0],
+                                chToken: a.chTokenConsumable,
+                                iType: "2"
+                            }
+                    }),
+                    ...item.arrServices.map(a => {
+                        const currService = services.filter(el => el.chTokenService === a.chTokenService);
+                        if (currService.length > 0)
+                            return {
+                                ...currService[0],
+                                chToken: a.chTokenService,
+                                iType: "4"
+                            }
+                    })
+                ]
+            })),
             ...services.map(item => ({ ...item, chToken: item.chTokenService, iType: "4" })),
         ]);
     }, [support.isLoading]);
