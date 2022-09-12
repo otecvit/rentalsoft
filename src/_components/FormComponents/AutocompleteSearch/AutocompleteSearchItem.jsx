@@ -76,16 +76,20 @@ export const AutocompleteSearchItem = ({ labelTitle = "Search to add", fnAddToOr
         setOptions([
             ...inventory.map(item => ({ ...item, chToken: item.chTokenInventory, chTariff: tariffs.find(x => x.id === item.chTariff), iType: "1" })),
             ...consumables.map(item => ({ ...item, chToken: item.chTokenConsumable, iType: "2" })),
+            // генерируем bundle
             ...bundles.map(item => ({
                 ...item,
                 chToken: item.chTokenBundle,
                 iType: "3",
                 arrBundleList: [
                     ...item.arrInventory.map(a => {
+                        // находим инвентарь
                         const currInventory = inventory.filter(el => el.chTokenInventory === a.chTokenInventory);
                         if (currInventory.length > 0)
                             return {
                                 ...currInventory[0],
+                                ...a,
+                                // находим тариф
                                 chTariff: tariffs.find(x => x.id === currInventory[0].chTariff),
                                 iType: "1"
                             }
@@ -95,6 +99,7 @@ export const AutocompleteSearchItem = ({ labelTitle = "Search to add", fnAddToOr
                         if (currConsumable.length > 0)
                             return {
                                 ...currConsumable[0],
+                                ...a,
                                 chToken: a.chTokenConsumable,
                                 iType: "2"
                             }
@@ -104,6 +109,7 @@ export const AutocompleteSearchItem = ({ labelTitle = "Search to add", fnAddToOr
                         if (currService.length > 0)
                             return {
                                 ...currService[0],
+                                ...a,
                                 chToken: a.chTokenService,
                                 iType: "4"
                             }

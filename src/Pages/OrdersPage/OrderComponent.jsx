@@ -37,6 +37,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -406,25 +407,41 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             case 'hours': {
                 // находим в тарифе идентичный или ближайший минимальный период
                 const currPrice = fnCalculateOptimalTariff("hours", item.chAppliedRate.arrTariffDetail, currentDuration[3].hours);
-                return Number(currPrice.price) + fnCalculateExtraTariff("h", currPrice, item.chAppliedRate.arrExtraTariff);
+                const extraPrice = fnCalculateExtraTariff("h", currPrice, item.chAppliedRate.arrExtraTariff);
+                return {
+                    ...currPrice,
+                    ...extraPrice,
+                };
             }
             case 'days': {
                 // находим в тарифе идентичный или ближайший минимальный период
                 const currentDurationDays = moment(dReturn).diff(moment(dPickup), 'd', true);
                 const currPrice = fnCalculateOptimalTariff("days", item.chAppliedRate.arrTariffDetail, currentDurationDays);
-                return Number(currPrice.price) + fnCalculateExtraTariff("d", currPrice, item.chAppliedRate.arrExtraTariff);
+                const extraPrice = fnCalculateExtraTariff("d", currPrice, item.chAppliedRate.arrExtraTariff);
+                return {
+                    ...currPrice,
+                    ...extraPrice,
+                };
             }
             case 'weeks': {
                 // находим в тарифе идентичный или ближайший минимальный период
                 const currentDurationWeeks = moment(dReturn).diff(moment(dPickup), 'w', true);
                 const currPrice = fnCalculateOptimalTariff("w", item.chAppliedRate.arrTariffDetail, currentDurationWeeks);
-                return Number(currPrice.price) + fnCalculateExtraTariff("w", currPrice, item.chAppliedRate.arrExtraTariff);
+                const extraPrice = fnCalculateExtraTariff("w", currPrice, item.chAppliedRate.arrExtraTariff);
+                return {
+                    ...currPrice,
+                    ...extraPrice,
+                };
             }
             case 'months': {
                 // находим в тарифе идентичный или ближайший минимальный период
                 const currentDurationMonths = moment(dReturn).diff(moment(dPickup), 'M', true);
                 const currPrice = fnCalculateOptimalTariff("M", item.chAppliedRate.arrTariffDetail, currentDurationMonths);
-                return Number(currPrice.price) + fnCalculateExtraTariff("M", currPrice, item.chAppliedRate.arrExtraTariff);
+                const extraPrice = fnCalculateExtraTariff("M", currPrice, item.chAppliedRate.arrExtraTariff).dPrice;
+                return {
+                    ...currPrice,
+                    ...extraPrice,
+                };
             }
             default:
                 return 1;
@@ -477,30 +494,52 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         // прибавляем к начальной дате полученый период
         a = a.add(Number(currPrice.duration), typePeriod);
 
+        const arrDiff = {
+            "hour": Math.ceil(b.diff(a, 'h', true)),
+            "day": Math.ceil(b.diff(a, 'd', true)),
+            "week": Math.ceil(b.diff(a, 'w', true)),
+            "month": Math.ceil(b.diff(a, 'M', true)),
+        };
+
         // считаем стоимость для каждого типа тарифа, и будем находить минимальный для выгоды клиента 
         const iExtraTariff = {
-            ...(Number(arrExtraTariff[0].hour) > 0) && Math.ceil(b.diff(a, 'h', true)) > 0 && { "hour": Math.ceil(b.diff(a, 'h', true)) * Number(arrExtraTariff[0].hour) }, // в часах
-            ...(Number(arrExtraTariff[0].day) > 0) && Math.ceil(b.diff(a, 'd', true)) > 0 && { "day": Math.ceil(b.diff(a, 'd', true)) * Number(arrExtraTariff[0].day) }, // в днях
-            ...(Number(arrExtraTariff[0].week) > 0) && Math.ceil(b.diff(a, 'w', true)) > 0 && { "week": Math.ceil(b.diff(a, 'w', true)) * Number(arrExtraTariff[0].week) }, // в неделях
-            ...(Number(arrExtraTariff[0].month) > 0) && Math.ceil(b.diff(a, 'M', true)) > 0 && { "month": Math.ceil(b.diff(a, 'M', true)) * Number(arrExtraTariff[0].month) }, // в месяцах
+            ...(Number(arrExtraTariff[0].hour) > 0) && arrDiff["hour"] > 0 && { "hour": arrDiff["hour"] * Number(arrExtraTariff[0].hour) }, // в часах
+            ...(Number(arrExtraTariff[0].day) > 0) && arrDiff["day"] > 0 && { "day": arrDiff["day"] * Number(arrExtraTariff[0].day) }, // в днях
+            ...(Number(arrExtraTariff[0].week) > 0) && arrDiff["week"] > 0 && { "week": arrDiff["week"] * Number(arrExtraTariff[0].week) }, // в неделях
+            ...(Number(arrExtraTariff[0].month) > 0) && arrDiff["month"] > 0 && { "month": arrDiff["month"] * Number(arrExtraTariff[0].month) }, // в месяцах
         }
 
-        let iExtraFactor = 0;
+        let iExtraFactor = {
+            typeExtra: "",
+            iCountPeriod: "",
+            priceExtra: ""
+        };
 
         if (iExtraTariff
             && Object.keys(iExtraTariff).length === 0
             && Object.getPrototypeOf(iExtraTariff) === Object.prototype) {
-            iExtraFactor = 0;
+            iExtraFactor =
+            {
+                typeExtra: "",
+                iCountPeriod: 0,
+                priceExtra: 0,
+            }
         }
         else {
             // находим минимум
-            iExtraFactor = iExtraTariff[Object.keys(iExtraTariff).reduce((a, b) =>
+            const chNamePeriod = Object.keys(iExtraTariff).reduce((a, b) =>
                 iExtraTariff[a] < iExtraTariff[b] ? a : b
-            )];
+            )
+            iExtraFactor =
+            {
+                typeExtra: chNamePeriod,
+                iCountPeriod: arrDiff[chNamePeriod],
+                priceExtra: iExtraTariff[chNamePeriod],
+            }
 
         };
 
-        return Number(iExtraFactor);
+        return iExtraFactor;
     }
 
     const fnCalculatePrice = () => {
@@ -508,12 +547,20 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         arrItem.map((item, index) => {
             switch (item.iType) {
                 case "1": { // inventory
-
-                    const value = fnCalculateMultiplier(item) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                    const arrMultiplier = fnCalculateMultiplier(item);
+                    const value = (Number(arrMultiplier.price) + Number(arrMultiplier.priceExtra)) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
                     // пересчитываем цены
                     setPrice(state => {
                         return state.map(x => {
-                            return x.chToken === item.chToken ? { ...x, chPrice: value } : x
+                            return x.chToken === item.chToken ? {
+                                ...x,
+                                chPrice: value,
+                                printAppliedRate: {
+                                    mainTariff: `${arrMultiplier.label} - ${toCurrency.format(arrMultiplier.price)}`,
+                                    extraTariff: `Extra ${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}`,
+                                }
+                            } :
+                                x
                         })
                     });
                 } break;
@@ -527,14 +574,54 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     });
                 } break;
                 case "3": { // bundles
-                    const value = Number(item.chQuantity) * Number(item.chAppliedRate) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+
+                    let value = 0;
+
                     // пересчитываем цены
+                    const arrBundlePrice = item.bundles.map(a => {
+                        switch (a.iType) {
+                            case "1": {
+                                const arrMultiplier = fnCalculateMultiplier(a);
+                                const dInventoryPrice = (Number(arrMultiplier.price) + Number(arrMultiplier.priceExtra)) * Number(a.chQuantity) * Number(a.chDiscount === "0" ? 1 : (100 - a.chDiscount) / 100);
+                                value += dInventoryPrice;
+                                return {
+                                    ...a,
+                                    chPrice: dInventoryPrice,
+                                    printAppliedRate: {
+                                        mainTariff: `${arrMultiplier.label} - ${toCurrency.format(arrMultiplier.price)}`,
+                                        extraTariff: `Extra ${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}`,
+                                    }
+                                };
+                            }
+                            case "2": {
+                                const dConsumablePrice = Number(a.chQuantity) * Number(a.chAppliedRate) * Number(a.chDiscount === "0" ? 1 : (100 - a.chDiscount) / 100);
+                                value += dConsumablePrice;
+                                return {
+                                    ...a,
+                                    chPrice: dConsumablePrice,
+                                };
+                            }
+                            case "4": {
+                                const dServicePrice = Number(a.chQuantity) * Number(a.chAppliedRate) * Number(a.chDiscount === "0" ? 1 : (100 - a.chDiscount) / 100);
+                                value += dServicePrice;
+                                return {
+                                    ...a,
+                                    chPrice: dServicePrice,
+                                };
+                            }
+
+                        }
+                    });
+
+                    value = Number(item.chQuantity) * Number(value) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+
                     setPrice(state => {
                         return state.map(x => {
-                            return x.chToken === item.chToken ? { ...x, chPrice: value } : x
+                            return x.chToken === item.chToken ? { ...x, chPrice: value, arrBundlePrice: arrBundlePrice } : x
                         })
                     });
                 } break;
+
                 case "4": { // services
                     const value = Number(item.chQuantity) * Number(item.chAppliedRate) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
                     // пересчитываем цены
@@ -705,6 +792,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             // bundles
             case "3": {
 
+                console.log(itemSelected);
+
                 arrItemAppend({
                     chToken: itemSelected.chToken,
                     iType: itemSelected.iType,
@@ -713,28 +802,47 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chDiscount: "0",
                     chAppliedRate: "0",
                     iTypeDuration: "once",
-                    bundles: {
-                        ...itemSelected.arrInventory.map(x => (
-                            {
-                                chToken: x.chTokenInventory,
-                                iType: "1",
-                                chName: X.chName,
-                                chQuantity: "1",
-                                chDiscount: "0",
-                                chAppliedRate: "0",
-                                iTypeDuration: "0",
+                    bundles: [
+                        ...itemSelected.arrBundleList.map(x => {
+                            switch (x.iType) {
+                                case "1": return {
+                                    chToken: x.chTokenInventory,
+                                    iType: x.iType,
+                                    chName: x.chName,
+                                    chQuantity: x.chQuantity,
+                                    chDiscount: x.chDiscount,
+                                    chAppliedRate: x.chTariff,
+                                    iTypeDuration: fnCalculateDurationItem(x.chTariff),
+                                };
+                                case "2": return {
+                                    chToken: x.chTokenConsumable,
+                                    iType: x.iType,
+                                    chName: x.chName,
+                                    chQuantity: x.chQuantity,
+                                    chDiscount: x.chDiscount,
+                                    chAppliedRate: x.chSellPrice,
+                                    iTypeDuration: "once",
+                                };
+                                case "4": return {
+                                    chToken: x.chTokenService,
+                                    iType: x.iType,
+                                    chName: x.chName,
+                                    chQuantity: x.chQuantity,
+                                    chDiscount: x.chDiscount,
+                                    chAppliedRate: x.chSellPrice,
+                                    iTypeDuration: "once",
+                                }
                             }
-                        )),
-                        ...itemSelected.arrConsumables,
-                        ...itemSelected.arrServices,
-                    }
+
+                        }),
+                    ]
                 });
 
                 setPrice(oldPrice => [
                     ...oldPrice,
                     {
                         chToken: itemSelected.chToken,
-                        chPrice: "0"
+                        chPrice: "0",
                     }
                 ]);
 
@@ -1179,12 +1287,18 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                                 <TableLabel>
                                                     {
-                                                        typeof item.chAppliedRate.arrTariffDetail !== 'undefined' ?
-                                                            item.chAppliedRate.arrTariffDetail.map((item, index) => (
+                                                        typeof item.chAppliedRate.arrTariffDetail !== 'undefined' &&
+                                                            typeof arrPrice.find(o => o.chToken === item.chToken).printAppliedRate !== 'undefined' ?
+                                                            <TableText key={index}>
+                                                                {arrPrice.find(o => o.chToken === item.chToken).printAppliedRate.mainTariff}
+                                                                {arrPrice.find(o => o.chToken === item.chToken).printAppliedRate.extraTariff}
+                                                            </TableText>
+
+                                                            /*item.chAppliedRate.arrTariffDetail.map((item, index) => (
                                                                 <TableText key={index}>
                                                                     {item.label} - {toCurrency.format(item.price)}
                                                                 </TableText>
-                                                            )) :
+                                                            ))*/ :
                                                             <TableText>{toCurrency.format(item.chAppliedRate)}</TableText>
                                                     }
                                                 </TableLabel>
@@ -1231,6 +1345,58 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                                 </IconButton>
                                             </Grid>
                                         </Grid>
+                                        {
+                                            item.iType === "3" && item.bundles.length > 0 &&
+                                            item.bundles.map((x, index) =>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }} key={index}>
+                                                    <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>{x.chName}</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel style={{ textAlign: "center" }}>{fnPrintDuration(x.iTypeDuration)}</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>
+
+                                                            {
+                                                                typeof x.chAppliedRate.arrTariffDetail !== 'undefined' &&
+                                                                    typeof arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice !== 'undefined' ?
+                                                                    <TableText key={index}>
+                                                                        {arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).printAppliedRate.mainTariff}
+                                                                        {arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).printAppliedRate.extraTariff}
+                                                                    </TableText>
+                                                                /*
+                                                                    x.chAppliedRate.arrTariffDetail.map((a, index) => (
+                                                                        <TableText key={index}>
+                                                                            {a.label} - {toCurrency.format(a.price)}
+                                                                        </TableText>
+                                                                    ))*/ :
+                                                                    <TableText>{toCurrency.format(x.chAppliedRate)}</TableText>
+                                                            }
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>{x.chQuantity}</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>{x.chDiscount}%</TableLabel>
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>
+                                                            {
+                                                                typeof arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice !== 'undefined' ?
+                                                                    toCurrency.format(arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).chPrice) :
+                                                                    ""
+                                                            }
+                                                        </TableLabel>
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                    </Grid>
+                                                </Grid>
+                                            )
+                                        }
                                     </BoxStyledBorderTop>
                                 ))
                             }
