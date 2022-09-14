@@ -63,6 +63,7 @@ import { AutocompleteSearchItem } from '../../_components/FormComponents/Autocom
 import BoxClear from '../../_components/StyledComponent/BoxClear';
 import BoxStyled from '../../_components/StyledComponent/BoxStyled';
 import BoxStyledBorderTop from '../../_components/StyledComponent/BoxStyledBorderTop';
+import BoxStyledBorderTopDashed from '../../_components/StyledComponent/BoxStyledBorderTopDashed';
 import BoxStyledTextEditor from '../../_components/StyledComponent/BoxStyledTextEditor';
 import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
 import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponent';
@@ -218,6 +219,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         control,
         setValue,
         getValues,
+        watch,
         formState: {
             errors,
         },
@@ -232,6 +234,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             arrItem: [],
             arrServices: [],
             arrConsumables: [],
+            chAllDiscount: "0",
             chCategoryName: "",
             txtDescription: "",
             chYourSKU: ""
@@ -278,6 +281,10 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         name: "arrItem"
     });
 
+    // const chAllDiscount = useWatch({
+    //     control,
+    //     name: "chAllDiscount"
+    // });
 
     /// отслеживаем изменение даты и времени
     const dReturn = useWatch({
@@ -317,12 +324,19 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         fontWeight: '700',
     });
 
+    const TableTextNormal = styled('div')({
+        fontSize: '0.80rem',
+        color: 'rgb(39, 44, 52)',
+        fontWeight: '400',
+        textAlign: 'center',
+    });
+
     const TableText = styled('div')({
         fontSize: '0.60rem',
         color: 'rgb(39, 44, 52)',
         fontWeight: '400',
+        textAlign: 'center',
     });
-
 
     const LabelCustomer = styled('div')({
         fontSize: '1.20rem',
@@ -557,7 +571,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                 chPrice: value,
                                 printAppliedRate: {
                                     mainTariff: `${arrMultiplier.label} - ${toCurrency.format(arrMultiplier.price)}`,
-                                    extraTariff: `Extra ${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}`,
+                                    extraTariff: arrMultiplier.iCountPeriod > 0 ? `${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}` : ``,
                                 }
                             } :
                                 x
@@ -589,7 +603,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chPrice: dInventoryPrice,
                                     printAppliedRate: {
                                         mainTariff: `${arrMultiplier.label} - ${toCurrency.format(arrMultiplier.price)}`,
-                                        extraTariff: `Extra ${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}`,
+                                        extraTariff: arrMultiplier.iCountPeriod > 0 ? `${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}` : ``,
                                     }
                                 };
                             }
@@ -1289,16 +1303,11 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                                     {
                                                         typeof item.chAppliedRate.arrTariffDetail !== 'undefined' &&
                                                             typeof arrPrice.find(o => o.chToken === item.chToken).printAppliedRate !== 'undefined' ?
-                                                            <TableText key={index}>
-                                                                {arrPrice.find(o => o.chToken === item.chToken).printAppliedRate.mainTariff}
-                                                                {arrPrice.find(o => o.chToken === item.chToken).printAppliedRate.extraTariff}
-                                                            </TableText>
-
-                                                            /*item.chAppliedRate.arrTariffDetail.map((item, index) => (
-                                                                <TableText key={index}>
-                                                                    {item.label} - {toCurrency.format(item.price)}
-                                                                </TableText>
-                                                            ))*/ :
+                                                            <>
+                                                                <TableText>{arrPrice.find(o => o.chToken === item.chToken).printAppliedRate.mainTariff}</TableText>
+                                                                <TableText>{arrPrice.find(o => o.chToken === item.chToken).printAppliedRate.extraTariff}</TableText>
+                                                            </>
+                                                            :
                                                             <TableText>{toCurrency.format(item.chAppliedRate)}</TableText>
                                                     }
                                                 </TableLabel>
@@ -1348,53 +1357,48 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                         {
                                             item.iType === "3" && item.bundles.length > 0 &&
                                             item.bundles.map((x, index) =>
-                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }} key={index}>
-                                                    <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel>{x.chName}</TableLabel>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel style={{ textAlign: "center" }}>{fnPrintDuration(x.iTypeDuration)}</TableLabel>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel>
+                                                <BoxStyledBorderTopDashed key={index}>
+                                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                        <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
+                                                            <TableTextNormal>{x.chName}</TableTextNormal>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <TableTextNormal style={{ textAlign: "center" }}>{fnPrintDuration(x.iTypeDuration)}</TableTextNormal>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <TableTextNormal>
 
-                                                            {
-                                                                typeof x.chAppliedRate.arrTariffDetail !== 'undefined' &&
+                                                                {
+                                                                    typeof x.chAppliedRate.arrTariffDetail !== 'undefined' &&
+                                                                        typeof arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice !== 'undefined' ?
+                                                                        <>
+                                                                            <TableText>{arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).printAppliedRate.mainTariff}</TableText>
+                                                                            <TableText>{arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).printAppliedRate.extraTariff}</TableText>
+                                                                        </>
+                                                                        :
+                                                                        <TableText>{toCurrency.format(x.chAppliedRate)}</TableText>
+                                                                }
+                                                            </TableTextNormal>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <TableTextNormal>{x.chQuantity}</TableTextNormal>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <TableTextNormal>{x.chDiscount}%</TableTextNormal>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <TableTextNormal>
+                                                                {
                                                                     typeof arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice !== 'undefined' ?
-                                                                    <TableText key={index}>
-                                                                        {arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).printAppliedRate.mainTariff}
-                                                                        {arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).printAppliedRate.extraTariff}
-                                                                    </TableText>
-                                                                /*
-                                                                    x.chAppliedRate.arrTariffDetail.map((a, index) => (
-                                                                        <TableText key={index}>
-                                                                            {a.label} - {toCurrency.format(a.price)}
-                                                                        </TableText>
-                                                                    ))*/ :
-                                                                    <TableText>{toCurrency.format(x.chAppliedRate)}</TableText>
-                                                            }
-                                                        </TableLabel>
+                                                                        toCurrency.format(arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).chPrice) :
+                                                                        ""
+                                                                }
+                                                            </TableTextNormal>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={2} md={2}></Grid>
                                                     </Grid>
-                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel>{x.chQuantity}</TableLabel>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel>{x.chDiscount}%</TableLabel>
-                                                    </Grid>
-
-                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel>
-                                                            {
-                                                                typeof arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice !== 'undefined' ?
-                                                                    toCurrency.format(arrPrice.find(o => o.chToken === item.chToken).arrBundlePrice.find(a => a.chToken === x.chToken).chPrice) :
-                                                                    ""
-                                                            }
-                                                        </TableLabel>
-                                                    </Grid>
-
-                                                    <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                    </Grid>
-                                                </Grid>
+                                                </BoxStyledBorderTopDashed>
                                             )
                                         }
                                     </BoxStyledBorderTop>
@@ -1402,22 +1406,78 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                             }
                             {
                                 arrItemFields.length &&
-                                <BoxStyledBorderTop>
-                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                                        <Grid item xs={12} sm={7} md={7}>
+                                <>
+                                    <BoxStyledBorderTop>
+                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                <TableTextNormal>Subtotal</TableTextNormal>
+                                            </Grid>
+                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <TableTextNormal>
+                                                    {
+                                                        toCurrency.format(arrPrice.reduce((accumulator, object) => {
+                                                            return accumulator + Number(object.chPrice);
+                                                        }, 0))
+                                                    }
+                                                </TableTextNormal>
+                                            </Grid>
+                                            <Grid item xs={12} sm={2} md={2}></Grid>
                                         </Grid>
-                                        <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                            <TableLabel>SubTotal</TableLabel>
-                                        </Grid>
-                                        <Grid item xs={11} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                            <TableLabel>Discount</TableLabel>
-                                        </Grid>
-                                        <Grid item xs={12} sm={1} md={1}>
-                                        </Grid>
-                                    </Grid>
-                                </BoxStyledBorderTop>
-                            }
+                                    </BoxStyledBorderTop>
+                                    <BoxStyledBorderTop>
+                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                            <Grid item xs={12} sm={16} md={16} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
 
+                                            </Grid>
+                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                <FormInputNumber
+                                                    name="chAllDiscount"
+                                                    control={control}
+                                                    label="Discount"
+                                                    size="small"
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                                        inputProps: { min: 0, max: 100 },
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <TableTextNormal>
+                                                    {
+                                                        toCurrency.format(arrPrice.reduce((accumulator, object) => {
+                                                            return accumulator + Number(object.chPrice);
+                                                        }, 0) * Number(watch('chAllDiscount')) / 100)
+
+                                                    }
+                                                </TableTextNormal>
+                                            </Grid>
+                                            <Grid item xs={12} sm={2} md={2}></Grid>
+                                        </Grid>
+                                    </BoxStyledBorderTop>
+                                    <BoxStyledBorderTop>
+                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                <TableLabel>
+                                                    Total (before tax)
+                                                </TableLabel>
+                                            </Grid>
+                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <TableLabel>
+                                                    {
+                                                        toCurrency.format(arrPrice.reduce((accumulator, object) => {
+                                                            return accumulator + Number(object.chPrice);
+                                                        }, 0) - arrPrice.reduce((accumulator, object) => {
+                                                            return accumulator + Number(object.chPrice);
+                                                        }, 0) * Number(watch('chAllDiscount')) / 100)
+
+                                                    }
+                                                </TableLabel>
+                                            </Grid>
+                                            <Grid item xs={12} sm={2} md={2}></Grid>
+                                        </Grid>
+                                    </BoxStyledBorderTop>
+                                </>
+                            }
                         </BoxClear>
                     </Paper>
                 </Grid>

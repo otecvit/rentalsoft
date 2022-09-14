@@ -30,12 +30,12 @@ import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 
 
-import { tariffsActions } from '../../_actions';
+import { tariffsActions } from '../../../_actions';
 
-import { FormInputText } from '../FormComponents/FormInputText';
-import { FormInputSelect } from '../FormComponents/FormInputSelect';
+import { FormInputText } from '../../../_components/FormComponents/FormInputText';
+import { FormInputSelect } from '../../../_components/FormComponents/FormInputSelect';
 
-import BoxStyled from '../../_components/StyledComponent/BoxStyled';
+import BoxStyled from '../../../_components/StyledComponent/BoxStyled';
 
 const DataGrid = styled(MuiDataGrid)(({ theme }) => ({
   "& .MuiDataGrid-columnHeaders": { display: "none" },

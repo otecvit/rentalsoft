@@ -18,7 +18,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Popper from '@mui/material/Popper';
-import Grow from '@mui/material/Grow';
+import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Chip from '@mui/material/Chip';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
@@ -38,231 +38,210 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
+import BoxStyledTitle from '../../_components/StyledComponent/BoxStyledTitle';
+import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponent';
 
-import { TreeViewCategory } from "../../_components/FormComponents/TreeViewCategory";
-import { PricingTemplateBrowse } from "../../_components/FormComponents/PricingTemplateBrowse";
+import { TreeViewCategory } from "./Component/TreeViewCategory";
+import { PricingTemplateBrowse } from "./Component/PricingTemplateBrowse";
+import { TaxTemplateBrowse } from './Component/TaxTemplateBrowse';
 
 function handleClickBreadcrumbs(event) {
-    event.preventDefault();
-    console.info('You clicked a breadcrumb.');
+  event.preventDefault();
+  console.info('You clicked a breadcrumb.');
 }
 
 const HtmlTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#f5f5f9',
-      color: 'rgba(0, 0, 0, 0.87)',
-      maxWidth: 220,
-      fontSize: theme.typography.pxToRem(12),
-      border: '1px solid #dadde9',
-    },
-  }));
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #dadde9',
+  },
+}));
 
 const columns = [
-    { 
-      field: 'iNom', 
-      headerName: '#', 
-      width: 90,
-      renderCell: (params) => {
-        return `#${params.value}`;
-      }
-    },
-    {
-      field: 'chName',
-      headerName: 'chName',
-      width: 150,
-      editable: true,
-      renderCell: (params) => {
-          return (
+  {
+    field: 'iNom',
+    headerName: '#',
+    width: 90,
+    renderCell: (params) => {
+      return `#${params.value}`;
+    }
+  },
+  {
+    field: 'chName',
+    headerName: 'chName',
+    width: 150,
+    editable: true,
+    renderCell: (params) => {
+      return (
         <HtmlTooltip
-        title={
-          <React.Fragment>
-            <Typography color="inherit">Tooltip with HTML</Typography>
-            <em>{"And here's"}</em> <b>{'some'}</b> <u>{'amazing content'}</u>.{' '}
-            {"It's very engaging. Right?"}
-          </React.Fragment>
-        }
-      >
-        <Button>{params.value}</Button>
-      </HtmlTooltip>)
-        }
-    },
-    {
-      field: 'chEmail',
-      headerName: 'Email',
-      width: 150,
-      editable: true,
-    },
-    {
-        field: "action",
-        headerName: "Action",
-        sortable: false,
-        renderCell: (params) => {
+          title={
+            <React.Fragment>
+              <Typography color="inherit">Tooltip with HTML</Typography>
+              <em>{"And here's"}</em> <b>{'some'}</b> <u>{'amazing content'}</u>.{' '}
+              {"It's very engaging. Right?"}
+            </React.Fragment>
+          }
+        >
+          <Button>{params.value}</Button>
+        </HtmlTooltip>)
+    }
+  },
+  {
+    field: 'chEmail',
+    headerName: 'Email',
+    width: 150,
+    editable: true,
+  },
+  {
+    field: "action",
+    headerName: "Action",
+    sortable: false,
+    renderCell: (params) => {
 
-            return <Chip variant="outlined" label="primary" color="info" />
-          
-        }
-      },
-  ];
+      return <Chip variant="outlined" label="primary" color="info" />
 
-  const rows = [];
+    }
+  },
+];
+
+const rows = [];
 
 function BrowseSettingsPage() {
-    const history = useHistory();
+  const history = useHistory();
 
-    const { handleSubmit, control, reset, setValue } = useForm({
-        defaultValues: { 
-            search: "",
-            article: "",
-            identifier: "",
-            category: "Uncategorized",
-        }
-      });
-
-    const customers = useSelector(state => state.customers);
-    const user = useSelector(state => state.authentication.user);
-
-    const anchorRef = React.useRef(null);
-    const [open, setOpen] = React.useState(false);
-    const [selectedIndex, setSelectedIndex] = React.useState(1);
-
-
-    const breadcrumbs = [
-        <Link underline="hover" key="1" color="inherit" href="/" onClick={handleClickBreadcrumbs}>
-          MUI
-        </Link>,
-        <Link
-          underline="hover"
-          key="2"
-          color="inherit"
-          href="/getting-started/installation/"
-          onClick={handleClickBreadcrumbs}
-        >
-          Core
-        </Link>,
-        <Typography key="3" color="text.primary">
-          Breadcrumb
-        </Typography>,
-      ];
-
-    const dispatch = useDispatch();
-
-    const handleAddCustomer = () => { 
-        let path = `/inventory/new`; 
-        history.push(path);
+  const { handleSubmit, control, reset, setValue } = useForm({
+    defaultValues: {
+      search: "",
+      article: "",
+      identifier: "",
+      category: "Uncategorized",
     }
+  });
 
-    const handleMenuItemClick = (event,) => {
-        let path = `/inventory/new_group`; 
-        history.push(path);
-        setOpen(false);
-    };
+  const customers = useSelector(state => state.customers);
+  const user = useSelector(state => state.authentication.user);
 
-    
-    useEffect(() => {
-      // загружаем данные клиентов
-      
-      //dispatch(customerActions.load({ token: user.token }));  
-    }, []);
+  const anchorRef = React.useRef(null);
+  const [open, setOpen] = React.useState(false);
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
 
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
-    };
 
-    const handleClose = (event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target)) {
-        return;
-        }
-        setOpen(false);
-    };
+  const breadcrumbs = [
+    <Link underline="hover" key="1" color="inherit" href="/" onClick={handleClickBreadcrumbs}>
+      MUI
+    </Link>,
+    <Link
+      underline="hover"
+      key="2"
+      color="inherit"
+      href="/getting-started/installation/"
+      onClick={handleClickBreadcrumbs}
+    >
+      Core
+    </Link>,
+    <Typography key="3" color="text.primary">
+      Breadcrumb
+    </Typography>,
+  ];
 
-    
-    const handleClickSearch = data => console.log(data);
-    
+  const dispatch = useDispatch();
 
-    return (
-        <div>
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9', width: 'auto' }}>
-            <Grid container spacing={2}>
-                <Grid item xs={6}>
-                    <Stack direction="row" alignItems="center" gap={2}>
-                        <Typography variant="h5">SETTINGS</Typography>
-                    </Stack>
-                </Grid>
-                <Grid item xs={6}>
-                    <Stack direction="row" justifyContent="end">
-                        <Breadcrumbs
-                            separator={<NavigateNextIcon fontSize="small" />}
-                            aria-label="breadcrumb"
-                        >
-                            {breadcrumbs}
-                        </Breadcrumbs>
-                    </Stack>
-                </Grid>
-            </Grid> 
-        </Box>
-        <Paper
+  const handleAddCustomer = () => {
+    let path = `/inventory/new`;
+    history.push(path);
+  }
+
+  const handleMenuItemClick = (event,) => {
+    let path = `/inventory/new_group`;
+    history.push(path);
+    setOpen(false);
+  };
+
+
+  useEffect(() => {
+    // загружаем данные клиентов
+
+    //dispatch(customerActions.load({ token: user.token }));  
+  }, []);
+
+  const handleToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
+
+  const handleClose = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+    setOpen(false);
+  };
+
+
+  const handleClickSearch = data => console.log(data);
+
+
+  return (
+    <Box>
+      <Container maxWidth="xl">
+        <BoxStyledTitle>
+          <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 3, md: 12 }} justifyContent="center" alignItems="center">
+            <Grid item xs={12} sm={2} md={8} >
+              <HeaderComponent title="Settings" breadcrumbs={breadcrumbs} />
+            </Grid>
+            <Grid item xs={12} sm={1} md={4} style={{ textAlign: 'right' }}>
+            </Grid>
+          </Grid>
+        </BoxStyledTitle>
+
+
+        <Paper elevation={0} variant="mainMarginNoPadding">
+          <Grid container spacing={2}>
+            <Grid item xs={3} sx={{ borderRight: '1px solid #E0E1E7' }}>
+              <Paper
                 elevation={0}
                 sx={{
-                display: "grid",
-                gridRowGap: "20px",
-                padding: "0px",
-                margin: "20px 40px",         
+                  display: "grid",
+                  gridRowGap: "2px",
+                  padding: "16px 12px",
                 }}
-            >
-                <Grid container spacing={2}>
-                    <Grid item xs={3}>
-                    <Paper
-                        elevation={0}
-                        sx={{
-                        display: "grid",
-                        gridRowGap: "20px",
-                        padding: "20px",
-                        margin: "20px 40px",         
-                        }}
-                    >
-                        <ListItem button key="Category" component={LinkRouter} to="/settings/category">
-                            <ListItemIcon>
-                                <AccountTreeIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Category" />
-                        </ListItem>
-                        <ListItem button key="Pricing" component={LinkRouter} to="/settings/pricing">
-                            <ListItemIcon>
-                                <AccountTreeIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Pricing" />
-                        </ListItem>
-                    </Paper>
-                    </Grid>
-                    <Grid item xs={9}>
-                      <Paper
-                          elevation={0}
-                          sx={{
-                          display: "grid",
-                          gridRowGap: "20px",
-                          padding: "20px",
-                          margin: "20px 40px",         
-                          }}
-                      >
-                        <Switch>
-                          <Route path="/settings/category" component={TreeViewCategory} />
-                          <Route path="/settings/pricing" component={PricingTemplateBrowse} />
-                        </Switch>
-                      </Paper>
-                    </Grid>
-                </Grid>
-            </Paper>
-        </div>
-    );
+              >
+                <ListItem button key="Category" component={LinkRouter} to="/settings/category">
+                  <ListItemText primary="Category" />
+                </ListItem>
+                <ListItem button key="Pricing" component={LinkRouter} to="/settings/pricing">
+                  <ListItemText primary="Pricing" />
+                </ListItem>
+                <ListItem button key="TaxProfiles" component={LinkRouter} to="/settings/taxes">
+                  <ListItemText primary="Tax profiles" />
+                </ListItem>
+              </Paper>
+            </Grid>
+            <Grid item xs={9}>
+              <Paper
+                elevation={0}
+                sx={{
+                  display: "grid",
+                  gridRowGap: "20px",
+                  padding: "16px 12px",
+                }}
+              >
+                <Switch>
+                  <Route path="/settings/category" component={TreeViewCategory} />
+                  <Route path="/settings/pricing" component={PricingTemplateBrowse} />
+                  <Route path="/settings/taxes" component={TaxTemplateBrowse} />
+                </Switch>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Container>
+    </Box>
+  );
 
 }
 
 export { BrowseSettingsPage };
-
-/*
-<Switch>
-  <Route path="/settings/category" component={TreeViewCategory} />
-</Switch>
-*/

@@ -23,8 +23,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-import { categoryActions } from '../../_actions';
-import { FormInputText } from "../FormComponents/FormInputText";
+import { categoryActions } from '../../../_actions';
+import { FormInputText } from "../../../_components/FormComponents/FormInputText";
 
 const CustomContent = React.forwardRef(function CustomContent(props, ref) {
   const {
@@ -50,14 +50,14 @@ const CustomContent = React.forwardRef(function CustomContent(props, ref) {
   const [open, setOpen] = useState(false);
   const [openNewNode, setOpenNewNode] = useState(false);
   const [openAlertDialog, setAlertDialog] = useState(false);
-  
+
   const user = useSelector(state => state.authentication.user);
   const dispatch = useDispatch();
 
   const { handleSubmit, control, reset, setValue } = useForm({
-    defaultValues: { 
-        name: label,
-        newNode: "",
+    defaultValues: {
+      name: label,
+      newNode: "",
     }
   });
 
@@ -97,12 +97,12 @@ const CustomContent = React.forwardRef(function CustomContent(props, ref) {
 
   const handleEditCategory = ({ name }) => {
     //dispatch(categoryActions.edit(findAndChange(nodeId, name, data)));
-    dispatch(categoryActions.edit({id: nodeId, newValue: name, companyToken: user.companyToken}));
+    dispatch(categoryActions.edit({ id: nodeId, newValue: name, companyToken: user.companyToken }));
     setOpen(false);
   }
 
   const handleNewCategory = ({ newNode }) => {
-    dispatch(categoryActions.add({id: nodeId, value: newNode, companyToken: user.companyToken}));
+    dispatch(categoryActions.add({ id: nodeId, value: newNode, companyToken: user.companyToken }));
     setOpenNewNode(false);
   }
 
@@ -139,17 +139,17 @@ const CustomContent = React.forwardRef(function CustomContent(props, ref) {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0 }}>
           <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
-            {label}    
+            {label}
           </Typography>
           <Stack direction="row" justifyContent="end">
-          <IconButton aria-label="edit" onClick={handleClickOpen}>
-                <EditIcon fontSize="small"/>
+            <IconButton aria-label="edit" onClick={handleClickOpen}>
+              <EditIcon fontSize="small" />
             </IconButton>
             <IconButton aria-label="add" onClick={handleClickOpenNewNode}>
-                <AddCircleOutlineIcon fontSize="small"/>
+              <AddCircleOutlineIcon fontSize="small" />
             </IconButton>
             <IconButton aria-label="delete" onClick={handleClickOpenAlert}>
-                <DeleteIcon fontSize="small"/>
+              <DeleteIcon fontSize="small" />
             </IconButton>
           </Stack>
         </Box>
@@ -235,8 +235,8 @@ const getTreeItemsFromData = treeItems => {
 export const TreeViewCategory = () => {
 
   const { handleSubmit, control, reset, setValue } = useForm({
-    defaultValues: { 
-        newNode: "",
+    defaultValues: {
+      newNode: "",
     }
   });
 
@@ -250,7 +250,7 @@ export const TreeViewCategory = () => {
   };
 
   const handleNewCategory = ({ newNode }) => {
-    dispatch(categoryActions.add({id: "0", value: newNode, companyToken: user.companyToken}));
+    dispatch(categoryActions.add({ id: "0", value: newNode, chTokenCompany: user.chTokenCompany }));
     setOpen(false);
   }
 
@@ -260,7 +260,7 @@ export const TreeViewCategory = () => {
 
   useEffect(() => {
     // загружаем категории
-    dispatch(categoryActions.load({ companyToken: user.companyToken }));  
+    dispatch(categoryActions.load({ chTokenCompany: user.chTokenCompany }));
   }, []);
 
   return (
@@ -271,7 +271,7 @@ export const TreeViewCategory = () => {
         defaultExpandIcon={<ChevronRightIcon />}
         sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
       >
-          {getTreeItemsFromData(category)}
+        {getTreeItemsFromData(category)}
       </TreeView>
       <Button variant="outlined" onClick={handleClickOpen}>Add category</Button>
       <Dialog open={open} onClose={handleClose}>
