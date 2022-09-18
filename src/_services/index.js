@@ -4,5 +4,6 @@ export * from './category.service';
 export * from './tariffs.service';
 export * from './inventory.service';
 export * from './dataexchange.service';
+export * from './taxes.service';
 
 

@@ -220,7 +220,7 @@ function BrowseSettingsPage() {
                 </ListItem>
               </Paper>
             </Grid>
-            <Grid item xs={9}>
+            <Grid item xs={9} sx={{ paddingRight: "16px" }}>
               <Paper
                 elevation={0}
                 sx={{

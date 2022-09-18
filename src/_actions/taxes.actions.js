@@ -1,22 +1,22 @@
-import { categoryConstants } from '../_constants';
-import { categoryService } from '../_services';
+import { taxesConstants } from '../_constants';
+import { taxesService } from '../_services';
 import { alertActions } from './';
 import { history } from '../_helpers';
 
-export const categoryActions = {
+export const taxesActions = {
     edit,
     add,
     remove,
     load
 };
 
-function edit(category) {
+function edit(tax) {
 
     return dispatch => {
-        categoryService.edit(category)
+        taxesService.edit(tax)
             .then(
-                category => {
-                    dispatch(request(category));
+                tax => {
+                    dispatch(request(tax));
                     //dispatch(success());
                 },
                 error => {
@@ -26,19 +26,19 @@ function edit(category) {
             );
     };
 
-    function request(category) { return { type: categoryConstants.EDIT_CATEGORY, category } }
-    function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function request(taxe) { return { type: taxesConstants.EDIT_TAXES, taxe } }
+    function success(customer) { return { type: taxesConstants.INSERT_SUCCESS_CUSTOMER, customer } }
+    function failure(error) { return { type: taxesConstants.INSERT_FAILURE_TAXES, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function add(category) {
+function add(tax) {
 
     return dispatch => {
-        categoryService.add(category)
+        taxesService.add(tax)
             .then(
-                category => {
-                    dispatch(request(category));
+                tax => {
+                    dispatch(request(tax));
                     //dispatch(success());
                 },
                 error => {
@@ -48,22 +48,22 @@ function add(category) {
             );
     };
 
-    function request(category) { return { type: categoryConstants.ADD_CATEGORY, category } }
+    function request(taxe) { return { type: taxesConstants.ADD_TAXES, taxe } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
 
-function remove(category) {
+function remove(tax) {
 
 
     return dispatch => {
-        dispatch(request(category));
-        categoryService.remove(category)
+        dispatch(request(tax));
+        taxesService.remove(tax)
             .then(
-                category => {
-                    console.log("----", category);
+                taxes => {
+                    console.log("----", taxes);
                     //dispatch(success());
                 },
                 error => {
@@ -81,38 +81,15 @@ function remove(category) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-function dfs(obj, targetId) {
-    if (obj.id === targetId) {
-        return obj
-    }
-    if (obj.nextItems) {
-        for (let item of obj.nextItems) {
-            let check = dfs(item, targetId)
-            if (check) {
-                return check
-            }
-        }
-    }
-    return null
-}
 
-
-function load(category) {
+function load(taxes) {
 
     return dispatch => {
-        categoryService.load(category)
+        taxesService.load(taxes)
             .then(
-                category => {
+                taxes => {
 
-                    const tree = array => array
-                        .reduce((a, c) => {
-                            c.children = array.filter(i => i.parentId == c.id)
-                            a.push(c)
-                            return a
-                        }, [])
-                        .filter(i => i.parentId === "0");
-
-                    dispatch(request(tree(category)));
+                    dispatch(request(taxes));
                     //dispatch(alertActions.success('Registration successful'));
 
                 },
@@ -124,8 +101,8 @@ function load(category) {
 
     };
 
-    function request(category) { return { type: categoryConstants.LOAD_REQUEST_CATEGORY, category } }
-    function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
-    function failure(error) { return { type: categoryConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function request(taxes) { return { type: taxesConstants.LOAD_REQUEST_TAXES, taxes } }
+    function success(customer) { return { type: taxesConstants.INSERT_SUCCESS_CUSTOMER, customer } }
+    function failure(error) { return { type: taxesConstants.INSERT_FAILURE_CUSTOMER, error } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }

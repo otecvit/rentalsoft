@@ -66,7 +66,22 @@ const customTheme = createTheme({
                         textAlign: 'center',
                     }
                 }
-            ]
+            ],
+
+        },
+        MuiDialog: {
+            styleOverrides: {
+                paper: {
+                    borderRadius: '16px',
+                }
+            }
+        },
+        MuiDialogActions: {
+            styleOverrides: {
+                root: {
+                    padding: '0 24px 24px 24px',
+                }
+            }
         },
         MuiBreadcrumbs: {
             styleOverrides: {

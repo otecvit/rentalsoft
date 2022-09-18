@@ -8,4 +8,5 @@ export * from './inventory.constans';
 export * from './consumables.constans';
 export * from './services.constans';
 export * from './bundles.constans';
+export * from './taxes.constans';
 
