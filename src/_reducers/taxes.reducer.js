@@ -5,7 +5,7 @@ export function taxes(state = [], action) {
         case taxesConstants.ADD_TAXES: {
             return [
                 ...state,
-                action.taxes
+                action.tax
             ];
         }
         case taxesConstants.LOAD_REQUEST_TAXES: {

@@ -32,14 +32,12 @@ function add(tax) {
         body: JSON.stringify(tax)
     };
 
-    console.log(requestOptions);
-
-    // return fetch(`${config.apiUrl}/Taxes/InsertTaxe.php`, requestOptions)
-    //     .then(handleResponse)
-    //     .then(taxe => {
-    //         return taxe[0].data;
-    //     }
-    //     );
+    return fetch(`${config.apiUrl}/Taxes/InsertTax.php`, requestOptions)
+        .then(handleResponse)
+        .then(taxe => {
+            return taxe[0].data;
+        }
+        );
 
 }
 
@@ -54,7 +52,6 @@ function load(taxes) {
     return fetch(`${config.apiUrl}/Taxes/LoadTaxes.php`, requestOptions)
         .then(handleResponse)
         .then(taxes => {
-
             return taxes[0].data;
         }
         );

@@ -1,4 +1,4 @@
-import { taxesConstants } from '../_constants';
+import { supportConstants, taxesConstants } from '../_constants';
 import { taxesService } from '../_services';
 import { alertActions } from './';
 import { history } from '../_helpers';
@@ -7,7 +7,8 @@ export const taxesActions = {
     edit,
     add,
     remove,
-    load
+    load,
+    clear
 };
 
 function edit(tax) {
@@ -35,10 +36,13 @@ function edit(tax) {
 function add(tax) {
 
     return dispatch => {
+        dispatch(loading(true));
         taxesService.add(tax)
             .then(
                 tax => {
+                    
                     dispatch(request(tax));
+                    dispatch(loading(false));
                     //dispatch(success());
                 },
                 error => {
@@ -48,9 +52,10 @@ function add(tax) {
             );
     };
 
-    function request(taxe) { return { type: taxesConstants.ADD_TAXES, taxe } }
+    function request(tax) { return { type: taxesConstants.ADD_TAXES, tax } }
     function success(customer) { return { type: customerConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: customerConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
@@ -81,6 +86,9 @@ function remove(tax) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
+function clear() {
+    return { type: taxesConstants.CLEAR_TAXES, message: [] }
+}
 
 function load(taxes) {
 
