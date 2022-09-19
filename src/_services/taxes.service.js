@@ -12,13 +12,13 @@ function edit(tax) {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(category)
+        body: JSON.stringify(tax)
     };
 
-    return fetch(`${config.apiUrl}/Category/EditCategory.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Taxes/EditTax.php`, requestOptions)
         .then(handleResponse)
-        .then(category => {
-            return category[0].data;
+        .then(tax => {
+            return tax[0].data;
         }
         );
 
@@ -34,8 +34,8 @@ function add(tax) {
 
     return fetch(`${config.apiUrl}/Taxes/InsertTax.php`, requestOptions)
         .then(handleResponse)
-        .then(taxe => {
-            return taxe[0].data;
+        .then(tax => {
+            return tax[0].data;
         }
         );
 
@@ -59,18 +59,18 @@ function load(taxes) {
 }
 
 
-function remove(category) {
+function remove(tax) {
 
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(category)
+        body: JSON.stringify(tax)
     };
 
-    return fetch(`${config.apiUrl}/Category/RemoveCategory.php`, requestOptions)
+    return fetch(`${config.apiUrl}/Taxes/RemoveTax.php`, requestOptions)
         .then(handleResponse)
-        .then(category => {
-            return category[0].data;
+        .then(tax => {
+            return tax[0].data;
         }
         );
 

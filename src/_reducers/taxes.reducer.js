@@ -2,12 +2,22 @@ import { taxesConstants } from '../_constants';
 
 export function taxes(state = [], action) {
     switch (action.type) {
-        case taxesConstants.ADD_TAXES: {
+        case taxesConstants.ADD_TAX: {
             return [
                 ...state,
                 action.tax
             ];
         }
+
+        case taxesConstants.EDIT_TAX: {
+            return state.map((item) => {
+                if (item.chTokenTax === action.tax.chTokenTax)
+                    return action.tax;
+                else
+                    return item;
+            });
+        }
+
         case taxesConstants.LOAD_REQUEST_TAXES: {
             return action.taxes
         }
@@ -18,8 +28,8 @@ export function taxes(state = [], action) {
             };
         }
 
-        case taxesConstants.REMOVE_TAXES: {
-            return state.filter(item => item.chTokenTaxe !== action.customer.chTokenTaxe);
+        case taxesConstants.REMOVE_TAX: {
+            return state.filter(item => item.chTokenTax !== action.tax.chTokenTax);
         }
 
 

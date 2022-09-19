@@ -5,14 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { styled } from '@mui/system';
 
 import {
-    DataGrid as MuiDataGrid,
-    GridColDef,
-    GridApi,
-    GridCellValue,
-    GridCellParams
-} from '@mui/x-data-grid';
-
-import {
     Grid,
     Switch,
     Button,
@@ -51,18 +43,18 @@ const headCells = [
         id: 'chTaxRate',
         numeric: false,
         label: 'Tax Rate',
-        align: 'center',
-    },
-    {
-        id: 'chStaus',
-        numeric: false,
-        label: 'Name',
         align: 'left',
     },
     {
-        id: 'chwww',
+        id: 'blDefault',
         numeric: false,
-        label: 'Name',
+        label: 'Apply to every order',
+        align: 'left',
+    },
+    {
+        id: 'blActive',
+        numeric: false,
+        label: 'Active',
         align: 'left',
     },
     {
@@ -72,47 +64,6 @@ const headCells = [
         align: 'left',
         width: 5,
     },
-];
-
-
-const DataGrid = styled(MuiDataGrid)(({ theme }) => ({
-    // "& .MuiDataGrid-columnHeaders": { display: "none" },
-    // "& .MuiDataGrid-virtualScroller": { marginTop: "0!important" },
-
-}));
-
-const columns = [
-    { field: 'chName', headerName: "Label", width: 150 },
-    { field: 'chTaxRate', width: 150 },
-    {
-        field: "edit",
-        headerName: "",
-        sortable: false,
-        width: 50,
-        disableClickEventBubbling: true,
-        renderCell: () => {
-            return (
-                <IconButton aria-label="edit" size="small">
-                    <EditIcon fontSize="small" />
-                </IconButton>
-            );
-        }
-    },
-    {
-        field: "delete",
-        headerName: "",
-        width: 50,
-        sortable: false,
-        disableClickEventBubbling: true,
-        renderCell: () => {
-            return (
-                <IconButton aria-label="delete" size="small">
-                    <DeleteIcon fontSize="small" />
-                </IconButton>
-            );
-        }
-    },
-
 ];
 
 const handleClearTaxes = () => {
@@ -136,6 +87,7 @@ export const TaxTemplateBrowse = () => {
             chName: "",
             chTaxRate: "",
             blDefault: false,
+            blActive: true,
         }
     });
 
@@ -156,6 +108,15 @@ export const TaxTemplateBrowse = () => {
     });
 
     const handleOpen = () => {
+        reset({
+            chTokenTax: '',
+            chName: '',
+            chTaxRate: '',
+            blDefault: false,
+            blActive: true,
+
+        });
+
         setOpenDialog(true);
     }
 
@@ -169,52 +130,56 @@ export const TaxTemplateBrowse = () => {
         if (!!data.chTokenTax)
             dispatch(taxesActions.edit({
                 ...data,
+                blDefault: data.blDefault ? '1' : '0',
+                blActive: data.blActive ? '1' : '0',
                 chTokenCompany: user.chTokenCompany
             })); // редактируем налог
         else {
             dispatch(taxesActions.add({
                 ...data,
                 blDefault: data.blDefault ? '1' : '0',
+                blActive: data.blActive ? '1' : '0',
                 chTokenCompany: user.chTokenCompany
             })); // добавляем налог
         }
+    }
+
+    const handleRemoveTax = (data) => {
+        dispatch(taxesActions.remove({
+            chTokenTax: data,
+            chTokenCompany: user.chTokenCompany,
+        }))
     }
 
     const handleChangeDefault = (event) => {
         setValue("blDefault", !getValues("blDefault"));
     };
 
-    const currentlySelected = (params) => {
-        const value = params.colDef.field;
-        if (!(value === "edit" || value === "delete")) {
-            return;
-        }
+    const handleChangeActive = (event) => {
+        setValue("blActive", !getValues("blActive"));
+    };
+
+    const handleEditTax = (chEditTokenTax) => {
 
         reset({
             chTokenTax: '',
             chName: '',
             chTaxRate: '',
             blDefault: false,
+            blActive: true,
 
         });
 
         // определяем текущий налог
-        const currentTax = taxes.find((item) => params.chTokenTax === item.chTokenTax);
+        const currentTax = taxes.find((item) => chEditTokenTax === item.chTokenTax);
 
-        if (value === "edit") {
-            // заменяем значение в react-hook-form
-            setValue("chTokenTax", currentTax.chTokenTax);
-            setValue("chName", currentTax.chName);
-            setValue("chTaxRate", currentTax.chTaxRate);
-            setValue("blDefault", currentTax.blDefault);
+        setValue("chTokenTax", currentTax.chTokenTax);
+        setValue("chName", currentTax.chName);
+        setValue("chTaxRate", currentTax.chTaxRate);
+        setValue("blDefault", currentTax.blDefault === "0" ? false : true);
+        setValue("blActive", currentTax.blActive === "0" ? false : true);
 
-            ////////////////////////////////////////
-            // открываем диалог
-            setOpenDialog(true);
-        } else {
-            setSelectedTariff(currentTax.chTokenTax);
-            setOpenConfirm(true);
-        }
+        setOpenDialog(true);
     }
 
 
@@ -236,34 +201,12 @@ export const TaxTemplateBrowse = () => {
                 <DataGridSettings
                     data={taxes}
                     handleClear={handleClearTaxes}
+                    handleEdit={handleEditTax}
+                    handleRemove={handleRemoveTax}
                     type="taxes"
                     headCells={headCells}
                     chTokenCompany={user.chTokenCompany}
                 />
-            </BoxStyled>
-            <BoxStyled>
-                <div style={{ height: 600, width: '100%' }}>
-                    {
-                        !isLoading ?
-                            <DataGrid
-                                columns={columns}
-                                rows={taxes.map((x, index) => {
-                                    return {
-                                        ...x,
-                                        id: index,
-                                    }
-                                })}
-                                onCellClick={currentlySelected}
-                                hideFooter
-                                sx={{
-                                    '&.MuiDataGrid-root': {
-                                        border: 'none',
-                                    },
-                                }}
-                            /> :
-                            'Loading'
-                    }
-                </div>
             </BoxStyled>
             <Dialog
                 open={open}
@@ -301,6 +244,25 @@ export const TaxTemplateBrowse = () => {
                                             checked={getValues("blDefault")}
                                         />
                                         Apply to every order by default
+                                    </>
+                                );
+                            }}
+                        />
+                    </BoxStyled>
+                    <BoxStyled>
+                        <Controller
+                            name="blActive"
+                            control={control}
+                            render={(props) => {
+                                return (
+                                    <>
+                                        <Switch
+                                            name="blActive"
+                                            onChange={handleChangeActive}
+                                            value={getValues("blActive")}
+                                            checked={getValues("blActive")}
+                                        />
+                                        Active
                                     </>
                                 );
                             }}

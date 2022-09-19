@@ -15,12 +15,20 @@ const TaxesTableCell = ({ row }) => {
                     <Typography variant="subtitle2">{row.chName}</Typography>
                 </Stack>
             </TableCell>
-            <TableCell align="center">
-                <BoxChipVariants type="quantity" text={`${row.chTaxRate}%`} />
-            </TableCell>
-            <TableCell align="left">Starting at $20.00</TableCell>
+            <TableCell align="left">{row.chTaxRate}%</TableCell>
             <TableCell align="left">
-                <BoxChipVariants type="success" text="active" />
+                {
+                    row.blDefault === "0" ?
+                        <BoxChipVariants type="redcolor" text="No" /> :
+                        <BoxChipVariants type="success" text="Yes" />
+                }
+            </TableCell>
+            <TableCell align="left">
+                {
+                    row.blActive === "0" ?
+                        <BoxChipVariants type="redcolor" text="Deactive" /> :
+                        <BoxChipVariants type="success" text="Active" />
+                }
             </TableCell>
         </>
     );

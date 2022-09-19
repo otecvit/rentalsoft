@@ -186,6 +186,31 @@ const customTheme = createTheme({
                     }
                 },
                 {
+                    props: { themecolor: "rentalThemeDelete" },
+                    style: {
+                        textTransform: 'capitalize',
+                        fontWeight: '700',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgb(255, 72, 66)',
+                        color: 'rgb(255, 255, 255)',
+                        boxShadow: 'rgb(255 72 66 / 24%) 0px 8px 16px 0px',
+                        width: '100%',
+                        height: '100%',
+                        transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                        '&:hover': {
+                            backgroundColor: 'rgb(183, 33, 54)',
+                            boxShadow: 'none',
+                        },
+                        '&:active': {
+                            boxShadow: 'rgb(145 158 171 / 20%) 0px 5px 5px -3px, rgb(145 158 171 / 14%) 0px 8px 10px 1px, rgb(145 158 171 / 12%) 0px 3px 14px 2px'
+                        },
+                        '&:focus': {
+                            outline: 0,
+                            border: 0,
+                        }
+                    }
+                },
+                {
                     props: { themecolor: "rentalBtnSmall" },
                     style: {
                         textTransform: 'capitalize',

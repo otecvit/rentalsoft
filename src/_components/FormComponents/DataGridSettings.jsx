@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -52,7 +53,8 @@ import { ServicesTableCell } from './TableCellComponents/ServicesTableCell';
 import { BundlesTableCell } from './TableCellComponents/BundlesTableCell';
 
 import BoxChipVariants from '../StyledComponent/BoxChipVariants';
-import { inventoryActions, customerActions, consumablesActions, servicesActions, bundlesActions } from '../../_actions';
+import BoxStyledTop from '../StyledComponent/BoxStyledTop';
+import { taxesActions, customerActions, consumablesActions, servicesActions, bundlesActions } from '../../_actions';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -166,7 +168,7 @@ EnhancedTableToolbar.propTypes = {
 };
 
 
-export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, headCells }) => {
+export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, headCells, handleEdit, handleRemove }) => {
 
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('calories');
@@ -174,7 +176,7 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
     const [currentRow, setCurrent] = useState("");
     const [page, setPage] = useState(0);
     const [dense, setDense] = useState(false);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(25);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const dispatch = useDispatch();
 
@@ -188,7 +190,7 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
     const handleClickMenu = (event, row) => {
         switch (type) {
             case 'taxes': {
-                setCurrent(row.chTokenInventory);
+                setCurrent(row.chTokenTax);
             } break;
             case 'customers': {
                 setCurrent(row.chTokenCustomer)
@@ -255,9 +257,7 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
 
 
     const handleClickEdit = () => {
-        let path = `/${type}/detail/${currentRow}`;
-        handleClear(); // чистим state перед переходом
-        history.push(path);
+        handleEdit(currentRow);
     }
 
     const handleClickDelete = () => {
@@ -269,45 +269,45 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
     };
 
     const handleOkDeleteDialog = (e) => {
+        handleRemove(currentRow);
         //console.log(data);
-        switch (type) {
-            case 'taxes': {
-                dispatch(inventoryActions.remove({
-                    chTokenInventory: currentRow,
-                    chTokenCompany: chTokenCompany,
-                    filesToRemove: data.filter(item => item.chTokenInventory === currentRow)[0].arrFilePath
-                }))
-            } break;
-            case 'customers': {
-                dispatch(customerActions.remove({
-                    chTokenCustomer: currentRow,
-                    chTokenCompany: chTokenCompany,
-                    filesToRemove: data.filter(item => item.chTokenCustomer === currentRow)[0].arrFilePath
-                }))
-            } break;
-            case 'consumables': {
-                dispatch(consumablesActions.remove({
-                    chTokenConsumable: currentRow,
-                    chTokenCompany: chTokenCompany,
-                    filesToRemove: data.filter(item => item.chTokenConsumable === currentRow)[0].arrFilePath
-                }))
-            } break;
-            case 'services': {
-                dispatch(servicesActions.remove({
-                    chTokenService: currentRow,
-                    chTokenCompany: chTokenCompany,
-                    filesToRemove: data.filter(item => item.chTokenService === currentRow)[0].arrFilePath
-                }))
-            } break;
-            case 'bundles': {
-                dispatch(bundlesActions.remove({
-                    chTokenBundle: currentRow,
-                    chTokenCompany: chTokenCompany,
-                    filesToRemove: data.filter(item => item.chTokenBundle === currentRow)[0].arrFilePath
-                }))
-            } break;
+        // switch (type) {
+        //     case 'taxes': {
+        //         dispatch(taxesActions.remove({
+        //             chTokenTax: currentRow,
+        //             chTokenCompany: chTokenCompany,
+        //         }))
+        //     } break;
+        //     case 'customers': {
+        //         dispatch(customerActions.remove({
+        //             chTokenCustomer: currentRow,
+        //             chTokenCompany: chTokenCompany,
+        //             filesToRemove: data.filter(item => item.chTokenCustomer === currentRow)[0].arrFilePath
+        //         }))
+        //     } break;
+        //     case 'consumables': {
+        //         dispatch(consumablesActions.remove({
+        //             chTokenConsumable: currentRow,
+        //             chTokenCompany: chTokenCompany,
+        //             filesToRemove: data.filter(item => item.chTokenConsumable === currentRow)[0].arrFilePath
+        //         }))
+        //     } break;
+        //     case 'services': {
+        //         dispatch(servicesActions.remove({
+        //             chTokenService: currentRow,
+        //             chTokenCompany: chTokenCompany,
+        //             filesToRemove: data.filter(item => item.chTokenService === currentRow)[0].arrFilePath
+        //         }))
+        //     } break;
+        //     case 'bundles': {
+        //         dispatch(bundlesActions.remove({
+        //             chTokenBundle: currentRow,
+        //             chTokenCompany: chTokenCompany,
+        //             filesToRemove: data.filter(item => item.chTokenBundle === currentRow)[0].arrFilePath
+        //         }))
+        //     } break;
 
-        }
+        // }
         setOpenDeleteDialog(false);
     };
 
@@ -350,7 +350,9 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
                                         >
                                             {type === 'taxes' && <TaxesTableCell row={row} />}
 
-                                            <TableCell align="left">
+                                            <TableCell
+                                                sx={{ padding: '6px' }}
+                                                align="left">
                                                 <IconButton
                                                     aria-label="more"
                                                     id={index}
@@ -378,7 +380,7 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
                     </Table>
                 </TableContainer>
                 <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
+                    rowsPerPageOptions={[10, 25, 50]}
                     component="div"
                     count={data.length}
                     rowsPerPage={rowsPerPage}
@@ -456,14 +458,26 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Delete {type}?
+                        Are you sure you want to delete this
+                        {type === "taxes" ? ' tax' : ''}
+                        ?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog}>No</Button>
-                    <Button onClick={handleOkDeleteDialog} autoFocus>
-                        Yes
-                    </Button>
+                    <BoxStyledTop>
+                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                            <Grid item xs={12} md={6}>
+                                <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={handleCloseDeleteDialog}>
+                                    Cancel
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Button variant="contained" themecolor="rentalThemeDelete" size="large" onClick={handleOkDeleteDialog} >
+                                    Delete
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </BoxStyledTop>
                 </DialogActions>
             </Dialog>
         </Box>
