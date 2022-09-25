@@ -77,8 +77,9 @@ function loadDataInventory(companyToken) {
             .then(
                 inventory => {
                     dispatch(request(inventory));
-                    // включаем режим загрузки
+                    // выключаем режим загрузки
                     dispatch(loading(false));
+                    //return inventory
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -91,7 +92,7 @@ function loadDataInventory(companyToken) {
     function request(inventory) { return { type: inventoryConstants.LOAD_REQUEST_INVENTORY, inventory } }
     function success(inventory) { return { type: inventoryConstants.INSERT_SUCCESS_CUSTOMER, inventory } }
     function failure(error) { return { type: inventoryConstants.INSERT_FAILURE_CUSTOMER, error } }
-    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING_INVENTORY, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 

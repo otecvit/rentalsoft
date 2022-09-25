@@ -25,7 +25,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { servicesActions } from '../../_actions';
+import { servicesActions, taxesActions } from '../../_actions';
 
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { FormInputDate } from "../../_components/FormComponents/FormInputDate";
@@ -66,6 +66,7 @@ const ServiceComponent = ({ chTokenService = "", actions }) => {
     const user = useSelector(state => state.authentication.user);
     const support = useSelector(state => state.support);
     const services = useSelector(state => state.services);
+    const taxes = useSelector(state => state.taxes);
     const dispatch = useDispatch();
 
     const breadcrumbs = [
@@ -87,6 +88,9 @@ const ServiceComponent = ({ chTokenService = "", actions }) => {
     ];
 
     useEffect(() => {
+
+        dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany })); // загружаем налоги
+
         if (actions === "edit")
             dispatch(servicesActions.loadData({ chTokenCompany: user.chTokenCompany, chTokenService: chTokenService }));
         else
@@ -106,7 +110,7 @@ const ServiceComponent = ({ chTokenService = "", actions }) => {
             setSceleton(true);
             initialValueAdd(); // инициализация значений
         }
-    }, [support.isLoading]);
+    }, [support.isLoadingService]);
 
     const initialValueEdit = () => {
 
@@ -275,12 +279,12 @@ const ServiceComponent = ({ chTokenService = "", actions }) => {
                                 label="Sales Tax"
                                 labelId="sales-tax-label-id"
                             >
-                                <MenuItem value="">Select Tax</MenuItem>
-                                <MenuItem value="servidor">1</MenuItem>
-                                <MenuItem value="clt">2</MenuItem>
-                                <MenuItem value="autonomo">3</MenuItem>
-                                <MenuItem value="desempregado">4</MenuItem>
-                                <MenuItem value="empresario">5</MenuItem>
+                                <MenuItem value="">Free Tax</MenuItem>
+                                {
+                                    taxes.map((item, index) => (
+                                        <MenuItem key={index} value={item.chTokenTax}>{item.chName} ({item.chTaxRate}%)</MenuItem>
+                                    ))
+                                }
                             </FormInputSelect>
                         </BoxStyled>
                     </Paper>

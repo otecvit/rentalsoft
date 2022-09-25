@@ -27,7 +27,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { categoryActions, tariffsActions, supportActions, inventoryActions } from '../../_actions';
+import { categoryActions, tariffsActions, supportActions, inventoryActions, taxesActions } from '../../_actions';
 
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { DialogSelectCategory } from "../../_components/FormComponents/DialogSelectCategory";
@@ -101,6 +101,7 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
     const [openNewTariff, setOpenNewTariff] = useState(false);
     const [selectedTariff, setTariff] = useState("");
     const [selectedCategory, setCategory] = useState("");
+    const [selectedTax, setTax] = useState("");
     const [onSkeleton, setSceleton] = useState(false);
     const [tagsInventory, setTag] = useState([]);
     const [arrCurrentFiles, setFiles] = useState(null); // state в котором хранятся текущие файлы, которые отображаются
@@ -110,6 +111,7 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
     const user = useSelector(state => state.authentication.user);
     const category = useSelector(state => state.category);
     const tariffs = useSelector(state => state.tariffs);
+    const taxes = useSelector(state => state.taxes);
     const support = useSelector(state => state.support);
     const inventory = useSelector(state => state.inventory);
     const dispatch = useDispatch();
@@ -135,26 +137,31 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
     useEffect(() => {
         dispatch(categoryActions.load({ chTokenCompany: user.chTokenCompany }));
         dispatch(tariffsActions.load({ chTokenCompany: user.chTokenCompany }));
+        dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany })); // загружаем налоги
+
         if (actions === "edit")
             dispatch(inventoryActions.loadDataInventory({ chTokenCompany: user.chTokenCompany, chTokenInventory: chTokenInventory }));
         else
             dispatch(inventoryActions.clearInventoryState());
     }, []);
 
+
+    // ожидаем загрузку инвентаря
     useEffect(() => {
         // статус загрузки
-        if (actions === "edit")
+        if (actions === "edit") {
             if (inventory !== undefined && inventory.length != 0) {
                 setSceleton(true);
                 initialValueEdit(); // инициализация значений
             }
             else
                 setSceleton(false);
+        }
         if (actions === "add") {
             setSceleton(true);
             initialValueAdd(); // инициализация значений
         }
-    }, [support.isLoading]);
+    }, [support.isLoadingInventory]);
 
 
     useEffect(() => {
@@ -476,12 +483,12 @@ const InventoryComponent = ({ chTokenInventory = "", actions }) => {
                                     label="Sales Tax"
                                     labelId="sales-tax-label-id"
                                 >
-                                    <MenuItem value="">Select Tax</MenuItem>
-                                    <MenuItem value="servidor">1</MenuItem>
-                                    <MenuItem value="clt">2</MenuItem>
-                                    <MenuItem value="autonomo">3</MenuItem>
-                                    <MenuItem value="desempregado">4</MenuItem>
-                                    <MenuItem value="empresario">5</MenuItem>
+                                    <MenuItem value="">Free Tax</MenuItem>
+                                    {
+                                        taxes.map((item, index) => (
+                                            <MenuItem key={index} value={item.chTokenTax}>{item.chName} ({item.chTaxRate}%)</MenuItem>
+                                        ))
+                                    }
                                 </FormInputSelect>
                             </Grid>
                         </Grid>

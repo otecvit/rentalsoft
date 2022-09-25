@@ -43,7 +43,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
-import { categoryActions, bundlesActions, supportActions, inventoryActions, customerActions } from '../../_actions';
+import { categoryActions, bundlesActions, supportActions, inventoryActions, customerActions, taxesActions } from '../../_actions';
 
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { FormInputDate } from "../../_components/FormComponents/FormInputDate";
@@ -150,68 +150,8 @@ function getDateTime(dDateTime, type, addMin) {
     else return timeReturn
 
 
-    // var now = new Date();
-    // if (dDateTime) now = new Date(dDateTime);
-
-    // var year = now.getFullYear();
-    // var month = now.getMonth() + 1;
-    // var day = now.getDate();
-    // var hour = now.getHours();
-    // var minute = now.getMinutes();
-    // if (month.toString().length == 1) {
-    //     month = '0' + month;
-    // }
-    // if (day.toString().length == 1) {
-    //     day = '0' + day;
-    // }
-    // if (hour.toString().length == 1) {
-    //     hour = '0' + hour;
-    // }
-    // if (minute.toString().length == 1) {
-    //     minute = '0' + minute;
-    // }
-
-    // var dateTime = year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
-    // return dateTime;
 }
 
-
-function getTimeForSelect(dDateTime) {
-
-    const start = moment();
-    const remainder = 15 - start.minute() % 15;
-    const dateReturn = moment(start).add("minutes", remainder).format("YYYY-MM-DD");
-    const timeReturn = moment(start).add("minutes", remainder).format("HH:mm a");
-
-
-    //console.log("---", dateReturn + 'T' + timeReturn);
-
-    return "";
-}
-
-
-function addHours(numOfHours, date = new Date()) {
-    date.setTime(date.getTime() + numOfHours * 60 * 60 * 1000);
-    return date;
-}
-
-function addDays(numOfDays, date = new Date()) {
-    date.setDate(date.getDate() + numOfDays);
-    return date;
-}
-
-function addMonths(numOfMonths, date = new Date()) {
-    date.setMonth(date.getMonth() + numOfMonths);
-    return date;
-}
-
-function monthDiff(d1, d2) {
-    var months;
-    months = (d2.getFullYear() - d1.getFullYear()) * 12;
-    months -= d1.getMonth() + 1;
-    months += d2.getMonth();
-    return months <= 0 ? 0 : months;
-}
 
 const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const {
@@ -235,6 +175,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             arrServices: [],
             arrConsumables: [],
             chAllDiscount: "0",
+            chTotalBeforeTax: "0",
+            chTotalAfterTax: "0",
             chCategoryName: "",
             txtDescription: "",
             chYourSKU: ""
@@ -259,6 +201,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const [open, setOpen] = React.useState(false);
     const [tagsInventory, setTag] = useState([]);
     const [arrPrice, setPrice] = useState([]);
+    const [arrTax, setTaxArr] = useState([]);
 
     const [currentTab, setTab] = useState(0);
     const [currentDuration, setDuration] = useState([]);
@@ -267,6 +210,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const support = useSelector(state => state.support);
     const category = useSelector(state => state.category);
     const bundles = useSelector(state => state.bundles);
+    const taxes = useSelector(state => state.taxes);
 
     const dispatch = useDispatch();
 
@@ -281,10 +225,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         name: "arrItem"
     });
 
-    // const chAllDiscount = useWatch({
-    //     control,
-    //     name: "chAllDiscount"
-    // });
+    const chAllDiscount = watch('chAllDiscount');
+
 
     /// отслеживаем изменение даты и времени
     const dReturn = useWatch({
@@ -364,6 +306,9 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     useEffect(() => {
         dispatch(categoryActions.load({ chTokenCompany: user.chTokenCompany }));
+        dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany })); // загружаем налоги
+
+
         if (actions === "edit")
             dispatch(bundlesActions.loadData({ chTokenCompany: user.chTokenCompany, chTokenBundle: chTokenBundle }));
 
@@ -396,8 +341,10 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
     /// отслеживаем изменения в таблице продуктов и всё пересчитываем
     useEffect(() => {
-        // пересчитываем
+        // пересчитываем стоимость
         fnCalculatePrice();
+        // пересчитываем налоги
+        fnCalculateTax();
     }, [arrItem])
 
     useEffect(() => {
@@ -588,9 +535,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     });
                 } break;
                 case "3": { // bundles
-
                     let value = 0;
-
                     // пересчитываем цены
                     const arrBundlePrice = item.bundles.map(a => {
                         switch (a.iType) {
@@ -648,7 +593,41 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
             }
         })
+    }
 
+    const fnCalculateTax = () => {
+
+        setTaxArr([]);
+
+        arrItem.map(item => {
+            if (item.chTaxToken !== "")
+                if (typeof arrTax.find(element => element.chTaxToken === item.chTaxToken) === 'undefined') {// такого налога еще нет в списке
+                    // добавляем строку
+                    setTaxArr(oldTaxArr => [
+                        ...oldTaxArr,
+                        {
+                            chTaxToken: item.chTaxToken,
+                            chTaxName: taxes.find(element => element.chTaxToken === item.chTaxToken).chName,
+                            chTaxAmount: "100",
+                        }
+                    ])
+                }
+                else {
+                    // иначе находим и пересчитываем
+                    setTaxArr(
+                        arrTax.map(x => {
+                            if (x.chTaxToken === item.chTaxToken) {
+                                return {
+                                    chTaxToken: item.chTaxToken,
+                                    chTaxName: taxes.find(element => element.chTaxToken === item.chTaxToken).chName,
+                                    chTaxAmount: Number(x.chTaxAmount) + 100,
+                                }
+                            } else
+                                return x
+                        })
+                    )
+                }
+        })
     }
 
     const initialValueEdit = () => {
@@ -755,8 +734,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     };
 
     const handleAddItem = (itemSelected) => {
-        console.log(itemSelected);
-
         switch (itemSelected.iType) {
             // inventory
             case "1": {
@@ -767,6 +744,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chTariff,
+                    chTaxToken: itemSelected.chSalesTax,
                     iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
@@ -782,8 +760,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
             // consumables
             case "2": {
-
-
                 arrItemAppend({
                     chToken: itemSelected.chToken,
                     iType: itemSelected.iType,
@@ -791,6 +767,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chSellPrice,
+                    chTaxToken: itemSelected.chSalesTax,
                     iTypeDuration: "once",
                 });
 
@@ -805,8 +782,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             } break;
             // bundles
             case "3": {
-
-                console.log(itemSelected);
 
                 arrItemAppend({
                     chToken: itemSelected.chToken,
@@ -826,6 +801,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chQuantity: x.chQuantity,
                                     chDiscount: x.chDiscount,
                                     chAppliedRate: x.chTariff,
+                                    chTaxToken: x.chSalesTax,
                                     iTypeDuration: fnCalculateDurationItem(x.chTariff),
                                 };
                                 case "2": return {
@@ -835,6 +811,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chQuantity: x.chQuantity,
                                     chDiscount: x.chDiscount,
                                     chAppliedRate: x.chSellPrice,
+                                    chTaxToken: x.chSalesTax,
                                     iTypeDuration: "once",
                                 };
                                 case "4": return {
@@ -844,6 +821,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chQuantity: x.chQuantity,
                                     chDiscount: x.chDiscount,
                                     chAppliedRate: x.chSellPrice,
+                                    chTaxToken: x.chSalesTax,
                                     iTypeDuration: "once",
                                 }
                             }
@@ -871,6 +849,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chSellPrice,
+                    chTaxToken: itemSelected.chSalesTax,
                     iTypeDuration: "once",
                 });
 
@@ -892,6 +871,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: "0",
+                    chTaxToken: itemSelected.chSalesTax,
                     iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
@@ -1023,6 +1003,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 return ""
         }
     }
+
+
 
     return (
 
@@ -1459,6 +1441,49 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                             <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
                                                 <TableLabel>
                                                     Total (before tax)
+                                                </TableLabel>
+                                            </Grid>
+                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                <TableLabel>
+                                                    {
+                                                        toCurrency.format(arrPrice.reduce((accumulator, object) => {
+                                                            return accumulator + Number(object.chPrice);
+                                                        }, 0) - arrPrice.reduce((accumulator, object) => {
+                                                            return accumulator + Number(object.chPrice);
+                                                        }, 0) * Number(watch('chAllDiscount')) / 100)
+
+                                                    }
+                                                </TableLabel>
+                                            </Grid>
+                                            <Grid item xs={12} sm={2} md={2}></Grid>
+                                        </Grid>
+                                    </BoxStyledBorderTop>
+                                    {
+                                        arrTax.map((a, index) => (
+
+                                            <BoxStyledBorderTop key={index}>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                    <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                        <TableLabel>
+                                                            {a.chTaxToken}
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>
+                                                            {a.chTaxAmount}
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={2} md={2}></Grid>
+                                                </Grid>
+                                            </BoxStyledBorderTop>
+                                        ))
+
+                                    }
+                                    <BoxStyledBorderTop>
+                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                <TableLabel>
+                                                    Total (after tax)
                                                 </TableLabel>
                                             </Grid>
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
