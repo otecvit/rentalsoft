@@ -2,7 +2,7 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 
-export const FormInputNumber = ({ name, control, label = "", size = "normal", InputProps, sx = {}, disabled = false }) => {
+export const FormInputNumber = ({ name, control, label = "", size = "normal", InputProps, sx = {}, disabled = false, onCalculate = {} }) => {
   return (
     <Controller
       name={name}
@@ -16,7 +16,11 @@ export const FormInputNumber = ({ name, control, label = "", size = "normal", In
           disabled={disabled}
           helperText={error ? error.message : null}
           error={!!error}
-          onChange={onChange}
+          onChange={(e) => {
+            const quantity = e.target.value;
+            onCalculate(quantity);
+            onChange(quantity);
+          }}
           value={value}
           fullWidth
           label={label}
@@ -28,7 +32,8 @@ export const FormInputNumber = ({ name, control, label = "", size = "normal", In
             shrink: true,
           }}
         />
-      )}
+      )
+      }
     />
   );
 };

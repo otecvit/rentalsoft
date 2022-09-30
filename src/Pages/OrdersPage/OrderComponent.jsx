@@ -138,18 +138,13 @@ function stringAvatar(name) {
 }
 
 function getDateTime(dDateTime, type, addMin) {
-
     var start = moment();
     if (dDateTime) start = moment(dDateTime);
-
     const remainder = 15 - start.minute() % 15 + addMin;
     const dateReturn = moment(start).add(remainder, "minutes").format("YYYY-MM-DD");
     const timeReturn = moment(start).add(remainder, "minutes").format("HH:mm");
-
     if (type === 1) return dateReturn + 'T' + timeReturn;
     else return timeReturn
-
-
 }
 
 
@@ -170,10 +165,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             tPickup: getDateTime("", 2, 0),
             dReturn: getDateTime("", 1, 60),
             tReturn: getDateTime("", 2, 60),
-            arrInventory: [],
             arrItem: [],
-            arrServices: [],
-            arrConsumables: [],
             chAllDiscount: "0",
             chTotalBeforeTax: "0",
             chTotalAfterTax: "0",
@@ -225,7 +217,9 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         name: "arrItem"
     });
 
+
     const chAllDiscount = watch('chAllDiscount');
+    const chTotalAfterTax = watch('chTotalAfterTax');
 
 
     /// отслеживаем изменение даты и времени
@@ -339,13 +333,63 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     }, [tReturn]);
 
 
+    useEffect(() => {
+        // пересчитываем стоимость
+        //console.log("useEffect[arrItem]");
+        //fnCalculatePrice();
+        //fnChangeItem();
+        //setValue('arrItem[0].priceDetail.chPrice', "20");
+    }, [arrItem])
+
+    /*
+
     /// отслеживаем изменения в таблице продуктов и всё пересчитываем
     useEffect(() => {
         // пересчитываем стоимость
-        fnCalculatePrice();
-        // пересчитываем налоги
-        fnCalculateTax();
+        console.log("useEffect[arrItem]");
+        //fnCalculatePrice();
+        //fnChangeItem();
     }, [arrItem])
+
+    useEffect(() => {
+
+        setValue("chTotalBeforeTax", arrPrice.reduce((accumulator, object) => {
+            return accumulator + Number(object.chPrice);
+        }, 0) - arrPrice.reduce((accumulator, object) => {
+            return accumulator + Number(object.chPrice);
+        }, 0) * Number(chAllDiscount) / 100);
+
+        // пересчитываем налоги
+        console.log("useEffect[arrPrice]");
+        fnCalculateTax();
+    }, [arrPrice])
+
+    useEffect(() => {
+
+        setValue("chTotalBeforeTax", arrPrice.reduce((accumulator, object) => {
+            return accumulator + Number(object.chPrice);
+        }, 0) - arrPrice.reduce((accumulator, object) => {
+            return accumulator + Number(object.chPrice);
+        }, 0) * Number(chAllDiscount) / 100);
+
+        // пересчитываем налоги
+
+        fnCalculateTax();
+    }, [chAllDiscount])
+
+    useEffect(() => {
+
+        // console.log(Number(getValues("chTotalBeforeTax")) + arrTax.reduce((accumulator, object) => {
+        //     return accumulator + Number(object.chTaxAmount);
+        // }, 0));
+
+        setValue("chTotalAfterTax", Number(getValues("chTotalBeforeTax")) + arrTax.reduce((accumulator, object) => {
+            return accumulator + Number(object.chTaxAmount);
+        }, 0));
+
+    }, [arrTax])
+
+    */
 
     useEffect(() => {
         // статус загрузки
@@ -503,8 +547,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         return iExtraFactor;
     }
 
+    // рассчитываем цены
     const fnCalculatePrice = () => {
-
         arrItem.map((item, index) => {
             switch (item.iType) {
                 case "1": { // inventory
@@ -595,32 +639,129 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         })
     }
 
+    // рассчитываем цены
+    const fnCalculatePriceForItem = (item) => {
+        switch (item.iType) {
+            case "1": { // inventory
+                const arrMultiplier = fnCalculateMultiplier(item);
+                const value = (Number(arrMultiplier.price) + Number(arrMultiplier.priceExtra)) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                const taxDetail = fnCalculateTaxForItem(value, item);
+                // пересчитываем цены
+
+                return {
+                    chPrice: value.toString(),
+                    printAppliedRate: {
+                        mainTariff: `${arrMultiplier.label} - ${toCurrency.format(arrMultiplier.price)}`,
+                        extraTariff: arrMultiplier.iCountPeriod > 0 ? `${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}` : ``,
+                    },
+                    taxDetail: taxDetail,
+                }
+
+            } break;
+            case "2": { // consumables
+                const value = Number(item.chQuantity) * Number(item.chAppliedRate) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                // пересчитываем цены
+                setPrice(state => {
+                    return state.map(x => {
+                        return x.chToken === item.chToken ? { ...x, chPrice: value } : x
+                    })
+                });
+            } break;
+            case "3": { // bundles
+                let value = 0;
+                // пересчитываем цены
+                const arrBundlePrice = item.bundles.map(a => {
+                    switch (a.iType) {
+                        case "1": {
+                            const arrMultiplier = fnCalculateMultiplier(a);
+                            const dInventoryPrice = (Number(arrMultiplier.price) + Number(arrMultiplier.priceExtra)) * Number(a.chQuantity) * Number(a.chDiscount === "0" ? 1 : (100 - a.chDiscount) / 100);
+                            value += dInventoryPrice;
+                            return {
+                                ...a,
+                                chPrice: dInventoryPrice,
+                                printAppliedRate: {
+                                    mainTariff: `${arrMultiplier.label} - ${toCurrency.format(arrMultiplier.price)}`,
+                                    extraTariff: arrMultiplier.iCountPeriod > 0 ? `${arrMultiplier.iCountPeriod} ${arrMultiplier.typeExtra} - ${toCurrency.format(arrMultiplier.priceExtra)}` : ``,
+                                }
+                            };
+                        }
+                        case "2": {
+                            const dConsumablePrice = Number(a.chQuantity) * Number(a.chAppliedRate) * Number(a.chDiscount === "0" ? 1 : (100 - a.chDiscount) / 100);
+                            value += dConsumablePrice;
+                            return {
+                                ...a,
+                                chPrice: dConsumablePrice,
+                            };
+                        }
+                        case "4": {
+                            const dServicePrice = Number(a.chQuantity) * Number(a.chAppliedRate) * Number(a.chDiscount === "0" ? 1 : (100 - a.chDiscount) / 100);
+                            value += dServicePrice;
+                            return {
+                                ...a,
+                                chPrice: dServicePrice,
+                            };
+                        }
+
+                    }
+                });
+
+                value = Number(item.chQuantity) * Number(value) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+
+                setPrice(state => {
+                    return state.map(x => {
+                        return x.chToken === item.chToken ? { ...x, chPrice: value, arrBundlePrice: arrBundlePrice } : x
+                    })
+                });
+            } break;
+
+            case "4": { // services
+                const value = Number(item.chQuantity) * Number(item.chAppliedRate) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                // пересчитываем цены
+                setPrice(state => {
+                    return state.map(x => {
+                        return x.chToken === item.chToken ? { ...x, chPrice: value } : x
+                    })
+                });
+            } break;
+
+        }
+
+    }
+
+    // рассчитываем налоги, у каждой строки может быть свой налог
     const fnCalculateTax = () => {
 
-        setTaxArr([]);
-
         arrItem.map(item => {
-            if (item.chTaxToken !== "")
-                if (typeof arrTax.find(element => element.chTaxToken === item.chTaxToken) === 'undefined') {// такого налога еще нет в списке
+            if (item.chTokenTax !== "")
+                if (typeof arrTax.find(element => element.chTokenTax === item.chTokenTax) === 'undefined') {// такого налога еще нет в списке
                     // добавляем строку
+                    const currTax = taxes.find(element => element.chTokenTax === item.chTokenTax);
+                    const currPrice = arrPrice.find(element => element.chToken === item.chToken).chPrice;
+
                     setTaxArr(oldTaxArr => [
                         ...oldTaxArr,
                         {
-                            chTaxToken: item.chTaxToken,
-                            chTaxName: taxes.find(element => element.chTaxToken === item.chTaxToken).chName,
-                            chTaxAmount: "100",
+                            chTokenTax: item.chTokenTax,
+                            chTaxName: `${currTax.chName} (${currTax.chTaxRate}%)`,
+                            chTaxAmount: (Number(currPrice) - Number(currPrice) * Number(chAllDiscount) / 100) * Number(currTax.chTaxRate) / 100,
                         }
                     ])
                 }
                 else {
                     // иначе находим и пересчитываем
+                    console.log(arrTax)
                     setTaxArr(
                         arrTax.map(x => {
-                            if (x.chTaxToken === item.chTaxToken) {
+                            if (x.chTokenTax === item.chTokenTax) {
+                                const currTax = taxes.find(element => element.chTokenTax === item.chTokenTax);
+                                const currPrice = arrPrice.find(element => element.chToken === item.chToken).chPrice;
+
+
+
                                 return {
-                                    chTaxToken: item.chTaxToken,
-                                    chTaxName: taxes.find(element => element.chTaxToken === item.chTaxToken).chName,
-                                    chTaxAmount: Number(x.chTaxAmount) + 100,
+                                    chTokenTax: item.chTokenTax,
+                                    chTaxName: `${currTax.chName} (${currTax.chTaxRate}%)`,
+                                    chTaxAmount: Number(x.chTaxAmount) + (Number(currPrice) - Number(currPrice) * Number(chAllDiscount) / 100) * Number(currTax.chTaxRate) / 100,
                                 }
                             } else
                                 return x
@@ -628,6 +769,82 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     )
                 }
         })
+    }
+
+    // рассчитываем налоги, у каждой строки может быть свой налог
+    const fnCalculateTaxForItem = (value, item) => {
+
+        const currTax = taxes.find(element => element.chTokenTax === item.chTokenTax);
+        if (typeof currTax !== 'undefined')
+            return {
+                chTaxName: `${currTax.chName} (${currTax.chTaxRate}%)`,
+                chTaxAmount: ((Number(value) - Number(value) * Number(item.chDiscount) / 100) * Number(currTax.chTaxRate) / 100).toString(),
+            }
+        else
+            return {
+                chTaxName: "",
+                chTaxAmount: "",
+            }
+    }
+
+    const fnChangeItem = (quantity, index) => {
+
+        // console.log("--", getValues(`arrItem[0].chAppliedRate`))
+
+        // console.log(index, quantity)
+        setValue(`arrItem[${index}].priceDetail.chPrice`, quantity);
+
+
+        //arrItemUpdate(0, {});
+
+        //console.log("+")
+
+        // if (arrItem.length > 0)
+        //     setValue(`arrItem[0].priceDetail.chPrice`, "20")
+        //     arrItemUpdate(0, {
+        //         chToken: getValues(`arrItem[0].chToken`),
+        //         iType: getValues(`arrItem[0].iType`),
+        //         chName: getValues(`arrItem[0].chName`),
+        //         chQuantity: getValues(`arrItem[0].chQuantity`),
+        //         chDiscount: getValues(`arrItem[0].chDiscount`),
+        //         chAppliedRate: getValues(`arrItem[0].chAppliedRate`),
+        //         chTokenTax: getValues(`arrItem[0].chTokenTax`),
+        //         iTypeDuration: getValues(`arrItem[0].iTypeDuration`),
+        //         priceDetail: fnCalculatePriceForItem({
+        //             iType: getValues(`arrItem[0].iType`),
+        //             chQuantity: getValues(`arrItem[0].chQuantity`),
+        //             chDiscount: getValues(`arrItem[0].chDiscount`),
+        //             iTypeDuration: getValues(`arrItem[0].iTypeDuration`),
+        //             chAppliedRate: getValues(`arrItem[0].chTariff`),
+        //             chTokenTax: getValues(`arrItem[0].chSalesTax`),
+        //         }),
+        //     });
+
+        // arrItemAppend({
+        //     chToken: itemSelected.chToken,
+        //     iType: itemSelected.iType,
+        //     chName: itemSelected.chName,
+        //     chQuantity: "1",
+        //     chDiscount: "0",
+        //     chAppliedRate: itemSelected.chTariff,
+        //     chTokenTax: itemSelected.chSalesTax,
+        //     iTypeDuration: iTypeDuration,
+        //     priceDetail: fnCalculatePriceForItem({
+        //         iType: itemSelected.iType,
+        //         chQuantity: "1",
+        //         chDiscount: "0",
+        //         iTypeDuration: iTypeDuration,
+        //         chAppliedRate: itemSelected.chTariff,
+        //         chTokenTax: itemSelected.chSalesTax,
+        //     }),
+        // });
+
+        // arrItem[${index}].chQuantity
+        // arrItem.map((item, index) => {
+        // //     console.log(getValues())
+        //     arrItemUpdate()
+        //  })
+
     }
 
     const initialValueEdit = () => {
@@ -724,19 +941,15 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         setOpen(false);
     }
 
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
 
     const handleAddItem = (itemSelected) => {
         switch (itemSelected.iType) {
             // inventory
             case "1": {
+
+                // определяем тип аренды
+                const iTypeDuration = fnCalculateDurationItem(itemSelected.chTariff);
+
                 arrItemAppend({
                     chToken: itemSelected.chToken,
                     iType: itemSelected.iType,
@@ -744,8 +957,16 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chTariff,
-                    chTaxToken: itemSelected.chSalesTax,
-                    iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
+                    chTokenTax: itemSelected.chSalesTax,
+                    iTypeDuration: iTypeDuration,
+                    priceDetail: fnCalculatePriceForItem({
+                        iType: itemSelected.iType,
+                        chQuantity: "1",
+                        chDiscount: "0",
+                        iTypeDuration: iTypeDuration,
+                        chAppliedRate: itemSelected.chTariff,
+                        chTokenTax: itemSelected.chSalesTax,
+                    }),
                 });
 
                 setPrice(oldPrice => [
@@ -767,7 +988,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chSellPrice,
-                    chTaxToken: itemSelected.chSalesTax,
+                    chTokenTax: itemSelected.chSalesTax,
                     iTypeDuration: "once",
                 });
 
@@ -801,7 +1022,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chQuantity: x.chQuantity,
                                     chDiscount: x.chDiscount,
                                     chAppliedRate: x.chTariff,
-                                    chTaxToken: x.chSalesTax,
+                                    chTokenTax: x.chSalesTax,
                                     iTypeDuration: fnCalculateDurationItem(x.chTariff),
                                 };
                                 case "2": return {
@@ -811,7 +1032,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chQuantity: x.chQuantity,
                                     chDiscount: x.chDiscount,
                                     chAppliedRate: x.chSellPrice,
-                                    chTaxToken: x.chSalesTax,
+                                    chTokenTax: x.chSalesTax,
                                     iTypeDuration: "once",
                                 };
                                 case "4": return {
@@ -821,7 +1042,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     chQuantity: x.chQuantity,
                                     chDiscount: x.chDiscount,
                                     chAppliedRate: x.chSellPrice,
-                                    chTaxToken: x.chSalesTax,
+                                    chTokenTax: x.chSalesTax,
                                     iTypeDuration: "once",
                                 }
                             }
@@ -849,7 +1070,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: itemSelected.chSellPrice,
-                    chTaxToken: itemSelected.chSalesTax,
+                    chTokenTax: itemSelected.chSalesTax,
                     iTypeDuration: "once",
                 });
 
@@ -871,7 +1092,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     chQuantity: "1",
                     chDiscount: "0",
                     chAppliedRate: "0",
-                    chTaxToken: itemSelected.chSalesTax,
+                    chTokenTax: itemSelected.chSalesTax,
                     iTypeDuration: fnCalculateDurationItem(itemSelected.chTariff),
                 });
 
@@ -1005,6 +1226,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     }
 
 
+    console.log("--->", arrItem);
 
     return (
 
@@ -1300,6 +1522,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                                     control={control}
                                                     size="small"
                                                     defaultValue={item.chQuantity}
+                                                    onCalculate={(a) => fnChangeItem(a, index)}
                                                     sx={{
                                                         '& legend': { display: 'none' },
                                                         '& fieldset': { top: 0 },
@@ -1327,7 +1550,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                             </Grid>
 
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>{toCurrency.format(arrPrice.find(o => o.chToken === item.chToken).chPrice)}</TableLabel>
+                                                <TableLabel>{toCurrency.format(item.priceDetail.chPrice)/*toCurrency.format(arrPrice.find(o => o.chToken === item.chToken).chPrice)*/}</TableLabel>
                                             </Grid>
 
                                             <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
@@ -1446,12 +1669,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                                 <TableLabel>
                                                     {
-                                                        toCurrency.format(arrPrice.reduce((accumulator, object) => {
-                                                            return accumulator + Number(object.chPrice);
-                                                        }, 0) - arrPrice.reduce((accumulator, object) => {
-                                                            return accumulator + Number(object.chPrice);
-                                                        }, 0) * Number(watch('chAllDiscount')) / 100)
-
+                                                        toCurrency.format(getValues("chTotalBeforeTax"))
                                                     }
                                                 </TableLabel>
                                             </Grid>
@@ -1464,14 +1682,14 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                             <BoxStyledBorderTop key={index}>
                                                 <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
                                                     <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-                                                        <TableLabel>
-                                                            {a.chTaxToken}
-                                                        </TableLabel>
+                                                        <TableTextNormal>
+                                                            {a.chTaxName}
+                                                        </TableTextNormal>
                                                     </Grid>
                                                     <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                        <TableLabel>
-                                                            {a.chTaxAmount}
-                                                        </TableLabel>
+                                                        <TableTextNormal>
+                                                            {toCurrency.format(a.chTaxAmount)}
+                                                        </TableTextNormal>
                                                     </Grid>
                                                     <Grid item xs={12} sm={2} md={2}></Grid>
                                                 </Grid>
@@ -1488,14 +1706,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                             </Grid>
                                             <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                                 <TableLabel>
-                                                    {
-                                                        toCurrency.format(arrPrice.reduce((accumulator, object) => {
-                                                            return accumulator + Number(object.chPrice);
-                                                        }, 0) - arrPrice.reduce((accumulator, object) => {
-                                                            return accumulator + Number(object.chPrice);
-                                                        }, 0) * Number(watch('chAllDiscount')) / 100)
-
-                                                    }
+                                                    {toCurrency.format(chTotalAfterTax)}
                                                 </TableLabel>
                                             </Grid>
                                             <Grid item xs={12} sm={2} md={2}></Grid>
