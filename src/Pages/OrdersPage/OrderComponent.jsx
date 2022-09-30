@@ -791,7 +791,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
 
         // console.log("--", getValues(`arrItem[0].chAppliedRate`))
 
-        // console.log(index, quantity)
         setValue(`arrItem[${index}].priceDetail.chPrice`, quantity);
 
 
