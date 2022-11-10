@@ -540,7 +540,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 const arrPriceDetail = fnCalculateDurationItem(item.chAppliedRate);
 
                 // расчитываем стоимость для отображения
-                const value = (Number(arrPriceDetail.price) + Number(arrPriceDetail.iPriceExtra)) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                const value = Math.round((Number(arrPriceDetail.price) + Number(arrPriceDetail.iPriceExtra)) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100) * 100) / 100;
                 // рассчитываем налоги
                 // получаем: chTaxName, chTaxAmount
                 const taxDetail = fnCalculateTaxForItem(value, item);
@@ -561,7 +561,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             case "2": { // consumables (расходные материалы)
 
                 // расчитываем стоимость для отображения
-                const value = Number(item.chAppliedRate.arrTariffDetail[0].price) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                const value = Math.round((Number(item.chAppliedRate.arrTariffDetail[0].price) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100)) * 100) / 100;
                 // рассчитываем налоги
                 // получаем: chTaxName, chTaxAmount
                 const taxDetail = fnCalculateTaxForItem(value, item);
@@ -590,7 +590,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             case "4": { // services
 
                 // расчитываем стоимость для отображения
-                const value = Number(item.chAppliedRate.arrTariffDetail[0].price) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100);
+                const value = Math.round((Number(item.chAppliedRate.arrTariffDetail[0].price) * Number(item.chQuantity) * Number(item.chDiscount === "0" ? 1 : (100 - item.chDiscount) / 100)) * 100) / 100;
                 // рассчитываем налоги
                 // получаем: chTaxName, chTaxAmount
                 const taxDetail = fnCalculateTaxForItem(value, item);
@@ -638,10 +638,11 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         var result = [];
         arrTaxForModify.reduce(function (res, value) {
             if (!res[value.chTokenTax]) {
-                res[value.chTokenTax] = { chTokenTax: value.chTokenTax, chTaxName: value.chTaxName, chTaxAmount: 0 };
+                res[value.chTokenTax] = { chTokenTax: value.chTokenTax, chTaxName: value.chTaxName, chTaxAmount: 0, chTaxStartAmount: 0 };
                 result.push(res[value.chTokenTax])
             }
             res[value.chTokenTax].chTaxAmount += Number(value.chTaxAmount);
+            res[value.chTokenTax].chTaxStartAmount = res[value.chTokenTax].chTaxAmount; // chTaxStartAmount требуется для вычисления скидки
             return res;
         }, {});
 
@@ -692,9 +693,9 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             /// пересчитываем общую сумму по набору
             setValue(
                 `arrItem[${index}].priceDetail.chPrice`,
-                getValues(`arrItem[${index}].bundles`).reduce((accumulator, object) => {
+                (Math.round((getValues(`arrItem[${index}].bundles`).reduce((accumulator, object) => {
                     return accumulator + Number(object.priceDetail.chPrice);
-                }, 0)
+                }, 0)) * 100) / 100).toString()
             );
 
         } else {
@@ -731,11 +732,11 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 const priceDetail = fnCalculatePriceForItem({
                     iType: item.iType,
                     chQuantity: item.chQuantity,
-                    chDiscount: (100 - (100 - Number(chDiscountStart)) * (100 - Number(value)) / 100),
+                    chDiscount: Math.round((100 - (100 - Number(chDiscountStart)) * (100 - Number(value)) / 100) * 100) / 100,
                     chAppliedRate: item.chAppliedRate,
                     chTokenTax: item.chTokenTax,
                 })
-                setValue(`arrItem[${index}].bundles[${ind}].chDiscount`, (100 - (100 - Number(chDiscountStart)) * (100 - Number(value)) / 100).toString())
+                setValue(`arrItem[${index}].bundles[${ind}].chDiscount`, (Math.round((100 - (100 - Number(chDiscountStart)) * (100 - Number(value)) / 100) * 100) / 100).toString())
                 setValue(`arrItem[${index}].bundles[${ind}].priceDetail.chPrice`, priceDetail.chPrice);
                 setValue(`arrItem[${index}].bundles[${ind}].priceDetail.taxDetail`, priceDetail.taxDetail);
                 setValue(`arrItem[${index}].bundles[${ind}].priceDetail.printAppliedRate`, priceDetail.printAppliedRate);
@@ -746,16 +747,10 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             /// пересчитываем общую сумму по набору
             setValue(
                 `arrItem[${index}].priceDetail.chPrice`,
-                getValues(`arrItem[${index}].bundles`).reduce((accumulator, object) => {
+                (Math.round((getValues(`arrItem[${index}].bundles`).reduce((accumulator, object) => {
                     return accumulator + Number(object.priceDetail.chPrice);
-                }, 0)
+                }, 0)) * 100) / 100).toString()
             );
-
-
-            // const arrBundles = getValues(`arrItem[${index}].bundles`); // получаем комплект
-            // const chQuantity = getValues(`arrItem[${index}].chQuantity`); // получаем количество
-            // const chPrice = arrBundles.reduce((a, b) => a + Number(b.priceDetail.chPrice), 0); // пересчитываем цены
-            // setValue(`arrItem[${index}].priceDetail.chPrice`, Number(chPrice) * (100 - Number(value)) / 100 * Number(chQuantity)); // увеличиваем количество и сохраняем стоимость
 
         } else {
 
@@ -767,7 +762,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 chAppliedRate: getValues(`arrItem[${index}].chAppliedRate`),
                 chTokenTax: getValues(`arrItem[${index}].chTokenTax`),
             })
-            setValue(`arrItem[${index}].priceDetail.chPrice`, priceDetail.chPrice);
+            setValue(`arrItem[${index}].priceDetail.chPrice`, priceDetail.chPrice.toString());
             setValue(`arrItem[${index}].priceDetail.taxDetail`, priceDetail.taxDetail);
 
         }
@@ -782,7 +777,16 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         const chAllDiscountValue = chSubTotal * value / 100;
         setValue(`chAllDiscountValue`, chAllDiscountValue);
         setValue(`chTotalBeforeTax`, chSubTotal - chAllDiscountValue);
-        // fnCalculateTax();
+        // считаем скидку для налогов
+        arrTax.map((item, index) => {
+            setValue(`arrTax[${index}].chTaxAmount`, (Math.round((item.chTaxStartAmount * (100 - value) / 100) * 100) / 100).toString());
+        })
+        setValue(
+            `chTotalAfterTax`,
+            (chSubTotal - chAllDiscountValue) + Math.round((getValues(`arrTax`).reduce((accumulator, object) => {
+                return accumulator + Number(object.chTaxAmount);
+            }, 0)) * 100) / 100
+        )
     }
 
 
@@ -795,6 +799,12 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         setValue(`chSubTotal`, chSubTotal);
         setValue(`chAllDiscountValue`, chAllDiscountValue);
         setValue(`chTotalBeforeTax`, chSubTotal - chAllDiscountValue);
+        setValue(
+            `chTotalAfterTax`,
+            (chSubTotal - chAllDiscountValue) + Math.round((getValues(`arrTax`).reduce((accumulator, object) => {
+                return accumulator + Number(object.chTaxAmount);
+            }, 0)) * 100) / 100
+        )
         // fnCalculateTax();
     }
 
@@ -1356,7 +1366,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         }
     }
 
-    //console.log("arrItem -->>", arrItem);
+    console.log("arrItem -->>", arrItem);
 
     return (
 
