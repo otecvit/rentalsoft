@@ -6,6 +6,10 @@ export function tariffs(state = [], action) {
             return action.tariffs;
         }
 
+        case tariffsConstants.CLEAR_TARIFFS: {
+
+            return action.message;
+        }
 
         case tariffsConstants.ADD_TARIFF: {
             return [

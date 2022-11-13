@@ -61,7 +61,7 @@ function load(companyToken) {
     function request(services) { return { type: servicesConstants.LOAD_REQUEST_SERVICES, services } }
     function success(services) { return { type: servicesConstants.INSERT_SUCCESS_CUSTOMER, services } }
     function failure(error) { return { type: servicesConstants.INSERT_FAILURE_CUSTOMER, error } }
-    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING_SERVICE, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 
 }

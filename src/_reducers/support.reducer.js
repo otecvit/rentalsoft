@@ -5,6 +5,8 @@ const initialState = {
     isLoadingInventory: false,
     isLoadingConsumable: false,
     isLoadingService: false,
+    isLoadingBundles: false,
+    isLoadingTariffs: false,
     lastTariffID: "",
 }
 
@@ -35,6 +37,22 @@ export function support(state = initialState, action) {
             return {
                 ...state,
                 isLoadingService: action.message,
+            }
+        }
+
+        case supportConstants.APPLY_IS_LOADING_TARIFFS: {
+            return {
+                ...state,
+                isLoadingTariffs: action.message,
+            }
+        }
+
+
+
+        case supportConstants.APPLY_IS_LOADING_BUNDLES: {
+            return {
+                ...state,
+                isLoadingBundles: action.message,
             }
         }
 

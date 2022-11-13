@@ -34,6 +34,10 @@ import {
     CircularProgress
 } from '@mui/material';
 
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
@@ -209,7 +213,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const [arrPrice, setPrice] = useState([]);
     //const [arrTax, setTaxArr] = useState([]);
 
-    const [currentTab, setTab] = useState(0);
+    const [currentTab, setTab] = useState("1");
     const [currentDuration, setDuration] = useState([]);
 
     const user = useSelector(state => state.authentication.user);
@@ -321,11 +325,11 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany })); // загружаем налоги
 
 
-        if (actions === "edit")
-            dispatch(bundlesActions.loadData({ chTokenCompany: user.chTokenCompany, chTokenBundle: chTokenBundle }));
+        // if (actions === "edit")
+        //     dispatch(bundlesActions.loadData({ chTokenCompany: user.chTokenCompany, chTokenBundle: chTokenBundle }));
 
-        else
-            dispatch(bundlesActions.clear());
+        // else
+        //     dispatch(bundlesActions.clear());
     }, []);
 
     // меняем переиод при изменении даты или времени
@@ -350,6 +354,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     useEffect(() => {
         setValue("dReturn", moment(dReturn).format("YYYY-MM-DD") + "T" + tReturn);
     }, [tReturn]);
+
 
     useEffect(() => {
         // статус загрузки
@@ -627,6 +632,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                 : { chTokenTax: item.chTokenTax, ...item.priceDetail.taxDetail };
         }).flat();
 
+
         // обнуляем предыдущий массив налогов и и содаем новый группируя по типу налогов
         fnCalculateTax(arrNewTax, []);
 
@@ -645,6 +651,8 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
             res[value.chTokenTax].chTaxStartAmount = res[value.chTokenTax].chTaxAmount; // chTaxStartAmount требуется для вычисления скидки
             return res;
         }, {});
+
+        console.log(result);
 
         setValue(`arrTax`, result);
     }
@@ -808,22 +816,42 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         // fnCalculateTax();
     }
 
+    // удаление позиции
+    const fnItemRemove = (index) => {
+        // получаем токен позиции
+        const chTokenForRemove = getValues(`arrItem[${index}].chToken`);
+        // фильтруем налоги
+        const arrNewTax = arrItem.filter(a => a.chToken !== chTokenForRemove).filter(elem => elem.chTokenTax !== '' || elem.iType === "3").map(item => {
+            return item.iType === "3"
+                ? item.bundles.filter(x => x.chTokenTax !== '').map(a => { return { chTokenTax: a.chTokenTax, ...a.priceDetail.taxDetail } })
+                : { chTokenTax: item.chTokenTax, ...item.priceDetail.taxDetail };
+        }).flat();
+        // пересчитываем налоги
+        fnCalculateTax(arrNewTax, []);
+        arrItemRemove(index); // удаляем 
+        if (getValues(`arrItem`).length === 0) {
+            setValue(`chAllDiscount`, "0");
+            setValue(`chAllDiscountValue`, "0");
+        }
+        fnCalculateSubTotal();// считаем итоги
+    }
+
 
     const initialValueEdit = () => {
-        setValue("chName", bundles[0].chName);
-        setValue("txtDescription", bundles[0].txtDescription);
-        setValue("arrInventory", bundles[0].arrInventory);
-        setValue("arrServices", bundles[0].arrServices);
-        setValue("arrConsumables", bundles[0].arrConsumables);
-        setValue("files", bundles[0].arrFilePath.length ? bundles[0].arrFilePath : []);
-        setFiles(bundles[0].arrFilePath.length ? bundles[0].arrFilePath.map((item) => { return { preview: item.file } }) : []);
-        handleSelectCategory(bundles[0].chCategoryID);
-        if (!!bundles[0].arrTags) setTag(tags.filter(x => bundles[0].arrTags.includes(x.idTag)));
-        setValue("chYourSKU", bundles[0].chYourSKU);
+        // setValue("chName", bundles[0].chName);
+        // setValue("txtDescription", bundles[0].txtDescription);
+        // setValue("arrInventory", bundles[0].arrInventory);
+        // setValue("arrServices", bundles[0].arrServices);
+        // setValue("arrConsumables", bundles[0].arrConsumables);
+        // setValue("files", bundles[0].arrFilePath.length ? bundles[0].arrFilePath : []);
+        // setFiles(bundles[0].arrFilePath.length ? bundles[0].arrFilePath.map((item) => { return { preview: item.file } }) : []);
+        // handleSelectCategory(bundles[0].chCategoryID);
+        // if (!!bundles[0].arrTags) setTag(tags.filter(x => bundles[0].arrTags.includes(x.idTag)));
+        // setValue("chYourSKU", bundles[0].chYourSKU);
     }
 
     const initialValueAdd = () => {
-        setFiles([]);
+        //setFiles([]);
     }
 
     const fnCalculatePeriod = (type) => {
@@ -1366,8 +1394,6 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         }
     }
 
-    console.log("arrItem -->>", arrItem);
-
     return (
 
         <Container maxWidth="xl">
@@ -1377,519 +1403,509 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                     : <Skeleton width="50%" />
                 }
             </BoxStyledTitle>
+            <TabContext value={currentTab}>
+                <Paper variant="titleTabDatagridWhite">
+                    <div style={{
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        padding: '0px',
+                    }}>
 
-            <Paper variant="titleTabDatagridWhite">
-                <div style={{
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '0px',
-                }}>
-                    <Tabs value={currentTab} onChange={handleChangeTab}>
-                        <Tab disableTouchRipple label={`Details`} />
-                        <Tab disableTouchRipple label={`Payments`} />
-                        <Tab disableTouchRipple label={`Documents`} />
-                        <Tab disableTouchRipple label={`History`} />
-                    </Tabs>
-                    <Stack direction="row" justifyContent="end">
-                        <IconButton aria-label="delete">
-                            <Icon baseClassName="fas" className="fa-file-excel" fontSize="small" />
-                        </IconButton>
-                        <IconButton aria-label="delete">
-                            <Icon baseClassName="fas" className="fa-file-pdf" fontSize="small" />
-                        </IconButton>
-                        <IconButton aria-label="add an alarm">
-                            <Icon baseClassName="fas" className="fa-file-csv" fontSize="small" />
-                        </IconButton>
-                        <IconButton aria-label="add an alarm">
-                            <Icon baseClassName="fas" className="fa-file-import" fontSize="small" />
-                        </IconButton>
-                    </Stack>
-                </div>
-            </Paper>
-            <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
-                    <Paper elevation={0} variant="mainMargin">
-                        <BoxClear>
-                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                                <Grid item xs={12} sm={12} md={12}>
-                                    {
-                                        selectedCustomer ?
+                        <TabList onChange={handleChangeTab}>
+                            <Tab label={`Details`} value="1" />
+                            <Tab label={`Payments`} value="2" />
+                            <Tab label={`Documents`} value="3" />
+                            <Tab label={`History`} value="4" />
+                        </TabList>
+                    </div>
+                </Paper>
+                <TabPanel value="1">
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={8}>
+                            <Paper elevation={0} variant="mainMargin">
+                                <BoxClear>
+                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                        <Grid item xs={12} sm={12} md={12}>
+                                            {
+                                                selectedCustomer ?
+                                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                                        <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <Avatar {...stringAvatar(`${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}`)} />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={5} md={10} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
+                                                            <LabelCustomer>
+                                                                {`${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}`}
+                                                            </LabelCustomer>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                            <IconButton aria-label="del" onClick={() => { setCustomer('') }}>
+                                                                <CloseIcon />
+                                                            </IconButton>
+                                                        </Grid>
+                                                    </Grid> :
+                                                    <AutocompleteSearchCustomer
+                                                        id="inv"
+                                                        key="inv5566"
+                                                        fnAddToOrder={handleAddCustomer}
+                                                        labelTitle="Search customer"
+                                                    />
+                                            }
+                                        </Grid>
+                                    </Grid>
+                                </BoxClear>
+                            </Paper>
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={6}>
+                                    <Paper elevation={0} variant="mainMargin">
+                                        <Typography variant="body2">
+                                            Pickup
+                                        </Typography>
+                                        <BoxStyled>
+                                            <Autocomplete
+                                                multiple
+                                                id="tags-standard"
+                                                options={tags}
+                                                getOptionLabel={(option) => option.title}
+                                                value={tagsInventory}
+                                                onChange={(_, newValue) => {
+                                                    setTag(newValue);
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Locations"
+                                                    />
+                                                )}
+                                            />
+                                        </BoxStyled>
+                                        <BoxStyled>
                                             <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                                                <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                    <Avatar {...stringAvatar(`${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}`)} />
+                                                <Grid item xs={12} sm={6} md={6}>
+                                                    <FormInputDateTime
+                                                        label="Rent Out Date"
+                                                        name="dPickup"
+                                                        type="datetime-local"
+                                                        control={control}
+                                                    />
                                                 </Grid>
-                                                <Grid item xs={12} sm={5} md={10} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
-                                                    <LabelCustomer>
-                                                        {`${selectedCustomer.chFirstName} ${selectedCustomer.chLastName}`}
-                                                    </LabelCustomer>
+                                                <Grid item xs={12} sm={6} md={6}>
+                                                    <FormInputSelect
+                                                        label="Rent Out Time"
+                                                        name="tPickup"
+                                                        control={control}
+                                                        id="rentalLocation"
+                                                        defaultValue=""
+                                                        variant="outlined"
+                                                        margin="normal"
+                                                        labelId="rental-pickup-time"
+                                                    >
+                                                        <MenuItem value="">Select</MenuItem>
+                                                        {
+                                                            arrTime.map((item) => (
+                                                                <MenuItem key={item.value} value={item.value}>{item.title}</MenuItem>
+                                                            ))
+                                                        }
+                                                    </FormInputSelect>
+
                                                 </Grid>
-                                                <Grid item xs={12} sm={1} md={1} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                    <IconButton aria-label="del" onClick={() => { setCustomer('') }}>
-                                                        <CloseIcon />
-                                                    </IconButton>
+                                            </Grid>
+                                        </BoxStyled>
+                                    </Paper>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Paper elevation={0} variant="mainMargin">
+                                        <Typography variant="body2">
+                                            Return
+                                        </Typography>
+                                        <BoxStyled>
+                                            <Autocomplete
+                                                multiple
+                                                id="tags-standard"
+                                                options={tags}
+                                                getOptionLabel={(option) => option.title}
+                                                value={tagsInventory}
+                                                onChange={(_, newValue) => {
+                                                    setTag(newValue);
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Locations"
+                                                    />
+                                                )}
+                                            />
+                                        </BoxStyled>
+                                        <BoxStyled>
+                                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                                <Grid item xs={12} sm={5} md={5}>
+                                                    <FormInputDateTime
+                                                        label="Expected Return Date"
+                                                        name="dReturn"
+                                                        type="datetime-local"
+                                                        control={control}
+                                                        InputProps={{
+                                                            min: "2011-02-20T20:20",
+                                                            max: "2031-02-20T20:20"
+                                                        }}
+                                                    />
                                                 </Grid>
-                                            </Grid> :
-                                            <AutocompleteSearchCustomer
+                                                <Grid item xs={12} sm={5} md={5}>
+                                                    <FormInputSelect
+                                                        label="Expected Return Time"
+                                                        name="tReturn"
+                                                        control={control}
+                                                        id="rentalLocation"
+                                                        defaultValue=""
+                                                        variant="outlined"
+                                                        margin="normal"
+                                                        labelId="rental-return-time"
+                                                    >
+                                                        <MenuItem value="">Select</MenuItem>
+                                                        {
+                                                            arrTime.map((item) => (
+                                                                <MenuItem key={item.value} value={item.value}>{item.title}</MenuItem>
+                                                            ))
+                                                        }
+                                                    </FormInputSelect>
+                                                </Grid>
+                                                <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                    <Button
+                                                        id="basic-button"
+                                                        aria-controls={openDuration ? 'basic-menu' : undefined}
+                                                        aria-haspopup="true"
+                                                        aria-expanded={openDuration ? 'true' : undefined}
+                                                        onClick={handleClickDuration}
+                                                        variant="contained"
+                                                        themecolor="rentalTheme"
+                                                        size="large"
+                                                    >
+                                                        <AddIcon />
+                                                    </Button>
+                                                    <Menu
+                                                        id="basic-menu"
+                                                        anchorEl={anchorEl}
+                                                        open={openDuration}
+                                                        onClose={handleCloseDuration}
+                                                        MenuListProps={{
+                                                            'aria-labelledby': 'basic-button',
+                                                        }}
+                                                    >
+                                                        <MenuItem onClick={() => handleAddDuration("1 hour")}>1 hour</MenuItem>
+                                                        <MenuItem onClick={() => handleAddDuration("1 day")}>1 day</MenuItem>
+                                                        <MenuItem onClick={() => handleAddDuration("1 week")}>1 week</MenuItem>
+                                                        <MenuItem onClick={() => handleAddDuration("2 weeks")}>2 weeks</MenuItem>
+                                                        <MenuItem onClick={() => handleAddDuration("1 month")}>1 month</MenuItem>
+                                                        <MenuItem onClick={() => handleAddDuration("2 months")}>2 months</MenuItem>
+                                                    </Menu>
+                                                </Grid>
+                                            </Grid>
+                                        </BoxStyled>
+                                    </Paper>
+
+                                </Grid>
+                            </Grid>
+                            <Paper elevation={0} variant="mainMargin">
+                                <BoxClear>
+                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                        <Grid item xs={12} sm={12} md={12}>
+                                            <AutocompleteSearchItem
                                                 id="inv"
                                                 key="inv5566"
-                                                fnAddToOrder={handleAddCustomer}
-                                                labelTitle="Search customer"
+                                                fnAddToOrder={handleAddItem}
+                                                labelTitle="Search to add products"
                                             />
-                                    }
-                                </Grid>
-                            </Grid>
-                        </BoxClear>
-                    </Paper>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
-                            <Paper elevation={0} variant="mainMargin">
-                                <Typography variant="body2">
-                                    Pickup
-                                </Typography>
-                                <BoxStyled>
-                                    <Autocomplete
-                                        multiple
-                                        id="tags-standard"
-                                        options={tags}
-                                        getOptionLabel={(option) => option.title}
-                                        value={tagsInventory}
-                                        onChange={(_, newValue) => {
-                                            setTag(newValue);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Locations"
-                                            />
-                                        )}
-                                    />
-                                </BoxStyled>
-                                <BoxStyled>
-                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                                        <Grid item xs={12} sm={6} md={6}>
-                                            <FormInputDateTime
-                                                label="Rent Out Date"
-                                                name="dPickup"
-                                                type="datetime-local"
-                                                control={control}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6} md={6}>
-                                            <FormInputSelect
-                                                label="Rent Out Time"
-                                                name="tPickup"
-                                                control={control}
-                                                id="rentalLocation"
-                                                defaultValue=""
-                                                variant="outlined"
-                                                margin="normal"
-                                                labelId="rental-pickup-time"
-                                            >
-                                                <MenuItem value="">Select</MenuItem>
-                                                {
-                                                    arrTime.map((item) => (
-                                                        <MenuItem key={item.value} value={item.value}>{item.title}</MenuItem>
-                                                    ))
-                                                }
-                                            </FormInputSelect>
-
                                         </Grid>
                                     </Grid>
-                                </BoxStyled>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper elevation={0} variant="mainMargin">
-                                <Typography variant="body2">
-                                    Return
-                                </Typography>
-                                <BoxStyled>
-                                    <Autocomplete
-                                        multiple
-                                        id="tags-standard"
-                                        options={tags}
-                                        getOptionLabel={(option) => option.title}
-                                        value={tagsInventory}
-                                        onChange={(_, newValue) => {
-                                            setTag(newValue);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Locations"
-                                            />
-                                        )}
-                                    />
-                                </BoxStyled>
-                                <BoxStyled>
-                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                                        <Grid item xs={12} sm={5} md={5}>
-                                            <FormInputDateTime
-                                                label="Expected Return Date"
-                                                name="dReturn"
-                                                type="datetime-local"
-                                                control={control}
-                                                InputProps={{
-                                                    min: "2011-02-20T20:20",
-                                                    max: "2031-02-20T20:20"
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={5} md={5}>
-                                            <FormInputSelect
-                                                label="Expected Return Time"
-                                                name="tReturn"
-                                                control={control}
-                                                id="rentalLocation"
-                                                defaultValue=""
-                                                variant="outlined"
-                                                margin="normal"
-                                                labelId="rental-return-time"
-                                            >
-                                                <MenuItem value="">Select</MenuItem>
-                                                {
-                                                    arrTime.map((item) => (
-                                                        <MenuItem key={item.value} value={item.value}>{item.title}</MenuItem>
-                                                    ))
-                                                }
-                                            </FormInputSelect>
-                                        </Grid>
-                                        <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                            <Button
-                                                id="basic-button"
-                                                aria-controls={openDuration ? 'basic-menu' : undefined}
-                                                aria-haspopup="true"
-                                                aria-expanded={openDuration ? 'true' : undefined}
-                                                onClick={handleClickDuration}
-                                                variant="contained"
-                                                themecolor="rentalTheme"
-                                                size="large"
-                                            >
-                                                <AddIcon />
-                                            </Button>
-                                            <Menu
-                                                id="basic-menu"
-                                                anchorEl={anchorEl}
-                                                open={openDuration}
-                                                onClose={handleCloseDuration}
-                                                MenuListProps={{
-                                                    'aria-labelledby': 'basic-button',
-                                                }}
-                                            >
-                                                <MenuItem onClick={() => handleAddDuration("1 hour")}>1 hour</MenuItem>
-                                                <MenuItem onClick={() => handleAddDuration("1 day")}>1 day</MenuItem>
-                                                <MenuItem onClick={() => handleAddDuration("1 week")}>1 week</MenuItem>
-                                                <MenuItem onClick={() => handleAddDuration("2 weeks")}>2 weeks</MenuItem>
-                                                <MenuItem onClick={() => handleAddDuration("1 month")}>1 month</MenuItem>
-                                                <MenuItem onClick={() => handleAddDuration("2 months")}>2 months</MenuItem>
-                                            </Menu>
-                                        </Grid>
-                                    </Grid>
-                                </BoxStyled>
-                            </Paper>
-
-                        </Grid>
-                    </Grid>
-                    <Paper elevation={0} variant="mainMargin">
-                        <BoxClear>
-                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <AutocompleteSearchItem
-                                        id="inv"
-                                        key="inv5566"
-                                        fnAddToOrder={handleAddItem}
-                                        labelTitle="Search to add products"
-                                    />
-                                </Grid>
-                            </Grid>
-                            {
-                                arrItemFields.length ?
-                                    <BoxStyled>
-                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                            <Grid item xs={12} sm={7} md={7}>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>Duration</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>Applied rate</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>Quantity</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>Discount</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>Price</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={2} md={2}>
-                                            </Grid>
-                                        </Grid>
-                                    </BoxStyled> :
-                                    <EmptyData title="This order is empty." subtitle="Please add some products." size="200px" />
-                            }
-
-                            {
-                                arrItemFields.map((item, index) => (
-                                    <BoxStyledBorderTop key={item.id}>
-                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                            <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>{item.chName}</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel style={{ textAlign: "center" }}>{fnPrintDuration(item.priceDetail.iTypeDuration)}</TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>
-                                                    {
-                                                        <>
-                                                            <TableText>{item.priceDetail.printAppliedRate.mainTariff}</TableText>
-                                                            <TableText>{item.priceDetail.printAppliedRate.extraTariff}</TableText>
-                                                        </>
-                                                    }
-                                                </TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3}>
-                                                <FormInputNumber
-                                                    name={`arrItem[${index}].chQuantity`}
-                                                    control={control}
-                                                    size="small"
-                                                    defaultValue={item.chQuantity}
-                                                    onCalculate={(a) => fnChangeItemQuantity(a, index)}
-                                                    sx={{
-                                                        '& legend': { display: 'none' },
-                                                        '& fieldset': { top: 0 },
-                                                    }}
-                                                    InputProps={{
-                                                        inputProps: { min: 1 },
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3}>
-                                                <FormInputNumber
-                                                    name={`arrItem[${index}].chDiscount`}
-                                                    control={control}
-                                                    size="small"
-                                                    onCalculate={(a) => fnChangeItemDiscount(a, index)}
-                                                    defaultValue={item.chDiscount}
-                                                    sx={{
-                                                        '& legend': { display: 'none' },
-                                                        '& fieldset': { top: 0 },
-                                                    }}
-                                                    InputProps={{
-                                                        endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                                                        inputProps: { min: 0, max: 100 },
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>{toCurrency.format(item.priceDetail.chPrice)}</TableLabel>
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <IconButton aria-label="del" onClick={() => arrItemRemove(index)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
-                                        {
-                                            item.iType === "3" && item.bundles.length > 0 &&
-                                            item.bundles.map((x, index) =>
-                                                <BoxStyledBorderTopDashed key={index}>
-                                                    <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                                        <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
-                                                            <TableTextNormal>{x.chName}</TableTextNormal>
-                                                        </Grid>
-                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                            <TableTextNormal style={{ textAlign: "center" }}>{fnPrintDuration(x.priceDetail.iTypeDuration)}</TableTextNormal>
-                                                        </Grid>
-                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                            <TableTextNormal>
-                                                                <TableText>{x.priceDetail.printAppliedRate.mainTariff}</TableText>
-                                                                <TableText>{x.priceDetail.printAppliedRate.extraTariff}</TableText>
-                                                            </TableTextNormal>
-                                                        </Grid>
-                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                            <TableTextNormal>{x.chQuantity}</TableTextNormal>
-                                                        </Grid>
-                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                            <TableTextNormal>{x.chDiscount}%</TableTextNormal>
-                                                        </Grid>
-
-                                                        <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                            <TableTextNormal>
-                                                                {toCurrency.format(x.priceDetail.chPrice)}
-                                                            </TableTextNormal>
-                                                        </Grid>
-                                                        <Grid item xs={12} sm={2} md={2}></Grid>
-                                                    </Grid>
-                                                </BoxStyledBorderTopDashed>
-                                            )
-                                        }
-                                    </BoxStyledBorderTop>
-                                ))
-                            }
-                            {
-                                arrItemFields.length &&
-                                <>
-                                    <BoxStyledBorderTop>
-                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-                                                <TableTextNormal>Subtotal</TableTextNormal>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableTextNormal>
-                                                    {toCurrency.format(getValues("chSubTotal"))}
-                                                </TableTextNormal>
-                                            </Grid>
-                                            <Grid item xs={12} sm={2} md={2}></Grid>
-                                        </Grid>
-                                    </BoxStyledBorderTop>
-                                    <BoxStyledBorderTop>
-                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                            <Grid item xs={12} sm={16} md={16} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-                                                <FormInputNumber
-                                                    name="chAllDiscount"
-                                                    control={control}
-                                                    label="Discount"
-                                                    onCalculate={(a) => fnChangeAllDiscount(a)}
-                                                    size="small"
-                                                    InputProps={{
-                                                        endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                                                        inputProps: { min: 0, max: 100 },
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableTextNormal>
-                                                    {
-                                                        toCurrency.format(getValues(`chAllDiscountValue`))
-
-                                                    }
-                                                </TableTextNormal>
-                                            </Grid>
-                                            <Grid item xs={12} sm={2} md={2}></Grid>
-                                        </Grid>
-                                    </BoxStyledBorderTop>
-                                    <BoxStyledBorderTop>
-                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-                                                <TableLabel>
-                                                    Total (before tax)
-                                                </TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>
-                                                    {
-                                                        toCurrency.format(getValues("chTotalBeforeTax"))
-                                                    }
-                                                </TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={2} md={2}></Grid>
-                                        </Grid>
-                                    </BoxStyledBorderTop>
                                     {
-                                        arrTax.map((a, index) => (
+                                        arrItemFields.length ?
+                                            <BoxStyled>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                    <Grid item xs={12} sm={7} md={7}>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>Duration</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>Applied rate</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>Quantity</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>Discount</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>Price</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={2} md={2}>
+                                                    </Grid>
+                                                </Grid>
+                                            </BoxStyled> :
+                                            <EmptyData title="This order is empty." subtitle="Please add some products." size="200px" />
+                                    }
 
-                                            <BoxStyledBorderTop key={index}>
+                                    {
+                                        arrItemFields.map((item, index) => (
+                                            <BoxStyledBorderTop key={item.id}>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                    <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>{item.chName}</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel style={{ textAlign: "center" }}>{fnPrintDuration(item.priceDetail.iTypeDuration)}</TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>
+                                                            {
+                                                                <>
+                                                                    <TableText>{item.priceDetail.printAppliedRate.mainTariff}</TableText>
+                                                                    <TableText>{item.priceDetail.printAppliedRate.extraTariff}</TableText>
+                                                                </>
+                                                            }
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3}>
+                                                        <FormInputNumber
+                                                            name={`arrItem[${index}].chQuantity`}
+                                                            control={control}
+                                                            size="small"
+                                                            defaultValue={item.chQuantity}
+                                                            onCalculate={(a) => fnChangeItemQuantity(a, index)}
+                                                            sx={{
+                                                                '& legend': { display: 'none' },
+                                                                '& fieldset': { top: 0 },
+                                                            }}
+                                                            InputProps={{
+                                                                inputProps: { min: 1 },
+                                                            }}
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3}>
+                                                        <FormInputNumber
+                                                            name={`arrItem[${index}].chDiscount`}
+                                                            control={control}
+                                                            size="small"
+                                                            onCalculate={(a) => fnChangeItemDiscount(a, index)}
+                                                            defaultValue={item.chDiscount}
+                                                            sx={{
+                                                                '& legend': { display: 'none' },
+                                                                '& fieldset': { top: 0 },
+                                                            }}
+                                                            InputProps={{
+                                                                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                                                inputProps: { min: 0, max: 100 },
+                                                            }}
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>{toCurrency.format(item.priceDetail.chPrice)}</TableLabel>
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={2} md={2} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <IconButton aria-label="del" onClick={() => fnItemRemove(index)}>
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>
+                                                {
+                                                    item.iType === "3" && item.bundles.length > 0 &&
+                                                    item.bundles.map((x, index) =>
+                                                        <BoxStyledBorderTopDashed key={index}>
+                                                            <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                                <Grid item xs={12} sm={7} md={7} style={{ justifyContent: "left", alignItems: "center", display: "flex", }}>
+                                                                    <TableTextNormal>{x.chName}</TableTextNormal>
+                                                                </Grid>
+                                                                <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                                    <TableTextNormal style={{ textAlign: "center" }}>{fnPrintDuration(x.priceDetail.iTypeDuration)}</TableTextNormal>
+                                                                </Grid>
+                                                                <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                                    <TableTextNormal>
+                                                                        <TableText>{x.priceDetail.printAppliedRate.mainTariff}</TableText>
+                                                                        <TableText>{x.priceDetail.printAppliedRate.extraTariff}</TableText>
+                                                                    </TableTextNormal>
+                                                                </Grid>
+                                                                <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                                    <TableTextNormal>{x.chQuantity}</TableTextNormal>
+                                                                </Grid>
+                                                                <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                                    <TableTextNormal>{x.chDiscount}%</TableTextNormal>
+                                                                </Grid>
+
+                                                                <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                                    <TableTextNormal>
+                                                                        {toCurrency.format(x.priceDetail.chPrice)}
+                                                                    </TableTextNormal>
+                                                                </Grid>
+                                                                <Grid item xs={12} sm={2} md={2}></Grid>
+                                                            </Grid>
+                                                        </BoxStyledBorderTopDashed>
+                                                    )
+                                                }
+                                            </BoxStyledBorderTop>
+                                        ))
+                                    }
+                                    {
+                                        arrItemFields.length &&
+                                        <>
+                                            <BoxStyledBorderTop>
                                                 <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
                                                     <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-                                                        <TableTextNormal>
-                                                            {a.chTaxName}
-                                                        </TableTextNormal>
+                                                        <TableTextNormal>Subtotal</TableTextNormal>
                                                     </Grid>
                                                     <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
                                                         <TableTextNormal>
-                                                            {toCurrency.format(a.chTaxAmount)}
+                                                            {toCurrency.format(getValues("chSubTotal"))}
                                                         </TableTextNormal>
                                                     </Grid>
                                                     <Grid item xs={12} sm={2} md={2}></Grid>
                                                 </Grid>
                                             </BoxStyledBorderTop>
-                                        ))
+                                            <BoxStyledBorderTop>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                    <Grid item xs={12} sm={16} md={16} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
 
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                        <FormInputNumber
+                                                            name="chAllDiscount"
+                                                            control={control}
+                                                            label="Discount"
+                                                            onCalculate={(a) => fnChangeAllDiscount(a)}
+                                                            size="small"
+                                                            InputProps={{
+                                                                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                                                inputProps: { min: 0, max: 100 },
+                                                            }}
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableTextNormal>
+                                                            {
+                                                                toCurrency.format(getValues(`chAllDiscountValue`))
+
+                                                            }
+                                                        </TableTextNormal>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={2} md={2}></Grid>
+                                                </Grid>
+                                            </BoxStyledBorderTop>
+                                            <BoxStyledBorderTop>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                    <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                        <TableLabel>
+                                                            Total (before tax)
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>
+                                                            {
+                                                                toCurrency.format(getValues("chTotalBeforeTax"))
+                                                            }
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={2} md={2}></Grid>
+                                                </Grid>
+                                            </BoxStyledBorderTop>
+                                            {
+                                                arrTax.map((a, index) => (
+
+                                                    <BoxStyledBorderTop key={index}>
+                                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                                <TableTextNormal>
+                                                                    {a.chTaxName}
+                                                                </TableTextNormal>
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                                <TableTextNormal>
+                                                                    {toCurrency.format(a.chTaxAmount)}
+                                                                </TableTextNormal>
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={2} md={2}></Grid>
+                                                        </Grid>
+                                                    </BoxStyledBorderTop>
+                                                ))
+
+                                            }
+                                            <BoxStyledBorderTop>
+                                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
+                                                    <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
+                                                        <TableLabel>
+                                                            Total (after tax)
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
+                                                        <TableLabel>
+                                                            {toCurrency.format(chTotalAfterTax)}
+                                                        </TableLabel>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={2} md={2}></Grid>
+                                                </Grid>
+                                            </BoxStyledBorderTop>
+                                        </>
                                     }
-                                    <BoxStyledBorderTop>
-                                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 24, md: 24 }}>
-                                            <Grid item xs={12} sm={19} md={19} style={{ justifyContent: "right", alignItems: "right", display: "flex", }}>
-                                                <TableLabel>
-                                                    Total (after tax)
-                                                </TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={3} md={3} style={{ justifyContent: "center", alignItems: "center", display: "flex", }}>
-                                                <TableLabel>
-                                                    {toCurrency.format(chTotalAfterTax)}
-                                                </TableLabel>
-                                            </Grid>
-                                            <Grid item xs={12} sm={2} md={2}></Grid>
-                                        </Grid>
-                                    </BoxStyledBorderTop>
-                                </>
-                            }
-                        </BoxClear>
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <Paper elevation={0} variant="mainMargin">
-                        <FormInputText
-                            name="chYourSKU"
-                            control={control}
-                            label="Identification Number"
-                        />
-                        <BoxStyled>
-                            <Autocomplete
-                                multiple
-                                id="tags-standard"
-                                options={tags}
-                                getOptionLabel={(option) => option.title}
-                                value={tagsInventory}
-                                onChange={(_, newValue) => {
-                                    setTag(newValue);
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Tags"
-                                    />
-                                )}
-                            />
-                        </BoxStyled>
-                    </Paper>
-                    <Paper elevation={0} variant="mainMargin">
-                        <Typography variant="body2">
-                            Notes
-                        </Typography>
-                        <BoxStyled>
-                            <FormInputText
-                                name="chYourSKU"
-                                control={control}
-                                label="Add a new note..."
-                            />
-                        </BoxStyled>
-                    </Paper>
-                    <BoxStyled>
-                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                            <Grid item xs={12} md={6}>
-                                <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={() => { }}>
-                                    Cancel
-                                </Button>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Button variant="contained" themecolor="rentalThemeSubmit" size="large" onClick={handleSubmit(handleSubmitBundle)}>
-                                    Save
-                                </Button>
-                            </Grid>
+                                </BoxClear>
+                            </Paper>
                         </Grid>
-                    </BoxStyled>
-                </Grid>
-            </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Paper elevation={0} variant="mainMargin">
+                                <FormInputText
+                                    name="chYourSKU"
+                                    control={control}
+                                    label="Identification Number"
+                                />
+                                <BoxStyled>
+                                    <Autocomplete
+                                        multiple
+                                        id="tags-standard"
+                                        options={tags}
+                                        getOptionLabel={(option) => option.title}
+                                        value={tagsInventory}
+                                        onChange={(_, newValue) => {
+                                            setTag(newValue);
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Tags"
+                                            />
+                                        )}
+                                    />
+                                </BoxStyled>
+                            </Paper>
+                            <Paper elevation={0} variant="mainMargin">
+                                <Typography variant="body2">
+                                    Notes
+                                </Typography>
+                                <BoxStyled>
+                                    <FormInputText
+                                        name="chYourSKU"
+                                        control={control}
+                                        label="Add a new note..."
+                                    />
+                                </BoxStyled>
+                            </Paper>
+                            <BoxStyled>
+                                <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                                    <Grid item xs={12} md={6}>
+                                        <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={() => { }}>
+                                            Cancel
+                                        </Button>
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Button variant="contained" themecolor="rentalThemeSubmit" size="large" onClick={handleSubmit(handleSubmitBundle)}>
+                                            Save
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </BoxStyled>
+                        </Grid>
+                    </Grid>
+                </TabPanel>
+            </TabContext>
         </Container >
 
     );

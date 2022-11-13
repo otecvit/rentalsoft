@@ -9,6 +9,7 @@ export const tariffsActions = {
     add,
     load,
     loadOneTariff,
+    clear,
     remove,
     edit
 };
@@ -60,7 +61,7 @@ function load(tariffs) {
     function request(tariffs) { return { type: tariffsConstants.LOAD_REQUEST_TARIFFS, tariffs } }
     function success(customer) { return { type: categoryConstants.INSERT_SUCCESS_CUSTOMER, customer } }
     function failure(error) { return { type: tariffsConstants.INSERT_FAILURE_CUSTOMER, error } }
-    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING_TARIFFS, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
@@ -133,7 +134,9 @@ function edit(tariff) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
-
+function clear() {
+    return { type: tariffsConstants.CLEAR_TARIFFS, message: [] }
+}
 /*
 function insert(customer) {
     return dispatch => {

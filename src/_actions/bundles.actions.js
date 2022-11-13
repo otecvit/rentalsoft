@@ -40,11 +40,14 @@ function clear() {
 }
 
 function load(user) {
+
     return dispatch => {
+        dispatch(loading(true));
         dataexchangeService.load(user, 'Bundles/LoadBundles.php')
             .then(
                 bundles => {
                     dispatch(request(bundles));
+                    dispatch(loading(false));
                     //dispatch(alertActions.success('Registration successful'));
                 },
                 error => {
@@ -57,11 +60,11 @@ function load(user) {
 
     function request(bundles) { return { type: bundlesConstants.LOAD_BUNDLES, bundles } }
     function failure(error) { return { type: bundlesConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING_BUNDLES, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
 function remove(bundle) {
-    console.log("--->>", bundle);
     return dispatch => {
         dataexchangeService.remove(bundle, 'Bundles/RemoveBundle.php')
             .then(
@@ -136,4 +139,3 @@ function loadData(companyToken) {
     function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
-
