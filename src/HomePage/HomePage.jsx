@@ -15,6 +15,7 @@ import { DashBoardPage } from '../Pages/DashBoardPage';
 import { InventoryPage } from '../Pages/InventoryPage';
 import { BundlesPage } from '../Pages/BundlesPage';
 import { BrowseSettingsPage } from '../Pages/SettingsPages';
+import { EditPrintTemplatePage } from '../Pages/SettingsPages/Component/EditPrintTemplatePage';
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -260,6 +261,8 @@ function HomePage(comp) {
           <Route path="/inventory" component={InventoryPage} />
           <Route path="/bundles" component={BundlesPage} />
           <Route path="/settings" component={BrowseSettingsPage} />
+          <Route path="/templates" component={EditPrintTemplatePage} />
+
         </Switch>
       </Box>
     </Box>

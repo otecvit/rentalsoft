@@ -11,6 +11,7 @@
         "start": "webpack-dev-server --open"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-react": "^5.0.2",
         "@date-io/date-fns": "^2.14.0",
         "@material-ui/data-grid": "^4.0.0-alpha.35",
         "@material-ui/x-license": "^4.0.0-alpha.37",

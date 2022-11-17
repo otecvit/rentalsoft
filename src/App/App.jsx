@@ -26,6 +26,7 @@ function App() {
                     <PrivateRoute path="/orders" component={HomePage} />
                     <PrivateRoute path="/inventory" component={HomePage} />
                     <PrivateRoute path="/settings" component={HomePage} />
+                    <PrivateRoute path="/templates" component={HomePage} />
                     <Route exact path="/">
                         <Redirect exact from="/" to="dashboard" />
                     </Route>

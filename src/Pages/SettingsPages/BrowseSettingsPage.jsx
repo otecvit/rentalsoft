@@ -44,6 +44,7 @@ import HeaderComponent from '../../_components/InterfaceComponent/HeaderComponen
 import { TreeViewCategory } from "./Component/TreeViewCategory";
 import { PricingTemplateBrowse } from "./Component/PricingTemplateBrowse";
 import { TaxTemplateBrowse } from './Component/TaxTemplateBrowse';
+import { PrintTemplateBrowse } from './Component/PrintTemplateBrowse';
 
 function handleClickBreadcrumbs(event) {
   event.preventDefault();
@@ -180,10 +181,6 @@ function BrowseSettingsPage() {
     setOpen(false);
   };
 
-
-  const handleClickSearch = data => console.log(data);
-
-
   return (
     <Box>
       <Container maxWidth="xl">
@@ -218,6 +215,9 @@ function BrowseSettingsPage() {
                 <ListItem button key="TaxProfiles" component={LinkRouter} to="/settings/taxes">
                   <ListItemText primary="Tax profiles" />
                 </ListItem>
+                <ListItem button key="PrintTemplates" component={LinkRouter} to="/settings/templates">
+                  <ListItemText primary="Print templates" />
+                </ListItem>
               </Paper>
             </Grid>
             <Grid item xs={9} sx={{ paddingRight: "16px" }}>
@@ -233,6 +233,7 @@ function BrowseSettingsPage() {
                   <Route path="/settings/category" component={TreeViewCategory} />
                   <Route path="/settings/pricing" component={PricingTemplateBrowse} />
                   <Route path="/settings/taxes" component={TaxTemplateBrowse} />
+                  <Route path="/settings/templates" component={PrintTemplateBrowse} />
                 </Switch>
               </Paper>
             </Grid>
