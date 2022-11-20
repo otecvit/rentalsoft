@@ -10,6 +10,10 @@ import {
     Container,
     Paper,
     Grid,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
     Typography,
     MenuItem,
     IconButton,
@@ -29,14 +33,8 @@ import { Box } from "@mui/material";
 import GlobalStyles from "@mui/material/GlobalStyles";
 
 
-//import Editor from 'ckeditor5-custom-build/build/ckeditor';
-
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document/build/ckeditor';
-//import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
-//import DecoupledEditor from '@ckeditor/ckeditor5-editor-decoupled/src/decouplededitor';
-//import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
-//import LineHeight from 'ckeditor5-line-height-plugin/src/lineheight';
 
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -92,7 +90,45 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
         name: "arrOptions",
     })
 
+    const arrPrintTag = [
+        {
+            chTagName: 'Номер договора',
+            chTagValue: '##CONTRACT_NUMBER##',
+        },
+        {
+            chTagName: 'Клиент',
+            chTagValue: '##CLIENT##',
+        },
+        {
+            chTagName: 'Адрес клиента',
+            chTagValue: '##CLIENT_ADRESS##',
+        },
+        {
+            chTagName: 'Инвентарь',
+            chTagValue: '##INVENTORY##',
+            arrTagOptions: [
+                {
+                    chTagOptionName: 'Наименование инвентаря',
+                    chTagOptionValue: '##INVENTORY_NAME##',
+                },
+                {
+                    chTagOptionName: 'Количество',
+                    chTagOptionValue: '##INVENTORY_COUNT##',
+                }
+            ]
+        },
+        {
+            chTagName: 'Общая сумма',
+            chTagValue: '##TOTAL_AFTER_TAX##',
+        },
+
+    ]
+
+
     const [text, setText] = useState("");
+    const [editor, setEditor] = useState(null);
+
+    const [chSearchTag, setSearchTag] = useState("");
 
     const [open, setOpen] = useState(false);
     const [openNewTariff, setOpenNewTariff] = useState(false);
@@ -145,7 +181,15 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
 
 
 
+    const AddTag = (tag) => {
+        editor.model.change(writer => {
+            writer.insert(tag, editor.model.document.selection.getFirstPosition());
+        });
+    }
 
+    const handleSearchTag = (event) => {
+        setSearchTag(event.target.value);
+    };
 
     const initialValueEdit = () => {
         // setValue("chName", inventory[0].chName); // Product Name
@@ -265,59 +309,20 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
     }
 
     const config = {
-        heading: {
+        fontSize: {
             options: [
-                { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-                { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-                {
-                    model: 'headingFancy',
-                    view: {
-                        name: 'p',
-                        classes: 'ccc'
-                    },
-                    title: 'Heading 2 (fancy)',
-                    class: 'ck-heading_heading2_fancy',
-                    style: {
-                        lineHeight: '1px',
-                    },
-                    // It needs to be converted before the standard 'heading2'.
-                    converterPriority: 'high'
-                }
+                '8px',
+                '10px',
+                '12px',
+                '14px',
+                '16px',
+                '18px',
+                '20px',
+                '24px',
+                '28px',
+                '32px'
             ]
         },
-        // fontSize: {
-        //     options: [
-        //         9,
-        //         11,
-        //         13,
-        //         'default',
-        //         17,
-        //         19,
-        //         21
-        //     ]
-        // },
-        // fontFamily: {
-        //     options: [
-        //         'default',
-        //         'Arial, Helvetica, sans-serif',
-        //         'Courier New, Courier, monospace',
-        //         'Georgia, serif',
-        //         'Lucida Sans Unicode, Lucida Grande, sans-serif',
-        //         'Tahoma, Geneva, sans-serif',
-        //         'Times New Roman, Times, serif',
-        //         'Trebuchet MS, Helvetica, sans-serif',
-        //         'Verdana, Geneva, sans-serif'
-        //     ]
-        // },
-        // lineHeight: { // specify your otions in the lineHeight config object. Default values are [ 0, 0.5, 1, 1.5, 2 ]
-        //     options: [0.5, 1, 1.5, 2, 2.5]
-        // },
-        //toolbar: ['bold'],
-        toolbarLocation: "top",
-        toolbar: [
-            'heading', '|', 'fontSize', 'fontFamily', 'fontColor', 'lineHeight', 'fontBackgroundColor', 'bulletedList', 'numberedList', 'undo', 'redo'
-        ]
     }
 
     return (
@@ -337,37 +342,67 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
                             <CKEditor
                                 editor={DecoupledEditor}
                                 config={config}
-                                data="<p>Hello from CKEditor 5!</p>"
+                                data=""
                                 onReady={editor => {
-                                    // You can store the "editor" and use when it is needed.
-                                    console.log('Editor is ready to use!', editor);
-                                    // editor.ui
-                                    //     .getEditableElement()
-                                    //     .parentElement.insertBefore(
-                                    //         editor.ui.view.toolbar.element,
-                                    //         editor.ui.getEditableElement()
-                                    //     );
-                                    // Add these two lines to properly position the toolbar
                                     const toolbarContainer = document.querySelector('.document-editor__toolbar');
                                     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-
+                                    setEditor(editor);
                                 }}
                                 onChange={(event, editor) => {
-                                    const data = editor.getData();
-                                    console.log({ event, editor, data });
-                                }}
-                                onBlur={(event, editor) => {
-                                    console.log('Blur.', editor);
-                                }}
-                                onFocus={(event, editor) => {
-                                    console.log('Focus.', editor);
+
+                                    // const data = editor.getData();
+                                    // setText(data);
                                 }}
                             />
                         </div>
                     </div>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    2
+                    <Paper elevation={0} variant="mainMargin">
+                        <TextField
+                            onChange={handleSearchTag}
+                            fullWidth={true}
+                            label="Search tag"
+                        />
+                        <List>
+                            {
+                                arrPrintTag.filter(x => x.chTagName.toLowerCase().includes(chSearchTag.toLowerCase())).map((item, index) => {
+                                    return (
+                                        <>
+                                            <ListItem key={index} disablePadding>
+                                                <ListItemButton onClick={() => AddTag(`${item.chTagValue}`)}>
+                                                    <ListItemText
+                                                        primary={item.chTagName}
+                                                        primaryTypographyProps={{
+                                                            fontSize: '0.95rem',
+                                                            fontWeight: '600',
+                                                            color: '#606060',
+                                                        }}
+                                                        secondary={item.chTagValue}
+                                                        secondaryTypographyProps={{
+                                                            backgroundColor: '#e8e9e9',
+                                                            fontWeight: '500',
+                                                            padding: '3px 8px',
+                                                            color: '#5e5e5e',
+                                                            fontSize: 12,
+                                                            borderRadius: '0.25em',
+                                                            lineHeight: '16px',
+                                                            display: 'initial',
+                                                        }}
+                                                    />
+                                                </ListItemButton>
+                                            </ListItem>
+                                            <List component="div" disablePadding>
+                                                <ListItemButton sx={{ pl: 4 }}>
+                                                    <ListItemText primary="Starred" />
+                                                </ListItemButton>
+                                            </List>
+                                        </>
+                                    )
+                                })
+                            }
+                        </List>
+                    </Paper>
                 </Grid>
             </Grid>
         </Container >

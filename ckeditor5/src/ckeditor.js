@@ -3,6 +3,8 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+ import LineHeight from 'ckeditor5-line-height-plugin/src/lineheight';
+
 // The editor creator to use.
 import DecoupledEditorBase from '@ckeditor/ckeditor5-editor-decoupled/src/decouplededitor';
 
@@ -12,6 +14,7 @@ import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
 import FontBackgroundColor from '@ckeditor/ckeditor5-font/src/fontbackgroundcolor';
+import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
@@ -19,7 +22,6 @@ import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
-import CKBox from '@ckeditor/ckeditor5-ckbox/src/ckbox';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
@@ -42,7 +44,11 @@ import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
 import CloudServices from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
-import LineHeight from 'ckeditor5-line-height-plugin/src/lineheight';
+import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
+import PageBreak from '@ckeditor/ckeditor5-page-break/src/pagebreak';
+import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
+import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
+import CKBox from '@ckeditor/ckeditor5-ckbox/src/ckbox';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -54,6 +60,7 @@ DecoupledEditor.builtinPlugins = [
 	FontFamily,
 	FontColor,
 	FontBackgroundColor,
+	RemoveFormat,
 	UploadAdapter,
 	Autoformat,
 	Bold,
@@ -84,7 +91,11 @@ DecoupledEditor.builtinPlugins = [
 	Table,
 	TableToolbar,
 	TextTransformation,
-	LineHeight
+	LineHeight,
+	HorizontalLine,
+	PageBreak,
+	SpecialCharacters, 
+	SpecialCharactersEssentials
 ];
 
 // Editor configuration.
@@ -93,30 +104,29 @@ DecoupledEditor.defaultConfig = {
 		items: [
 			'heading',
 			'|',
-			'fontfamily',
 			'fontsize',
+			'fontfamily',
 			'fontColor',
-			'lineHeight',
 			'fontBackgroundColor',
+			'lineHeight',
 			'|',
+			'removeFormat',
+			'alignment',
 			'bold',
 			'italic',
 			'underline',
 			'strikethrough',
-			'|',
-			'alignment',
-			'|',
-			'numberedList',
 			'bulletedList',
-			'|',
-			'outdent',
-			'indent',
-			'|',
-			'link',
+			'numberedList',
 			'blockquote',
-			'uploadImage',
+			'|',
+			'horizontalLine',
+			'pageBreak',
+			'specialCharacters',
+			'|',
 			'insertTable',
-			'mediaEmbed',
+			'|',
+			'uploadImage',
 			'|',
 			'undo',
 			'redo'
