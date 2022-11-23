@@ -40,6 +40,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import { FormInputText } from "../../../_components/FormComponents/FormInputText";
 import BoxStyled from '../../../_components/StyledComponent/BoxStyled';
 import BoxStyledTextEditor from '../../../_components/StyledComponent/BoxStyledTextEditor';
 import BoxStyledTitle from '../../../_components/StyledComponent/BoxStyledTitle';
@@ -91,6 +92,36 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
     })
 
     const arrPrintTag = [
+        {
+            chTagName: 'Номер договора',
+            chTagValue: '##CONTRACT_NUMBER##',
+        },
+        {
+            chTagName: 'Клиент',
+            chTagValue: '##CLIENT##',
+        },
+        {
+            chTagName: 'Адрес клиента',
+            chTagValue: '##CLIENT_ADRESS##',
+        },
+        {
+            chTagName: 'Инвентарь',
+            chTagValue: '##INVENTORY##',
+            arrTagOptions: [
+                {
+                    chTagOptionName: 'Наименование инвентаря',
+                    chTagOptionValue: '##INVENTORY_NAME##',
+                },
+                {
+                    chTagOptionName: 'Количество',
+                    chTagOptionValue: '##INVENTORY_COUNT##',
+                }
+            ]
+        },
+        {
+            chTagName: 'Общая сумма',
+            chTagValue: '##TOTAL_AFTER_TAX##',
+        },
         {
             chTagName: 'Номер договора',
             chTagValue: '##CONTRACT_NUMBER##',
@@ -220,21 +251,15 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
 
 
 
-    const handleSubmitInventory = (data) => {
+    const handleSubmitTemplate = (data) => {
 
-        // // возвращаем массив только Файлов
-        // const filesToUpload = arrCurrentFiles.filter((item) => {
-        //     if (Blob && item instanceof Blob)
-        //         return item;
-        // });
+        console.log(editor.getData());
 
 
+        console.log({
+            ...data,
 
-        // // массив файлов, которые надо удалить filesToRemove
-        // // проверяем на blob при удалении еще не закачанной картинки
-        // const filesToRemove = removeFiles.filter(e => e.search('blob:') == -1);
-
-
+        })
 
         // if (actions === "edit") {
 
@@ -330,79 +355,122 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
         <Container maxWidth="xl">
             <BoxStyledTitle>
                 {onSkeleton ?
-                    <HeaderComponent title={actions === "edit" ? getValues("chName") : "Create a new product"} breadcrumbs={breadcrumbs} />
+                    <HeaderComponent title={actions === "edit" ? getValues("chName") : "Create a new template"} breadcrumbs={breadcrumbs} />
                     : <Skeleton width="50%" />
                 }
             </BoxStyledTitle>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={8}>
-                    <div className="document-editor">
-                        <div className="document-editor__toolbar"></div>
-                        <div className="document-editor__editable-container">
-                            <CKEditor
-                                editor={DecoupledEditor}
-                                config={config}
-                                data=""
-                                onReady={editor => {
-                                    const toolbarContainer = document.querySelector('.document-editor__toolbar');
-                                    toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-                                    setEditor(editor);
-                                }}
-                                onChange={(event, editor) => {
+                    <Paper elevation={0} variant="main">
+                        <FormInputText
+                            name="chName"
+                            control={control}
+                            label="Template name"
+                            rules={{
+                                required: {
+                                    value: true,
+                                    message: "Template name is required."
+                                }
+                            }} />
+                        <BoxStyled>
+                            <div className="document-editor">
+                                <div className="document-editor__toolbar"></div>
+                                <div className="document-editor__editable-container">
+                                    <CKEditor
+                                        editor={DecoupledEditor}
+                                        config={config}
+                                        data=""
+                                        onReady={editor => {
+                                            const toolbarContainer = document.querySelector('.document-editor__toolbar');
+                                            toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+                                            setEditor(editor);
+                                        }}
+                                        onChange={(event, editor) => {
 
-                                    // const data = editor.getData();
-                                    // setText(data);
-                                }}
-                            />
-                        </div>
-                    </div>
+                                            // const data = editor.getData();
+                                            // setText(data);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </BoxStyled>
+                    </Paper>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    <Paper elevation={0} variant="mainMargin">
+                    <Paper elevation={0} variant="main">
                         <TextField
                             onChange={handleSearchTag}
                             fullWidth={true}
                             label="Search tag"
                         />
-                        <List>
-                            {
-                                arrPrintTag.filter(x => x.chTagName.toLowerCase().includes(chSearchTag.toLowerCase())).map((item, index) => {
-                                    return (
-                                        <>
-                                            <ListItem key={index} disablePadding>
-                                                <ListItemButton onClick={() => AddTag(`${item.chTagValue}`)}>
-                                                    <ListItemText
-                                                        primary={item.chTagName}
-                                                        primaryTypographyProps={{
-                                                            fontSize: '0.95rem',
-                                                            fontWeight: '600',
-                                                            color: '#606060',
-                                                        }}
-                                                        secondary={item.chTagValue}
-                                                        secondaryTypographyProps={{
-                                                            backgroundColor: '#e8e9e9',
-                                                            fontWeight: '500',
-                                                            padding: '3px 8px',
-                                                            color: '#5e5e5e',
-                                                            fontSize: 12,
-                                                            borderRadius: '0.25em',
-                                                            lineHeight: '16px',
-                                                            display: 'initial',
-                                                        }}
-                                                    />
-                                                </ListItemButton>
-                                            </ListItem>
-                                            <List component="div" disablePadding>
-                                                <ListItemButton sx={{ pl: 4 }}>
-                                                    <ListItemText primary="Starred" />
-                                                </ListItemButton>
-                                            </List>
-                                        </>
-                                    )
-                                })
-                            }
-                        </List>
+                        <BoxStyled>
+                            <Box
+                                sx={{
+                                    mb: 2,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    height: 618,
+                                    overflow: "hidden",
+                                    overflowY: "scroll",
+                                    // justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
+                                }}
+                            >
+                                <List>
+                                    {
+                                        arrPrintTag.filter(x => x.chTagName.toLowerCase().includes(chSearchTag.toLowerCase())).map((item, index) => {
+                                            return (
+                                                <>
+                                                    <ListItem key={index} disablePadding>
+                                                        <ListItemButton onClick={() => AddTag(`${item.chTagValue}`)}>
+                                                            <ListItemText
+                                                                primary={item.chTagName}
+                                                                primaryTypographyProps={{
+                                                                    fontSize: '0.95rem',
+                                                                    fontWeight: '600',
+                                                                    color: '#606060',
+                                                                }}
+                                                                secondary={item.chTagValue}
+                                                                secondaryTypographyProps={{
+                                                                    backgroundColor: '#e8e9e9',
+                                                                    fontWeight: '500',
+                                                                    padding: '3px 8px',
+                                                                    color: '#5e5e5e',
+                                                                    fontSize: 12,
+                                                                    borderRadius: '0.25em',
+                                                                    lineHeight: '16px',
+                                                                    display: 'initial',
+                                                                }}
+                                                            />
+                                                        </ListItemButton>
+                                                    </ListItem>
+                                                    <List component="div" disablePadding>
+                                                        <ListItemButton sx={{ pl: 4 }}>
+                                                            <ListItemText primary="Starred" />
+                                                        </ListItemButton>
+                                                    </List>
+                                                </>
+                                            )
+                                        })
+                                    }
+                                </List>
+                            </Box>
+                        </BoxStyled>
                     </Paper>
+                    <BoxStyled>
+                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
+                            <Grid item xs={12} md={6}>
+                                <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={() => { }}>
+                                    Cancel
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Button variant="contained" themecolor="rentalThemeSubmit" size="large" onClick={handleSubmit(handleSubmitTemplate)}>
+                                    Save
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </BoxStyled>
+
                 </Grid>
             </Grid>
         </Container >
