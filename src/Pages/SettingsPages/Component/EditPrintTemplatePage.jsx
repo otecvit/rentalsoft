@@ -64,32 +64,8 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
     } = useForm({
         defaultValues: {
             chName: "",
-            txtDescription: "",
-            chSellPrice: "0",
-            chDepositAmount: "0",
-            chSalesTax: "",
-            arrOptions: [{ optionName: "", optionValue: "" }],
-            chTariff: "",
-            chProductTracking: "0",
-            chCountItem: "0",
-            chIdentifier: "",
-            chRentalLocation: "",
-            chYourSKU: "",
-            chWeight: "",
-            chHeight: "",
-            chWidth: "",
-            chLength: "",
-            blMakeFeatured: false,
-            blFreeShipping: false,
-            chCategoryName: "Find category",
-            arrTagsNew: []
         }
     });
-
-    const { fields, append, remove, update } = useFieldArray({
-        control,
-        name: "arrOptions",
-    })
 
     const arrPrintTag = [
         {
@@ -249,16 +225,11 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
         // if (!!inventory[0].arrTags) setTag(tags.filter(x => inventory[0].arrTags.includes(x.idTag)));
     }
 
-
-
     const handleSubmitTemplate = (data) => {
 
         console.log(editor.getData());
-
-
         console.log({
             ...data,
-
         })
 
         // if (actions === "edit") {
