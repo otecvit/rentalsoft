@@ -261,7 +261,7 @@ function HomePage(comp) {
           <Route path="/inventory" component={InventoryPage} />
           <Route path="/bundles" component={BundlesPage} />
           <Route path="/settings" component={BrowseSettingsPage} />
-          <Route path="/templates" component={EditPrintTemplatePage} />
+          <Route path="/templates/:chTokenPrintTemplate" component={EditPrintTemplatePage} />
 
         </Switch>
       </Box>

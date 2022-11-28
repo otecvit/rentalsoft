@@ -9,4 +9,4 @@ export * from './consumables.constans';
 export * from './services.constans';
 export * from './bundles.constans';
 export * from './taxes.constans';
-
+export * from './templates.constants';

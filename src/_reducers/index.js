@@ -13,6 +13,7 @@ import { consumables } from './consumables.reducer';
 import { services } from './services.reducer';
 import { bundles } from './bundles.reducer';
 import { taxes } from './taxes.reducer';
+import { templates } from './templates.reducer';
 
 const rootReducer = combineReducers({
     authentication,
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
     consumables,
     services,
     bundles,
-    taxes
+    taxes,
+    templates
 });
 
 export default rootReducer;

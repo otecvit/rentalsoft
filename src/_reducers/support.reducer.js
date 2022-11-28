@@ -7,6 +7,7 @@ const initialState = {
     isLoadingService: false,
     isLoadingBundles: false,
     isLoadingTariffs: false,
+    isLoadingTemplates: false,
     lastTariffID: "",
 }
 
@@ -56,13 +57,19 @@ export function support(state = initialState, action) {
             }
         }
 
+        case supportConstants.APPLY_IS_LOADING_TEMPLATES: {
+            return {
+                ...state,
+                isLoadingTemplates: action.message,
+            }
+        }
+
         case supportConstants.LAST_TARIFF_INSERT: {
             return {
                 ...state,
                 lastTariffID: action.tariffid,
             };
         }
-
 
         default:
             return state

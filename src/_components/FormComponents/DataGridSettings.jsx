@@ -48,6 +48,7 @@ import { visuallyHidden } from '@mui/utils';
 
 import { CustomersTableCell } from './TableCellComponents/CustomersTableCell';
 import { TaxesTableCell } from './TableCellComponents/TaxesTableCell';
+import { TemplatesTableCell } from './TableCellComponents/TemplatesTableCell';
 import { ConsumablesTableCell } from './TableCellComponents/ConsumablesTableCell';
 import { ServicesTableCell } from './TableCellComponents/ServicesTableCell';
 import { BundlesTableCell } from './TableCellComponents/BundlesTableCell';
@@ -191,6 +192,9 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
         switch (type) {
             case 'taxes': {
                 setCurrent(row.chTokenTax);
+            } break;
+            case 'templates': {
+                setCurrent(row.chTokenPrintTemplate);
             } break;
             case 'customers': {
                 setCurrent(row.chTokenCustomer)
@@ -349,7 +353,7 @@ export const DataGridSettings = ({ data, handleClear, chTokenCompany, type, head
                                             key={index}
                                         >
                                             {type === 'taxes' && <TaxesTableCell row={row} />}
-
+                                            {type === 'templates' && <TemplatesTableCell row={row} />}
                                             <TableCell
                                                 sx={{ padding: '6px' }}
                                                 align="left">

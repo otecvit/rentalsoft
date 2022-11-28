@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { FormProvider, useFieldArray, useForm, useWatch, Controller } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
@@ -46,10 +47,15 @@ import BoxStyledTextEditor from '../../../_components/StyledComponent/BoxStyledT
 import BoxStyledTitle from '../../../_components/StyledComponent/BoxStyledTitle';
 import HeaderComponent from '../../../_components/InterfaceComponent/HeaderComponent';
 import AddImages from '../../../_components/AddImages/AddImages';
+import { templatesActions } from '../../../_actions';
+
 import { update } from "react-spring";
 
 
-function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
+function EditPrintTemplatePage() {
+
+
+    let { chTokenPrintTemplate } = useParams();
 
     const {
         handleSubmit,
@@ -64,6 +70,7 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
     } = useForm({
         defaultValues: {
             chName: "",
+            blActive: true,
         }
     });
 
@@ -198,6 +205,10 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
         setSearchTag(event.target.value);
     };
 
+    const handleChangeActive = (event) => {
+        setValue("blActive", !getValues("blActive"));
+    };
+
     const initialValueEdit = () => {
         // setValue("chName", inventory[0].chName); // Product Name
         // setValue("txtDescription", inventory[0].txtDescription);
@@ -227,10 +238,16 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
 
     const handleSubmitTemplate = (data) => {
 
-        console.log(editor.getData());
-        console.log({
+
+        dispatch(templatesActions.add({
             ...data,
-        })
+            chPrintTemplate: editor.getData(),
+            chTokenCompany: user.chTokenCompany,
+            blActive: data.blActive ? '1' : '0',
+        }));
+
+
+
 
         // if (actions === "edit") {
 
@@ -326,7 +343,7 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
         <Container maxWidth="xl">
             <BoxStyledTitle>
                 {onSkeleton ?
-                    <HeaderComponent title={actions === "edit" ? getValues("chName") : "Create a new template"} breadcrumbs={breadcrumbs} />
+                    <HeaderComponent title={chTokenPrintTemplate === "new" ? "Create a new template" : getValues("chName")} breadcrumbs={breadcrumbs} />
                     : <Skeleton width="50%" />
                 }
             </BoxStyledTitle>
@@ -380,7 +397,7 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
                                     mb: 2,
                                     display: "flex",
                                     flexDirection: "column",
-                                    height: 618,
+                                    height: 532,
                                     overflow: "hidden",
                                     overflowY: "scroll",
                                     // justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
@@ -425,6 +442,30 @@ function EditPrintTemplatePage({ chTokenInventory = "", actions = "" }) {
                                     }
                                 </List>
                             </Box>
+                        </BoxStyled>
+                    </Paper>
+                    <Paper elevation={0} variant="mainMargin">
+                        <Typography variant="body2">
+                            Active print template
+                        </Typography>
+                        <BoxStyled>
+                            <Controller
+                                name="blActive"
+                                control={control}
+                                render={(props) => {
+                                    return (
+                                        <>
+                                            <Switch
+                                                name="blActive"
+                                                onChange={handleChangeActive}
+                                                value={getValues("blActive")}
+                                                checked={getValues("blActive")}
+                                            />
+                                            Active
+                                        </>
+                                    );
+                                }}
+                            />
                         </BoxStyled>
                     </Paper>
                     <BoxStyled>

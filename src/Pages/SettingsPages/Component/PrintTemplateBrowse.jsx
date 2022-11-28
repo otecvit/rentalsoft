@@ -30,26 +30,14 @@ import BoxStyled from '../../../_components/StyledComponent/BoxStyled';
 import BoxStyledTop from '../../../_components/StyledComponent/BoxStyledTop';
 
 
-import { taxesActions } from '../../../_actions';
+import { templatesActions } from '../../../_actions';
 
 
 const headCells = [
     {
         id: 'chName',
         numeric: false,
-        label: 'Tax Name',
-        align: 'left',
-    },
-    {
-        id: 'chTaxRate',
-        numeric: false,
-        label: 'Tax Rate',
-        align: 'left',
-    },
-    {
-        id: 'blDefault',
-        numeric: false,
-        label: 'Apply to every order',
+        label: 'Template Name',
         align: 'left',
     },
     {
@@ -67,8 +55,8 @@ const headCells = [
     },
 ];
 
-const handleClearTaxes = () => {
-    dispatch(taxesActions.clear());
+const handleClearTemplates = () => {
+    dispatch(templatesActions.clear());
 }
 
 
@@ -95,12 +83,12 @@ export const PrintTemplateBrowse = () => {
 
     const dispatch = useDispatch();
     const user = useSelector(state => state.authentication.user);
-    const taxes = useSelector(state => state.taxes);
-    const isLoading = useSelector(state => state.support.isLoading);
+    const templates = useSelector(state => state.templates);
+    const isLoadingTemplates = useSelector(state => state.support.isLoadingTemplates);
 
     useEffect(() => {
         // загружаем категории
-        dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany }));
+        dispatch(templatesActions.load({ chTokenCompany: user.chTokenCompany }));
     }, []);
 
     const TitleSection = styled('div')({
@@ -122,32 +110,9 @@ export const PrintTemplateBrowse = () => {
         setOpenDialog(true);
     }
 
-    const handleClose = () => {
-        setOpenDialog(false);
-    };
-
-    const handleSubmitTax = (data) => {
-        setOpenDialog(false);
-
-        if (!!data.chTokenTax)
-            dispatch(taxesActions.edit({
-                ...data,
-                blDefault: data.blDefault ? '1' : '0',
-                blActive: data.blActive ? '1' : '0',
-                chTokenCompany: user.chTokenCompany
-            })); // редактируем налог
-        else {
-            dispatch(taxesActions.add({
-                ...data,
-                blDefault: data.blDefault ? '1' : '0',
-                blActive: data.blActive ? '1' : '0',
-                chTokenCompany: user.chTokenCompany
-            })); // добавляем налог
-        }
-    }
 
     const handleRemoveTax = (data) => {
-        dispatch(taxesActions.remove({
+        dispatch(templatesActions.remove({
             chTokenTax: data,
             chTokenCompany: user.chTokenCompany,
         }))
@@ -158,35 +123,30 @@ export const PrintTemplateBrowse = () => {
         history.push(path);
     }
 
-    const handleChangeDefault = (event) => {
-        setValue("blDefault", !getValues("blDefault"));
-    };
+    const handleEditTemplate = (chEditTokenTemplate) => {
 
-    const handleChangeActive = (event) => {
-        setValue("blActive", !getValues("blActive"));
-    };
+        let path = `/templates/${chEditTokenTemplate}`;
+        history.push(path);
 
-    const handleEditTax = (chEditTokenTax) => {
+        // reset({
+        //     chTokenTax: '',
+        //     chName: '',
+        //     chTaxRate: '',
+        //     blDefault: false,
+        //     blActive: true,
 
-        reset({
-            chTokenTax: '',
-            chName: '',
-            chTaxRate: '',
-            blDefault: false,
-            blActive: true,
+        // });
 
-        });
+        // // определяем текущий налог
+        // const currentTax = taxes.find((item) => chEditTokenTax === item.chTokenTax);
 
-        // определяем текущий налог
-        const currentTax = taxes.find((item) => chEditTokenTax === item.chTokenTax);
+        // setValue("chTokenTax", currentTax.chTokenTax);
+        // setValue("chName", currentTax.chName);
+        // setValue("chTaxRate", currentTax.chTaxRate);
+        // setValue("blDefault", currentTax.blDefault === "0" ? false : true);
+        // setValue("blActive", currentTax.blActive === "0" ? false : true);
 
-        setValue("chTokenTax", currentTax.chTokenTax);
-        setValue("chName", currentTax.chName);
-        setValue("chTaxRate", currentTax.chTaxRate);
-        setValue("blDefault", currentTax.blDefault === "0" ? false : true);
-        setValue("blActive", currentTax.blActive === "0" ? false : true);
-
-        setOpenDialog(true);
+        // setOpenDialog(true);
     }
 
 
@@ -206,43 +166,15 @@ export const PrintTemplateBrowse = () => {
             </Grid>
             <BoxStyled>
                 <DataGridSettings
-                    data={taxes}
-                    handleClear={handleClearTaxes}
-                    handleEdit={handleEditTax}
+                    data={templates}
+                    handleClear={handleClearTemplates}
+                    handleEdit={handleEditTemplate}
                     handleRemove={handleRemoveTax}
-                    type="taxes"
+                    type="templates"
                     headCells={headCells}
                     chTokenCompany={user.chTokenCompany}
                 />
             </BoxStyled>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                fullWidth={true}
-                maxWidth={'xl'}
-            >
-                <DialogTitle>Create new tax</DialogTitle>
-                <DialogContent>
-
-                </DialogContent>
-                <DialogActions>
-                    <BoxStyledTop>
-                        <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
-                            <Grid item xs={12} md={6}>
-                                <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={handleClose}>
-                                    Cancel
-                                </Button>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Button variant="contained" themecolor="rentalThemeSubmit" size="large" onClick={handleSubmit(handleSubmitTax)}>
-                                    Save
-                                </Button>
-                            </Grid>
-                        </Grid>
-                    </BoxStyledTop>
-                </DialogActions>
-            </Dialog>
-
         </>
     )
 

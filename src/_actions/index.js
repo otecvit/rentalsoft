@@ -9,3 +9,4 @@ export * from './consumables.actions';
 export * from './services.actions';
 export * from './bundles.actions';
 export * from './taxes.actions';
+export * from './templates.actions';

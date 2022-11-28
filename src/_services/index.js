@@ -5,5 +5,6 @@ export * from './tariffs.service';
 export * from './inventory.service';
 export * from './dataexchange.service';
 export * from './taxes.service';
+export * from './templates.service';
 
 
