@@ -123,8 +123,8 @@ Preserve the relative scale, though. */
 .document-editor .ck-content p {
     font-size: 1em;
     line-height: 1.63em;
-    padding-top: .5em;
-    margin-bottom: 1.13em;
+    padding-top: 0.1em;
+    margin-bottom: 0.1em;
 }
 
 /* Make the block quoted text serif with some additional spacing. */

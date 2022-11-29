@@ -11,8 +11,8 @@ export function templates(state = [], action) {
 
         case templatesConstants.EDIT_TEMPLATES: {
             return state.map((item) => {
-                if (item.chTokenTax === action.tax.chTokenTax)
-                    return action.tax;
+                if (item.chTokenPrintTemplate === action.templates.chTokenPrintTemplate)
+                    return action.chTokenPrintTemplate;
                 else
                     return item;
             });

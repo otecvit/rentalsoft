@@ -3,6 +3,7 @@ import { authHeader, history } from '../_helpers';
 
 export const templatesService = {
     load,
+    loadData,
     add,
     edit,
     remove,
@@ -15,7 +16,7 @@ function edit(templates) {
         body: JSON.stringify(templates)
     };
 
-    return fetch(`${config.apiUrl}/PrintTemplates/EditTemplates.php`, requestOptions)
+    return fetch(`${config.apiUrl}/PrintTemplates/EditTemplate.php`, requestOptions)
         .then(handleResponse)
         .then(templates => {
             return templates[0].data;
@@ -50,6 +51,23 @@ function load(templates) {
     };
 
     return fetch(`${config.apiUrl}/PrintTemplates/LoadTemplates.php`, requestOptions)
+        .then(handleResponse)
+        .then(templates => {
+            return templates[0].data;
+        }
+        );
+
+}
+
+function loadData(templates) {
+
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templates)
+    };
+
+    return fetch(`${config.apiUrl}/PrintTemplates/LoadTemplateData.php`, requestOptions)
         .then(handleResponse)
         .then(templates => {
             return templates[0].data;

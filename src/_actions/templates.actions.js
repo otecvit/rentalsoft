@@ -8,6 +8,7 @@ export const templatesActions = {
     add,
     remove,
     load,
+    loadData,
     clear
 };
 
@@ -30,7 +31,7 @@ function edit(templates) {
     };
 
     function request(templates) { return { type: templatesConstants.EDIT_TEMPLATES, templates } }
-    function failure(error) { return { type: taxesConstants.INSERT_FAILURE_TAXES, error } }
+    function failure(error) { return { type: templatesConstants.INSERT_FAILURE_TEMPLATES, error } }
     function loading(message) { return { type: supportConstants.APPLY_IS_LOADING, message } }
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
@@ -49,7 +50,6 @@ function add(templates) {
                     //dispatch(success());
                 },
                 error => {
-                    console.log(error.toString());
                     //dispatch(failure(error.toString()));
                     dispatch(alertActions.error(error.toString()));
                 }
@@ -98,6 +98,31 @@ function load(templates) {
     return dispatch => {
         dispatch(loading(true));
         templatesService.load(templates)
+            .then(
+                templates => {
+                    dispatch(request(templates));
+                    dispatch(loading(false));
+                },
+                error => {
+                    dispatch(failure(error.toString()));
+                    dispatch(alertActions.error(error.toString()));
+                }
+            );
+
+    };
+
+    function request(templates) { return { type: templatesConstants.LOAD_REQUEST_TEMPLATES, templates } }
+    function success(customer) { return { type: taxesConstants.INSERT_SUCCESS_CUSTOMER, customer } }
+    function failure(error) { return { type: taxesConstants.INSERT_FAILURE_CUSTOMER, error } }
+    function loading(message) { return { type: supportConstants.APPLY_IS_LOADING_TEMPLATES, message } }
+    //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
+}
+
+function loadData(templates) {
+
+    return dispatch => {
+        dispatch(loading(true));
+        templatesService.loadData(templates)
             .then(
                 templates => {
                     dispatch(request(templates));

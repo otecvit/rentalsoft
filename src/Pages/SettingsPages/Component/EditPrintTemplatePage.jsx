@@ -50,6 +50,7 @@ import AddImages from '../../../_components/AddImages/AddImages';
 import { templatesActions } from '../../../_actions';
 
 import { update } from "react-spring";
+import { templates } from '../../../_reducers/templates.reducer';
 
 
 function EditPrintTemplatePage() {
@@ -138,29 +139,13 @@ function EditPrintTemplatePage() {
 
     ]
 
-
-    const [text, setText] = useState("");
     const [editor, setEditor] = useState(null);
-
     const [chSearchTag, setSearchTag] = useState("");
-
-    const [open, setOpen] = useState(false);
-    const [openNewTariff, setOpenNewTariff] = useState(false);
-    const [selectedTariff, setTariff] = useState("");
-    const [selectedCategory, setCategory] = useState("");
-    const [selectedTax, setTax] = useState("");
     const [onSkeleton, setSceleton] = useState(false);
-    const [tagsInventory, setTag] = useState([]);
-    const [arrCurrentFiles, setFiles] = useState(null); // state в котором хранятся текущие файлы, которые отображаются
-    const [removeFiles, setRemoveFiles] = useState([])
 
-    const [trackMethod, setTrackMethod] = useState("0");
     const user = useSelector(state => state.authentication.user);
-    const category = useSelector(state => state.category);
-    const tariffs = useSelector(state => state.tariffs);
-    const taxes = useSelector(state => state.taxes);
     const support = useSelector(state => state.support);
-    const inventory = useSelector(state => state.inventory);
+    const templates = useSelector(state => state.templates);
     const dispatch = useDispatch();
 
     const breadcrumbs = [
@@ -183,17 +168,26 @@ function EditPrintTemplatePage() {
 
     useEffect(() => {
         setSceleton(true);
-        // dispatch(categoryActions.load({ chTokenCompany: user.chTokenCompany }));
-        // dispatch(tariffsActions.load({ chTokenCompany: user.chTokenCompany }));
-        // dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany })); // загружаем налоги
+        dispatch(templatesActions.clear());
+        if (chTokenPrintTemplate !== 'new')
+            dispatch(templatesActions.loadData({ chTokenCompany: user.chTokenCompany, chTokenPrintTemplate: chTokenPrintTemplate }));
 
-        // if (actions === "edit")
-        //     dispatch(inventoryActions.loadDataInventory({ chTokenCompany: user.chTokenCompany, chTokenInventory: chTokenInventory }));
-        // else
-        //     dispatch(inventoryActions.clearInventoryState());
     }, []);
 
-
+    useEffect(() => {
+        if (chTokenPrintTemplate !== "new") {
+            if (templates !== undefined && templates.length != 0) {
+                setSceleton(true);
+                initialValueEdit(); // инициализация значений
+            }
+            else
+                setSceleton(false);
+        }
+        if (chTokenPrintTemplate === "new") {
+            setSceleton(true);
+            //initialValueAdd(); // инициализация значений
+        }
+    }, [support.isLoadingTemplates]);
 
     const AddTag = (tag) => {
         editor.model.change(writer => {
@@ -209,116 +203,38 @@ function EditPrintTemplatePage() {
         setValue("blActive", !getValues("blActive"));
     };
 
+    // редактирование, заполняем поля
     const initialValueEdit = () => {
-        // setValue("chName", inventory[0].chName); // Product Name
-        // setValue("txtDescription", inventory[0].txtDescription);
-        // setValue("files", inventory[0].arrFilePath.length ? inventory[0].arrFilePath : []);
-        // setFiles(inventory[0].arrFilePath.length ? inventory[0].arrFilePath.map((item) => { return { preview: item.file } }) : []);
-        // setValue("chSellPrice", inventory[0].chSellPrice);
-        // setValue("chDepositAmount", inventory[0].chDepositAmount);
-        // setValue("chSalesTax", inventory[0].chSalesTax);
-        // setValue("chTariff", inventory[0].chTariff);
-        // setTariff(inventory[0].chTariff);
-        // setValue("arrOptions", !!inventory[0].arrOptions ? inventory[0].arrOptions : [{ optionName: "", optionValue: "" }]);
-        // setValue("chProductTracking", inventory[0].chProductTracking);
-        // setTrackMethod(inventory[0].chProductTracking);
-        // setValue("chCountItem", inventory[0].chCountItem);
-        // setValue("chIdentifier", inventory[0].chIdentifier);
-        // setValue("chRentalLocation", inventory[0].chRentalLocation);
-        // setValue("chYourSKU", inventory[0].chYourSKU);
-        // setValue("chWeight", inventory[0].chWeight);
-        // setValue("chHeight", inventory[0].chHeight);
-        // setValue("chWidth", inventory[0].chWidth);
-        // setValue("chLength", inventory[0].chLength);
-        // setValue("blMakeFeatured", inventory[0].blMakeFeatured === "1" ? true : false);
-        // setValue("blFreeShipping", inventory[0].blFreeShipping === "1" ? true : false);
-        // handleSelectCategory(inventory[0].chCategoryID);
-        // if (!!inventory[0].arrTags) setTag(tags.filter(x => inventory[0].arrTags.includes(x.idTag)));
+        setValue("chName", templates[0].chName); // Template Name
+        setValue("blActive", templates[0].blActive === "1" ? true : false);
+        if (editor !== null) {
+            // заполняем редактор
+            var viewFragment = editor.data.processor.toView(templates[0].chPrintTemplate);
+            var modelFragment = editor.data.toModel(viewFragment);
+            var insertPosition = editor.model.document.selection.getFirstPosition();
+            editor.model.insertContent(modelFragment, insertPosition);
+        }
     }
 
     const handleSubmitTemplate = (data) => {
-
-
-        dispatch(templatesActions.add({
-            ...data,
-            chPrintTemplate: editor.getData(),
-            chTokenCompany: user.chTokenCompany,
-            blActive: data.blActive ? '1' : '0',
-        }));
-
-
-
-
-        // if (actions === "edit") {
-
-        //     // возвращаем массив файлов, которые надо оставить и не удалять
-        //     const s = new Set(removeFiles);
-        //     const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
-
-
-        //     // console.log({
-        //     //     ...data,
-        //     //     chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
-        //     //     chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
-        //     //     blMakeFeatured: data.blMakeFeatured ? "1" : "0",
-        //     //     blFreeShipping: data.blFreeShipping ? "1" : "0",
-        //     //     chTokenInventory: chTokenInventory,
-        //     //     chTariff: selectedTariff,
-        //     //     chCategoryID: selectedCategory,
-        //     //     arrTags: tagsInventory.map(item => item.idTag),
-        //     //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-        //     //     filesToRemove: filesToRemove ? filesToRemove : null,
-        //     //     filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
-        //     //     chTokenCompany: user.chTokenCompany,
-        //     // });
-
-        //     dispatch(inventoryActions.edit({
-        //         ...data,
-        //         chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
-        //         chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
-        //         blMakeFeatured: data.blMakeFeatured ? "1" : "0",
-        //         blFreeShipping: data.blFreeShipping ? "1" : "0",
-        //         chTokenInventory: chTokenInventory,
-        //         chTariff: selectedTariff,
-        //         chCategoryID: selectedCategory,
-        //         arrTags: tagsInventory.map(item => item.idTag),
-        //         filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-        //         filesToRemove: filesToRemove ? filesToRemove : null,
-        //         filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
-        //         chTokenCompany: user.chTokenCompany,
-        //     }));
-        // }
-        // else {
-        //     // console.log({
-        //     //     ...data,
-        //     //     chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
-        //     //     chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
-        //     //     blMakeFeatured: data.blMakeFeatured ? "1" : "0",
-        //     //     blFreeShipping: data.blFreeShipping ? "1" : "0",
-        //     //     chTariff: selectedTariff,
-        //     //     chCategoryID: selectedCategory,
-        //     //     arrTags: tagsInventory.map(item => item.idTag),
-        //     //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-        //     //     filesToRemove: filesToRemove ? filesToRemove : null,
-        //     //     filesToLeave: null,
-        //     //     chTokenCompany: user.chTokenCompany,
-        //     // });
-
-        //     dispatch(inventoryActions.add({
-        //         ...data,
-        //         chCountItem: data.chProductTracking === "1" ? "0" : data.chCountItem,
-        //         chIdentifier: data.chProductTracking === "0" ? "" : data.chIdentifier,
-        //         blMakeFeatured: data.blMakeFeatured ? "1" : "0",
-        //         blFreeShipping: data.blFreeShipping ? "1" : "0",
-        //         chTariff: selectedTariff,
-        //         chCategoryID: selectedCategory,
-        //         arrTags: tagsInventory.map(item => item.idTag),
-        //         filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-        //         filesToRemove: filesToRemove ? filesToRemove : null,
-        //         filesToLeave: null,
-        //         chTokenCompany: user.chTokenCompany,
-        //     }));
-        // }
+        if (chTokenPrintTemplate === 'new')
+            // добавляем в бд
+            dispatch(templatesActions.add({
+                ...data,
+                chPrintTemplate: editor.getData(),
+                chTokenCompany: user.chTokenCompany,
+                blActive: data.blActive ? '1' : '0',
+            }));
+        else {
+            console.log("dasda");
+            dispatch(templatesActions.edit({
+                ...data,
+                chTokenPrintTemplate: chTokenPrintTemplate,
+                chPrintTemplate: editor.getData(),
+                chTokenCompany: user.chTokenCompany,
+                blActive: data.blActive ? '1' : '0',
+            }));
+        }
     }
 
     const config = {
@@ -343,7 +259,7 @@ function EditPrintTemplatePage() {
         <Container maxWidth="xl">
             <BoxStyledTitle>
                 {onSkeleton ?
-                    <HeaderComponent title={chTokenPrintTemplate === "new" ? "Create a new template" : getValues("chName")} breadcrumbs={breadcrumbs} />
+                    <HeaderComponent title={chTokenPrintTemplate === "new" ? "Create a new template" : templates !== undefined && templates.length != 0 && templates[0].chName} breadcrumbs={breadcrumbs} />
                     : <Skeleton width="50%" />
                 }
             </BoxStyledTitle>
@@ -400,7 +316,6 @@ function EditPrintTemplatePage() {
                                     height: 532,
                                     overflow: "hidden",
                                     overflowY: "scroll",
-                                    // justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
                                 }}
                             >
                                 <List>
