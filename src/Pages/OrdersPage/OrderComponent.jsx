@@ -5,6 +5,8 @@ import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
 import { styled } from '@mui/system';
 
+import { loadCSS } from 'fg-loadcss';
+
 import moment, { duration, months } from 'moment';
 
 
@@ -321,6 +323,14 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     ];
 
     useEffect(() => {
+
+        // загружаем иконки fontawesome
+        const node = loadCSS(
+            'https://use.fontawesome.com/releases/v6.1.1/css/all.css',
+            // Inject before JSS
+            document.querySelector('#font-awesome-css') || document.head.firstChild,
+        );
+
         dispatch(categoryActions.load({ chTokenCompany: user.chTokenCompany }));
         dispatch(taxesActions.load({ chTokenCompany: user.chTokenCompany })); // загружаем налоги
 
@@ -1410,7 +1420,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                         flexDirection: 'row',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        padding: '0px',
+                        padding: '0px 20px',
                     }}>
 
                         <TabList onChange={handleChangeTab}>
@@ -1419,6 +1429,15 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                             <Tab label={`Documents`} value="3" />
                             <Tab label={`History`} value="4" />
                         </TabList>
+                        <Stack direction="row" spacing={2} justifyContent="end">
+
+                            <Button variant="contained" themecolor="rentalThemeHeader" size="small" onClick={() => { }}>
+                                <Icon baseClassName="fas" className="fa-dollar" sx={{ fontSize: 15, marginRight: '8px' }} />Add payment
+                            </Button>
+                            <Button variant="contained" themecolor="rentalThemeHeader" size="small" onClick={() => { }}>
+                                <Icon baseClassName="fas" className="fa-print" sx={{ fontSize: 15, marginRight: '8px' }} />Add document
+                            </Button>
+                        </Stack>
                     </div>
                 </Paper>
                 <TabPanel value="1">
