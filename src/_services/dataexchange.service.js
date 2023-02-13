@@ -4,6 +4,7 @@ export const dataexchangeService = {
     load,
     loadData,
     add,
+    addWithoutFiles,
     edit,
     remove,
 };
@@ -113,6 +114,21 @@ function add(item, path, pathSecond) {
             return result;
         })
 
+}
+
+function addWithoutFiles(item, path) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+    };
+
+    // Inventory/InsertInventory.php
+    return fetch(`${config.apiUrl}/${path}`, requestOptions)
+        .then(handleResponse)
+        .then(result => {
+            return result;
+        })
 }
 
 function edit(item, path, pathSecond) {

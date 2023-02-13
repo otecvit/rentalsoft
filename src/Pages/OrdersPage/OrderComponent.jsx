@@ -3,7 +3,8 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
 import MUIRichTextEditor from 'mui-rte';
 import { convertToRaw } from 'draft-js'
-import { styled } from '@mui/system';
+//import { styled, alpha } from '@mui/system';
+import { styled, alpha } from '@mui/material/styles';
 
 import { loadCSS } from 'fg-loadcss';
 
@@ -23,6 +24,7 @@ import {
     Button,
     Link,
     Skeleton,
+    Divider,
     Accordion,
     AccordionSummary,
     AccordionDetails,
@@ -48,8 +50,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
-import { categoryActions, bundlesActions, supportActions, inventoryActions, customerActions, taxesActions } from '../../_actions';
+import { categoryActions, bundlesActions, supportActions, inventoryActions, customerActions, taxesActions, ordersActions } from '../../_actions';
 
 import { FormInputText } from "../../_components/FormComponents/FormInputText";
 import { FormInputDate } from "../../_components/FormComponents/FormInputDate";
@@ -112,6 +115,7 @@ const arrTime = [
     { title: '23:00', value: '23:00' }, { title: '23:15', value: '23:15' }, { title: '23:30', value: '23:30' }, { title: '23:45', value: '23:45' },
 
 ]
+
 
 function stringToColor(string) {
     let hash = 0;
@@ -213,6 +217,16 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
     const [open, setOpen] = React.useState(false);
     const [tagsInventory, setTag] = useState([]);
     const [arrPrice, setPrice] = useState([]);
+
+    const [anchorSub, setAnchorSub] = useState(null);
+    const openSubMenu = Boolean(anchorSub);
+    const handleClickSub = (event) => {
+        setAnchorSub(event.currentTarget);
+    };
+    const handleCloseSub = () => {
+        setAnchorSub(null);
+    };
+
     //const [arrTax, setTaxArr] = useState([]);
 
     const [currentTab, setTab] = useState("1");
@@ -1320,66 +1334,44 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
         setAnchorEl(null);
     }
 
-    const handleSubmitBundle = (data) => {
-
-        // возвращаем массив только Файлов
-        const filesToUpload = arrCurrentFiles.filter((item) => {
-            if (Blob && item instanceof Blob)
-                return item;
-        });
+    const handleSubmitOrder = (data) => {
 
         // массив файлов, которые надо удалить filesToRemove
         // проверяем на blob при удалении еще не закачанной картинки
-        const filesToRemove = removeFiles.filter(e => e.search('blob:') == -1);
 
         if (actions === "edit") {
 
-            // возвращаем массив файлов, которые надо оставить и не удалять
-            const s = new Set(removeFiles);
-            const filesToLeave = data.files.map((item) => item.file).filter(e => !s.has(e));
-
             console.log({
                 ...data,
-                chTokenBundle: chTokenBundle,
-                chCategoryID: selectedCategory,
-                arrTags: tagsInventory.map(item => item.idTag),
-                filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-                filesToRemove: filesToRemove ? filesToRemove : null,
-                filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
                 chTokenCompany: user.chTokenCompany,
             });
 
-            dispatch(bundlesActions.edit({
-                ...data,
-                chTokenBundle: chTokenBundle,
-                chCategoryID: selectedCategory,
-                arrTags: tagsInventory.map(item => item.idTag),
-                filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-                filesToRemove: filesToRemove ? filesToRemove : null,
-                filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
-                chTokenCompany: user.chTokenCompany,
-            }));
+            // dispatch(bundlesActions.edit({
+            //     ...data,
+            //     chTokenBundle: chTokenBundle,
+            //     chCategoryID: selectedCategory,
+            //     arrTags: tagsInventory.map(item => item.idTag),
+            //     filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
+            //     filesToRemove: filesToRemove ? filesToRemove : null,
+            //     filesToLeave: filesToLeave ? filesToLeave.map(item => ({ file: item })) : null,
+            //     chTokenCompany: user.chTokenCompany,
+            // }));
         }
         else {
 
             console.log({
                 ...data,
-                chCategoryID: selectedCategory,
-                arrTags: tagsInventory.map(item => item.idTag),
-                filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-                filesToRemove: filesToRemove ? filesToRemove : null,
-                filesToLeave: null,
+                chTokenCustomer: selectedCustomer.chTokenCustomer,
                 chTokenCompany: user.chTokenCompany,
             });
 
-            dispatch(bundlesActions.add({
+            dispatch(ordersActions.add({
                 ...data,
-                chCategoryID: selectedCategory,
-                arrTags: tagsInventory.map(item => item.idTag),
-                filesToUpload: filesToUpload ? filesToUpload.map(item => ({ file: item })) : null,
-                filesToRemove: filesToRemove ? filesToRemove : null,
-                filesToLeave: null,
+                chTokenCustomer: selectedCustomer.chTokenCustomer,
                 chTokenCompany: user.chTokenCompany,
+                filesToUpload: null,
+                filesToRemove: null,
+                filesToLeave: null,
             }));
         }
     }
@@ -1430,12 +1422,41 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                             <Tab label={`History`} value="4" />
                         </TabList>
                         <Stack direction="row" spacing={2} justifyContent="end">
-
-                            <Button variant="contained" themecolor="rentalThemeHeader" size="small" onClick={() => { }}>
-                                <Icon baseClassName="fas" className="fa-dollar" sx={{ fontSize: 15, marginRight: '8px' }} />Add payment
+                            <Button
+                                id="demo-customized-button"
+                                aria-controls={openSubMenu ? 'demo-customized-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={openSubMenu ? 'true' : undefined}
+                                variant="contained"
+                                size="small"
+                                themecolor="rentalThemeHeader"
+                                disableElevation
+                                onClick={handleClickSub}
+                                endIcon={<KeyboardArrowDownIcon />}
+                            >
+                                More
                             </Button>
-                            <Button variant="contained" themecolor="rentalThemeHeader" size="small" onClick={() => { }}>
-                                <Icon baseClassName="fas" className="fa-print" sx={{ fontSize: 15, marginRight: '8px' }} />Add document
+                            <Menu
+                                id="demo-customized-menu"
+                                MenuListProps={{
+                                    'aria-labelledby': 'demo-customized-button',
+                                }}
+                                anchorEl={anchorSub}
+                                open={openSubMenu}
+                                onClose={handleCloseSub}
+                            >
+                                <MenuItem onClick={handleCloseSub}>
+                                    <Icon baseClassName="fas" className="fa-dollar" sx={{ fontSize: 15, marginRight: '8px' }} />Add payment
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseSub}>
+                                    <Icon baseClassName="fas" className="fa-print" sx={{ fontSize: 15, marginRight: '8px' }} />Add document
+                                </MenuItem>
+                            </Menu>
+                            <Button variant="contained" themecolor="rentalThemeHeaderSubmit" size="small" onClick={() => { }}>
+                                <Icon baseClassName="fas" className="fa-shield" sx={{ fontSize: 15, marginRight: '8px' }} />Reserve
+                            </Button>
+                            <Button variant="contained" themecolor="rentalThemeHeaderSubmit" size="small" onClick={handleSubmit(handleSubmitOrder)}>
+                                <Icon baseClassName="fas" className="fa-share" sx={{ fontSize: 15, marginRight: '8px' }} />Start Rental
                             </Button>
                         </Stack>
                     </div>
@@ -1907,7 +1928,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                     />
                                 </BoxStyled>
                             </Paper>
-                            <BoxStyled>
+                            {/* <BoxStyled>
                                 <Grid container spacing={{ xs: 3, md: 2 }} columns={{ xs: 1, sm: 12, md: 12 }}>
                                     <Grid item xs={12} md={6}>
                                         <Button variant="contained" themecolor="rentalThemeCancel" size="large" onClick={() => { }}>
@@ -1920,7 +1941,7 @@ const OrderComponent = ({ chTokenBundle = "", actions }) => {
                                         </Button>
                                     </Grid>
                                 </Grid>
-                            </BoxStyled>
+                            </BoxStyled> */}
                         </Grid>
                     </Grid>
                 </TabPanel>

@@ -317,6 +317,33 @@ const customTheme = createTheme({
                         }
                     }
                 },
+                {
+                    props: {themecolor: "rentalThemeHeaderSubmit"},
+                    style: {
+                        textTransform: 'capitalize',
+                        color: 'rgb(255, 255, 255)',
+                        minWidth: '64px',
+                        fontWeight: '600',
+                        lineHeight: '1.60',
+                        fontSize: '0.875rem',
+                        padding: '6px 16px',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgb(32, 101, 209)',
+                        boxShadow: 'none',
+                        transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                        '&:hover': {
+                            backgroundColor: 'rgb(16, 57, 150)',
+                            boxShadow: 'none',
+                        },
+                        '&:active': {
+                            boxShadow: 'none'
+                        },
+                        '&:focus': {
+                            outline: 0,
+                            border: 0,
+                        }
+                    }
+                },
 
             ]
         },
