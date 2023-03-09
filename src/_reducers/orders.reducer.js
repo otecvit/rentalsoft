@@ -3,7 +3,7 @@ import { ordersConstants } from '../_constants';
 export function orders(state = [], action) {
     switch (action.type) {
         case ordersConstants.ADD_ORDER: {
-            
+
             return [
                 ...state,
                 action.order
@@ -17,7 +17,6 @@ export function orders(state = [], action) {
         case ordersConstants.REMOVE_ORDER: {
             return state.filter(item => item.chTokenOrder !== action.order.chTokenOrder);
         }
-
 
         case ordersConstants.CLEAR_ORDERS: {
             return [];
