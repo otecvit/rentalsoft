@@ -7,6 +7,7 @@ import { history } from '../_helpers';
 
 export const ordersActions = {
     add,
+    addPayment,
     load,
     loadData,
     remove,
@@ -16,8 +17,6 @@ export const ordersActions = {
 };
 
 function add(order) {
-
-    console.log("++");
 
     return dispatch => {
         dataexchangeService.addWithoutFiles(order, 'Orders/InsertOrder.php')
@@ -41,7 +40,30 @@ function add(order) {
     //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
 }
 
+function addPayment(payment) {
 
+    console.log(payment)
+
+    return dispatch => {
+        dataexchangeService.addWithoutFiles(payment, 'Orders/InsertPayment.php')
+            .then(
+                payment => {
+                    dispatch(request(payment));
+                    dispatch(alertActions.success("Succes add"));
+                    //history.push('/orders');
+                },
+                error => {
+                    //dispatch(failure(error.toString()));
+                    dispatch(alertActions.error(error.toString()));
+                }
+            );
+    };
+
+    function request(payment) { return { type: ordersConstants.ADD_PAYMENT, payment } }
+    //function success(payment) { return { type: ordersConstants.INSERT_SUCCESS_CUSTOMER, service } }
+    //function failure(error) { return { type: ordersConstants.INSERT_FAILURE_ORDERS, error } }
+    //function success_login(user) { return { type: userConstants.LOGIN_SUCCESS, user } } // for redirect after registartion
+}
 
 function load(companyToken) {
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 
-export const FormInputText = ({ name, control, label, InputProps, fullWidth = true, rules = {} }) => {
+export const FormInputText = ({ name, control, label, InputProps, fullWidth = true, rules = {}, multiline = false }) => {
   return (
     <Controller
       name={name}
@@ -20,6 +20,7 @@ export const FormInputText = ({ name, control, label, InputProps, fullWidth = tr
           onChange={onChange}
           value={value}
           fullWidth={fullWidth}
+          multiline={multiline}
           label={label}
           InputProps={InputProps}
         />
